@@ -2,6 +2,7 @@ var env = new Primrose.BrowserEnvironment({
   backgroundColor: 0x000000,
   groundTexture: "../shared_assets/images/deck.png",
   useFog: true,
+  useGaze: false,
   drawDistance: 100,
   fullScreenButtonContainer: "#fullScreenButtonContainer",
   fullScreenElement: document.body,

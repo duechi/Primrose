@@ -2,6 +2,9 @@ var env = new Primrose.BrowserEnvironment({
     backgroundColor: 0x000000,
     groundTexture: "../shared_assets/images/deck.png",
     useFog: true,
+    useGaze: false,
+    disableTouch: true,
+    disableAutoPause: true,
     drawDistance: 100,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
     nonstandardNeckLength: 0.15,
@@ -38,4 +41,25 @@ for(var i = 0; i < 50; ++i){
     stiffness: 500,
     damping: 5
   });
+}
+
+
+function stop(){
+  if(window.timer) {
+    clearInterval(window.timer);
+    window.timer = null;
+  }
+}
+
+function goDir(dir, t) {
+  stop();
+  window.timer = setInterval(() => console.log(window[dir]), t);
+}
+
+function goUp(t) {
+  goDir("up", t);
+}
+
+function goDown(t) {
+  goDir("down", t);
 }

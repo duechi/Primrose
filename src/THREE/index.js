@@ -9,6 +9,7 @@ export * from "./MTLLoader";
 import "./Object3D";
 export * from "./OBJLoader";
 import "./offset";
+export * from "./ParallaxBarrierEffect";
 import "./phys";
 import "./textured";
 import "./vectorToString";

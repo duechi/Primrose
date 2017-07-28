@@ -65,6 +65,11 @@ pliny.record({
     optional: true,
     description: "Set to true to disable keyboard-based input."
   }, {
+    name: "disableTouch",
+    type: "Boolean",
+    optional: true,
+    description: "Set to true to disable touch-based input."
+  }, {
     name: "enableShadows",
     type: "Boolean",
     optional: true,
@@ -263,6 +268,8 @@ import {
   Matrix4,
   WebGLRenderer
 } from "three";
+
+import { ParallaxBarrierEffect } from "../THREE";
 
 import CANNON from "cannon";
 
@@ -583,7 +590,8 @@ export default class BrowserEnvironment extends EventDispatcher {
           this.mousePointer.unproject.getInverse(st.projection);
         }
         this.camera.translateOnAxis(st.translation, 1);
-        this.renderer.render(this.scene, this.camera);
+        //this.renderer.render(this.scene, this.camera);
+        this.parallax.render(this.scene, this.camera);
         this.camera.translateOnAxis(st.translation, -1);
       }
       this.VR.submitFrame();
@@ -1211,6 +1219,8 @@ export default class BrowserEnvironment extends EventDispatcher {
         }
       }
 
+      this.parallax = new ParallaxBarrierEffect(this.renderer);
+
       this.options.fullScreenElement = cascadeElement(this.options.fullScreenElement) || this.renderer.domElement;
       let maxTabIndex = 0;
       const elementsWithTabIndex = document.querySelectorAll("[tabIndex]");
@@ -1284,27 +1294,29 @@ export default class BrowserEnvironment extends EventDispatcher {
         this.Keyboard.codePage = this.options.language;
       }
 
-      this.addInputManager(new Touch(this.renderer.domElement, {
-        U: { axes: ["X0"], min: 0, max: 2, offset: 0 },
-        V: { axes: ["Y0"], min: 0, max: 2 },
-        buttons: {
-          axes: ["FINGERS"]
-        },
-        dButtons: {
-          axes: ["FINGERS"],
-          delta: true
-        },
-        heading: {
-          axes: ["DX0"],
-          integrate: true
-        },
-        pitch: {
-          axes: ["DY0"],
-          integrate: true,
-          min: -Math.PI * 0.5,
-          max: Math.PI * 0.5
-        }
-      }));
+      if(!this.options.disableTouch) {
+        this.addInputManager(new Touch(this.renderer.domElement, {
+          U: { axes: ["X0"], min: 0, max: 2, offset: 0 },
+          V: { axes: ["Y0"], min: 0, max: 2 },
+          buttons: {
+            axes: ["FINGERS"]
+          },
+          dButtons: {
+            axes: ["FINGERS"],
+            delta: true
+          },
+          heading: {
+            axes: ["DX0"],
+            integrate: true
+          },
+          pitch: {
+            axes: ["DY0"],
+            integrate: true,
+            min: -Math.PI * 0.5,
+            max: Math.PI * 0.5
+          }
+        }));
+      }
 
 
       this.addInputManager(new Mouse(this.options.fullScreenElement, {
@@ -1348,8 +1360,10 @@ export default class BrowserEnvironment extends EventDispatcher {
       }));
 
       // toggle back and forth between touch and mouse
-      this.Touch.addEventListener("activate", (evt) => this.Mouse.inPhysicalUse = false);
-      this.Mouse.addEventListener("activate", (evt) => this.Touch.inPhysicalUse = false);
+      if(this.Touch && this.Mouse) {
+        this.Touch.addEventListener("activate", (evt) => this.Mouse.inPhysicalUse = false);
+        this.Mouse.addEventListener("activate", (evt) => this.Touch.inPhysicalUse = false);
+      }
 
       this.addInputManager(new VR(this.options));
 
@@ -1943,6 +1957,7 @@ BrowserEnvironment.DEFAULTS = {
   avatarHeight: 1.65,
   walkSpeed: 2,
   disableKeyboard: false,
+  disableTouch: false,
   enableShadows: false,
   shadowMapSize: 2048,
   shadowCameraSize: 15,
