@@ -46,6 +46,7 @@ function scroller(id) {
         url = new URL(link.href);
       if (url.host !== document.location.host) {
         link.target = "_blank";
+        link.rel = "noopener";
       }
     }
   }
