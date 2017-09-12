@@ -22,44 +22,47 @@ export class ParallaxBarrierEffect {
     var _renderTargetL = new WebGLRenderTarget( s, s, _params );
     var _renderTargetR = new WebGLRenderTarget( s, s, _params );
 
-    var n = 2;
+    var linesPerInch = 50;
+    var inches = 4.4375;
+    var lines = linesPerInch * inches;
+    var pixels = 2560;
+    var pixelsPerLine = pixels / lines;
+
     var self = this;
-    window.delta = 0.01;
+    window.delta = 5;
 
     Object.defineProperties(window, {
       up: {
         get() {
-          n += window.delta;
-          self.setStripe(n);
-          return n;
+          linesPerInch += window.delta;
+          self.setStripe(linesPerInch);
+          return linesPerInch;
         }
       },
       down: {
         get() {
-          n -= window.delta;
-          self.setStripe(n);
-          return n;
+          linesPerInch -= window.delta;
+          self.setStripe(linesPerInch);
+          return linesPerInch;
         }
       }
     });
 
+    this.setStripe = function(i) {
+
+    };
+
     this.makeMaterial = function(i) {
-
-      var n = i.toString(),
-        m = (i / 2).toString();
-
-      if(n.indexOf(".") === -1) {
-        n += ".0";
-      }
-
-      if(m.indexOf(".") === -1) {
-        m += ".0";
-      }
 
       return new ShaderMaterial( {
         uniforms: {
           "mapLeft": { value: _renderTargetL.texture },
-          "mapRight": { value: _renderTargetR.texture }
+          "mapRight": { value: _renderTargetR.texture },
+          "pixelsPerLine": { value: i },
+          "invPixelsPerLine": { value: 1 / i },
+          "midpoint": { value: i / 2 },
+          "imageWidth": { value: pixels },
+          "invImageWidth": { value: 1 / pixels }
         },
 
         vertexShader:
@@ -72,10 +75,25 @@ void main() {
       fragmentShader:
 `uniform sampler2D mapLeft;
 uniform sampler2D mapRight;
+uniform float invPixelsPerLine;
+uniform float pixelsPerLine;
+uniform float midpoint;
+uniform float imageWidth;
+uniform float invImageWidth;
+
 varying vec2 vUv;
+
 void main() {
- vec2 uv = vUv;
- if ( ( mod( gl_FragCoord.x, ${n} ) ) > ${m} ) {
+ float stripe = floor( gl_FragCoord.x * invPixelsPerLine );
+ float stripeX = stripe * pixelsPerLine;
+ float dx = pixelsPerLine - mod( gl_FragCoord.x, pixelsPerLine );
+ float x = stripeX + dx;
+
+ vec2 uv = vec2((2.0 * x - 0.5 * imageWidth) * invImageWidth, vUv.y);
+ if(uv.x < 0.0 || uv.x >= 1.0 ) {
+  gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+ }
+ else if ( dx > midpoint ) {
    gl_FragColor = texture2D( mapLeft, uv );
  } else {
    gl_FragColor = texture2D( mapRight, uv );
@@ -85,15 +103,9 @@ void main() {
       } );
     };
 
-    var _material = this.makeMaterial(n);
+    this._material = this.makeMaterial(pixelsPerLine);
 
-    var mesh = new Mesh( new PlaneBufferGeometry( 2, 2 ), _material );
-
-    this.setStripe = function(n) {
-      _material = this.makeMaterial(n);
-      mesh.material = _material;
-    };
-
+    var mesh = new Mesh( new PlaneBufferGeometry( 2, 2 ), this._material );
 
     _scene.add( mesh );
 
