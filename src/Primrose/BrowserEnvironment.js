@@ -109,6 +109,11 @@ pliny.record({
     optional: true,
     description: "By default, what we see in the VR view will get mirrored to a regular view on the primary screen. Set to true to improve performance."
   }, {
+    name: "disableMotion",
+    type: "Boolean",
+    optional: true,
+    description: "By default, mobile devices have a motion sensor that can be used to update the view. Set to true to disable motion tracking."
+  }, {
     name: "disableDefaultLighting",
     type: "Boolean",
     optional: true,
@@ -207,7 +212,7 @@ import { isCardboard, isiOS, isLandscape } from "../flags";
 
 import { box, hub } from "../live-api";
 
-import { PointerLock, identity, Angle } from "../util";
+import { FullScreen, PointerLock, identity, Angle } from "../util";
 
 import Pointer from "./Pointer";
 import Keys from "./Keys";
@@ -557,14 +562,12 @@ export default class BrowserEnvironment extends EventDispatcher {
     };
 
     var animate = (t) => {
-      timer = null;
       var dt = t - lt,
         i, j;
       lt = t;
       update(dt);
       this.audio.setPlayer(this.head.mesh);
       render();
-      RAF(animate);
     };
 
     var render = () => {
@@ -583,18 +586,16 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         this.renderer.setViewport(
           v.left * resolutionScale,
-          v.top * resolutionScale,
+          0,
           v.width * resolutionScale,
           v.height * resolutionScale);
 
-        this.camera.projectionMatrix.copy(st.projection);
+        this.camera.projectionMatrix.fromArray(st.projection);
         if (this.mousePointer.unproject) {
-          this.mousePointer.unproject.getInverse(st.projection);
+          this.mousePointer.unproject.getInverse(this.camera.projectionMatrix);
         }
-        this.camera.translateOnAxis(st.translation, 1);
-        //this.renderer.render(this.scene, this.camera);
-        this.parallax.render(this.scene, this.camera);
-        this.camera.translateOnAxis(st.translation, -1);
+        this.camera.matrixWorld.fromArray(st.view);
+        this.renderer.render(this.scene, this.camera);
       }
       this.VR.submitFrame();
     };
@@ -624,7 +625,7 @@ export default class BrowserEnvironment extends EventDispatcher {
         this.renderer.domElement.height = canvasHeight;
         this.renderer.domElement.style.width = styleWidth + "px";
         this.renderer.domElement.style.height = styleHeight + "px";
-        if (timer === null) {
+        if (!this.VR.currentDevice.isAnimating) {
           render();
         }
       }
@@ -1063,14 +1064,17 @@ export default class BrowserEnvironment extends EventDispatcher {
     });
     this.goFullScreen = (index, evt) => {
       if (evt !== "Gaze") {
+
+        this.VR.connect(index);
+
         let elem = null;
-        if(evt === "force" || this.VR.canMirror || this.VR.isNativeWebVR) {
+        if(evt === "force" || this.VR.canMirror || !this.VR.isPolyfilled) {
           elem = this.renderer.domElement;
         }
         else{
           elem = this.options.fullScreenElement;
         }
-        this.VR.connect(index);
+
         return this.VR.requestPresent([{
             source: elem
           }])
@@ -1120,17 +1124,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
 
 
-    let allowRestart = true,
-      currentTimerObject = null,
-      timer = null;
-
-    const RAF = (callback) => {
-      currentTimerObject = this.VR.currentDevice || window;
-      if (timer === null) {
-        timer = currentTimerObject.requestAnimationFrame(callback);
-      }
-    };
-
+    let allowRestart = true;
 
     pliny.method({
       parent: "Primrose.BrowserEnvironment",
@@ -1143,7 +1137,7 @@ export default class BrowserEnvironment extends EventDispatcher {
         this.ready.then(() => {
           this.audio.start();
           lt = performance.now() * MILLISECONDS_TO_SECONDS;
-          RAF(animate);
+          this.VR.currentDevice.startAnimation(animate);
         });
       }
     };
@@ -1157,13 +1151,13 @@ export default class BrowserEnvironment extends EventDispatcher {
         name: "evt",
         type: "Event",
         optional: true,
-        defaultValue: null,
+        default: null,
         description: "The event that triggered this function."
       }, {
         name: "restartAllowed",
         type: "Boolean",
         optional: true,
-        defaultValue: false,
+        default: false,
         description: "Whether or not calling `start()` again is allowed, or if this is a permanent stop."
       } ]
     });
@@ -1174,17 +1168,8 @@ export default class BrowserEnvironment extends EventDispatcher {
           console.log("stopped");
         }
 
-        if (currentTimerObject) {
-
-          if(timer !== null) {
-            currentTimerObject.cancelAnimationFrame(timer);
-            timer = null;
-          }
-
-          this.audio.stop();
-          currentTimerObject = null;
-        }
-
+        this.VR.currentDevice.stopAnimation();
+        this.audio.stop();
       }
     };
 
@@ -1230,7 +1215,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
       this.parallax = new ParallaxBarrierEffect(this.renderer);
 
-      this.options.fullScreenElement = cascadeElement(this.options.fullScreenElement) || this.renderer.domElement;
+      this.options.fullScreenElement = cascadeElement(this.options.fullScreenElement) || this.renderer.domElement.parentElement;
       let maxTabIndex = 0;
       const elementsWithTabIndex = document.querySelectorAll("[tabIndex]");
       for(let i = 0; i < elementsWithTabIndex.length; ++i){
@@ -1812,26 +1797,11 @@ export default class BrowserEnvironment extends EventDispatcher {
     pliny.property({
       parent: "Primrose.BrowserEnvironment",
       name: "displays",
-      type: "Array of VRDisplay",
+      type: "Array of BaseVRDisplay",
       description: "The VRDisplays available on the system."
     });
 
     return this.VR.displays;
-  }
-
-  get fieldOfView() {
-    var d = this.VR.currentDevice,
-      eyes = [
-      d && d.getEyeParameters("left"),
-      d && d.getEyeParameters("right")
-    ].filter(identity);
-    if(eyes.length > 0){
-      return eyes.reduce((fov, eye) => Math.max(fov, eye.fieldOfView.upDegrees + eye.fieldOfView.downDegrees), 0);
-    }
-  }
-
-  set fieldOfView(v){
-    this.options.defaultFOV = StandardMonitorVRDisplay.DEFAULT_FOV = v;
   }
 
   get currentTime() {
@@ -1939,21 +1909,38 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     const buttons = this.displays
       .map((display, i) => {
-        // We skip the Standard Monitor and Magic Window on iOS because we can't
-        // go full screen on those systems.
-        if(!isiOS || VR.isStereoDisplay(display)) {
-          const enterVR = this.goFullScreen.bind(this, i),
-            btn = newButton(display.displayName, display.displayName, enterVR),
-            isStereo = VR.isStereoDisplay(display);
-          btn.className = isStereo ? "stereo" : "mono";
-          return btn;
-        }
-      })
-      .filter(identity);
+        const enterVR = this.goFullScreen.bind(this, i),
+          btn = newButton(display.displayName, display.displayName, enterVR);
+        btn.className = "enterVRButton " + display.isStereo ? "stereo" : "mono";
+        return btn;
+      });
 
     if(!/(www\.)?primrosevr.com/.test(document.location.hostname) && !this.options.disableAdvertising) {
-      buttons.push(newButton("Primrose", "✿", () => open("https://www.primrosevr.com", "_blank")));
+      const visitPrimroseButton = newButton("Primrose", "✿", () => open("https://www.primrosevr.com", "_blank"));
+      visitPrimroseButton.className = "visitPrimroseButton";
+      buttons.push(visitPrimroseButton);
     }
+
+    const exitFullScreenButton = newButton("Exit Fullscreen", "🗙", () => {
+      FullScreen.exit();
+      PointerLock.exit();
+    });
+
+    exitFullScreenButton.className = "exitVRButton"
+    exitFullScreenButton.style.display = "none";
+
+    buttons.push(exitFullScreenButton);
+
+    FullScreen.addChangeListener(() => {
+      const enterVRStyle = FullScreen.isActive ? "none" : "",
+        exitVRStyle = FullScreen.isActive ? "" : "none";
+
+      buttons.forEach((btn) =>
+        btn.style.display = enterVRStyle);
+
+      exitFullScreenButton.style.display = exitVRStyle;
+    });
+
     return buttons;
   }
 }
@@ -1988,6 +1975,8 @@ BrowserEnvironment.DEFAULTS = {
   disableAutoPause: false,
   // By default, what we see in the VR view will get mirrored to a regular view on the primary screen. Set to true to improve performance.
   disableMirroring: false,
+  // By default, motion is enabled,
+  disableMotion: false,
   // By default, a single light is added to the scene,
   disableDefaultLighting: false,
   // The color that WebGL clears the background with before drawing.

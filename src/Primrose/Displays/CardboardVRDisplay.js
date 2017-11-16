@@ -16,8 +16,8 @@ import pliny from "pliny/pliny";
  */
 
 import FusionPoseSensor from "./SensorFusion/FusionPoseSensor";
-import VRDisplay from "./VRDisplay";
 import calculateElementSize from "./calculateElementSize";
+import PolyfilledVRDisplay from "./PolyfilledVRDisplay";
 
 let Eye = {
   LEFT: "left",
@@ -27,7 +27,7 @@ let Eye = {
   neckLength = 0,
   neckDepth = 0;
 
-export default class CardboardVRDisplay extends VRDisplay {
+export default class CardboardVRDisplay extends PolyfilledVRDisplay {
 
   static get IPD() {
     return ipd;
@@ -56,32 +56,52 @@ export default class CardboardVRDisplay extends VRDisplay {
   constructor(options) {
     super("Google Cardboard");
     this.DOMElement = null;
+    this._poseSensor = new FusionPoseSensor(options);
 
-    // "Private" members.
-    this.poseSensor_ = options && options.overrideOrientation || new FusionPoseSensor(options);
+    if(options.nonstandardIPD !== null){
+      ipd = options.nonstandardIPD;
+    }
+    if(options.nonstandardNeckLength !== null){
+      neckLength = options.nonstandardNeckLength;
+    }
+    if(options.nonstandardNeckDepth !== null){
+      neckDepth = options.nonstandardNeckDepth;
+    }
+  }
+
+  get isCardboardVRDisplay() {
+    return true;
+  }
+
+  get isStereo() {
+    return true;
   }
 
   _getPose() {
-    return this.poseSensor_.getPose();
+    return this._poseSensor.getPose();
   }
 
-  getEyeParameters(whichEye) {
+  _getFOV(whichEye) {
     var offset = [ipd, neckLength, neckDepth];
 
     if (whichEye == Eye.LEFT) {
       offset[0] *= -1.0;
     }
 
-    const dim = calculateElementSize(this);
-
     return {
+      offset,
       fieldOfView: {
         upDegrees: 40,
+        downDegrees: 40,
         leftDegrees: 40,
-        rightDegrees: 40,
-        downDegrees: 40
-      },
-      offset: offset,
+        rightDegrees: 40
+      }
+    };
+  }
+
+  getEyeParameters(whichEye) {
+    const dim = calculateElementSize();
+    return {
       renderWidth: 0.5 * dim.width,
       renderHeight: dim.height,
     }

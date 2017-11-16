@@ -1,5 +1,12 @@
 import pliny from "pliny/pliny";
 
+pliny.class({
+  parent: "Util",
+  name: "FullScreenLockRequest",
+  baseClass: "Util.AsyncLockRequest",
+  description: "A cross browser/polyfill/mock implementation of the Fullscreen API. It includes a liar mode for systems that don't support the Fullscreen API, to make the handling of application logic more streamlined. This class itself is not exported, only a single instance of it."
+});
+
 import AsyncLockRequest from "./AsyncLockRequest";
 import findProperty from "./findProperty";
 
@@ -39,10 +46,29 @@ class FullScreenLockRequest extends AsyncLockRequest {
          "mozFullScreenEnabled",
       "webkitFullscreenEnabled"
     ]);
+
+    if(!this.available) {
+      // The other half of enabling using the back button to exit fullscreen.
+      window.addEventListener("popstate", this.exit);
+      this.addChangeListener(() => {
+        // Cleanup after the state changes made to enable using the back button
+        // to exit fullscreen.
+        if(!this.isActive && document.location.hash === "#fullscreen") {
+          history.back();
+        }
+      }, false);
+    }
   }
 
-  get available() {
-    return !!(this._fullScreenEnabledProperty && document[this._fullScreenEnabledProperty]);
+  _onRequest() {
+    // Supposedly makes iOS hide the address bar. IDK if that is actually true.
+    // Web browsers on iOS are a garbage heap of dead sheep.
+    window.scrollTo(0, 1);
+  }
+
+  _preDispatchChangeEvent() {
+    // Enable using the back button to exit the fullscreen state.
+    history.pushState(null, document.title, window.location.pathname + "#fullscreen");
   }
 }
 

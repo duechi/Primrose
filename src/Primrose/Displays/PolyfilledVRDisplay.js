@@ -16,8 +16,11 @@ import pliny from "pliny/pliny";
  */
 
 import BaseVRDisplay from "./BaseVRDisplay";
-import frameDataFromPose from "./frameDataFromPose";
+import calculateElementSize from "./calculateElementSize";
+import defaultPose from "./defaultPose";
+import mixinFrameDataFromPose from "./mixinFrameDataFromPose";
 import PolyfilledVRFrameData from "./PolyfilledVRFrameData";
+
 import { isMobile } from "../../flags";
 
 import {
@@ -28,6 +31,17 @@ import {
   standardExitFullScreenBehavior
 } from "../../util";
 
+import { Math as _Math } from "three";
+
+const { DEG2RAD, RAD2DEG } = _Math;
+
+
+function calcFoV(aFoV, aDim, bDim){
+  return RAD2DEG * Math.atan(Math.tan(DEG2RAD * aFoV) * aDim / bDim);
+}
+
+let defaultFieldOfView = 100;
+
 const defaultLeftBounds = [0, 0, 0.5, 1],
   defaultRightBounds = [0.5, 0, 0.5, 1];
 
@@ -35,20 +49,19 @@ const defaultLeftBounds = [0, 0, 0.5, 1],
 let nextDisplayId = 1000,
   hasShowDeprecationWarning = false;
 
-function defaultPose() {
-  return {
-    position: [0, 0, 0],
-    orientation: [0, 0, 0, 1],
-    linearVelocity: null,
-    linearAcceleration: null,
-    angularVelocity: null,
-    angularAcceleration: null
-  };
-}
-
 export default class PolyfilledVRDisplay extends BaseVRDisplay {
+
+  static get DEFAULT_FOV() {
+    return defaultFieldOfView;
+  }
+
+  static set DEFAULT_FOV(v) {
+    defaultFieldOfView = v;
+  }
+
   constructor(name) {
-    super(PolyfilledVRFrameData);
+    super();
+
     this._currentLayers = [];
 
     Object.defineProperties(this, {
@@ -61,28 +74,18 @@ export default class PolyfilledVRDisplay extends BaseVRDisplay {
       })),
       displayId: immutable(nextDisplayId++),
       displayName: immutable(name),
-      isConnected: immutable(true),
       stageParameters: immutable(null),
       isPresenting: immutable(() => FullScreen.isActive ),
 
       depthNear: mutable(0.01, "number"),
-      depthFar: mutable(10000.0, "number"),
-
-      isPolyfilled: immutable(true)
+      depthFar: mutable(10000.0, "number")
     });
 
     this._poseData = null;
   }
 
-  getFrameData(frameData) {
-    frameDataFromPose(frameData, this.getPose(), this);
-  }
-
-  getPose() {
-    if(!this._poseData){
-      this._poseData = this._getPose() || defaultPose();
-    }
-    return this._poseData;
+  get isPolyfilledVRDisplay() {
+    return true;
   }
 
   requestAnimationFrame(callback) {
@@ -110,8 +113,57 @@ export default class PolyfilledVRDisplay extends BaseVRDisplay {
     return this._currentLayers.slice();
   }
 
+  makeVRFrameDataObject() {
+    return new PolyfilledVRFrameData();
+  }
+
+  getFrameData(frameData) {
+    if(!this._poseData) {
+      this._poseData = this._getPose();
+    }
+
+    this._frameDataFromPose(frameData);
+  }
+
   submitFrame(pose) {
     this._poseData = null;
   }
 
+  getEyeParameters (side) {
+    if (side === "left") {
+      const dim = calculateElementSize();
+      return {
+        renderWidth: dim.width,
+        renderHeight: dim.height
+      };
+    }
+  }
+
+  _getFOV(side) {
+    if(side === "left") {
+      const dim = calculateElementSize();
+
+      let vFOV, hFOV;
+      if(dim.height > dim.width) {
+        vFOV = defaultFieldOfView / 2,
+        hFOV = calcFoV(vFOV, dim.width, dim.height);
+      }
+      else {
+        hFOV = defaultFieldOfView / 2,
+        vFOV = calcFoV(hFOV, dim.height, dim.width);
+      }
+
+      return {
+        offset: new Float32Array([0, 0, 0]),
+        fieldOfView: {
+          upDegrees: vFOV,
+          downDegrees: vFOV,
+          leftDegrees: hFOV,
+          rightDegrees: hFOV
+        }
+      };
+    }
+  }
 };
+
+mixinFrameDataFromPose(PolyfilledVRDisplay);

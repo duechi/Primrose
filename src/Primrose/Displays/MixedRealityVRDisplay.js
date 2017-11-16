@@ -1,26 +1,14 @@
 import pliny from "pliny/pliny";
 
-import VRDisplay from "./VRDisplay";
-import mixinMonoscopicEyeParameters from "./mixinMonoscopicEyeParameters";
+import defaultPose from "./defaultPose";
+import PolyfilledVRDisplay from "./PolyfilledVRDisplay";
 
-function defaultPose() {
-  return {
-
-    position: [0, 0, 0],
-    orientation: [0, 0, 0, 1],
-    linearVelocity: null,
-    linearAcceleration: null,
-    angularVelocity: null,
-    angularAcceleration: null
-  };
-}
-
-export default class MixedRealityVRDisplay extends VRDisplay {
+export default class MixedRealityVRDisplay extends PolyfilledVRDisplay {
 
   constructor(display) {
     super("Full Screen");
     this._display = display;
-    this.motionDevice = null;
+    this._motionDevice = null;
 
     Object.defineProperties(this, {
       capabilities: { get: () => this._display.capabilities },
@@ -36,10 +24,16 @@ export default class MixedRealityVRDisplay extends VRDisplay {
       depthFar: {
         get: () => this._display.depthFar,
         set: (v) => this._display.depthFar = v,
-      },
-
-      isPolyfilled: immutable(true)
+      }
     });
+  }
+
+  get isMixedRealityVRDisplay() {
+    return true;
+  }
+
+  get isStereo() {
+    return false;
   }
 
   getLayers() {
@@ -68,14 +62,12 @@ export default class MixedRealityVRDisplay extends VRDisplay {
     // do nothing here, the real VRDisplay should be managing the animation
   }
 
-  getPose() {
-    if(this.motionDevice){
-      return this.motionDevice.getPose();
+  _getPose() {
+    if(this._motionDevice){
+      return this._motionDevice.getPose();
     }
-    else{
+    else {
       return defaultPose();
     }
   }
 }
-
-mixinMonoscopicEyeParameters(MixedRealityVRDisplay);
