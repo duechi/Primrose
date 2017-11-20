@@ -1,4 +1,4 @@
-console.info("[Primrose]:> primrose v0.33.1. see https://www.primrosevr.com for more information.");
+console.info("[Primrose]:> primrose v0.33.2. see https://www.primrosevr.com for more information.");
 
 (function (global, factory) {
 	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :

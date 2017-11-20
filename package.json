@@ -1,7 +1,7 @@
 {
   "name": "primrose",
   "description": "Primrose is a framework for building Virtual Reality applications in Web browsers.",
-  "version": "0.33.1",
+  "version": "0.33.2",
   "author": "Sean T. McBeth <sean@seanmcbeth.com> (https://www.seanmcbeth.com)",
   "license": "GPL-3.0",
   "homepage": "https://www.primrosevr.com",
@@ -55,6 +55,6 @@
   },
   "devDependencies": {
     "gulp": "^3.9.1",
-    "marigold-build": "^1.17.1"
+    "marigold-build": "file://../../marigold-build/marigold-build"
   }
 }

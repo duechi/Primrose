@@ -53,6 +53,7 @@ var gulp = require("gulp"),
   jsESModules = marigold.js(jsOptions("es")),
 
   tidyFiles = [
+    "preloader.min.js.map",
     "Primrose.modules.doc.js",
     "Primrose.modules.min.js",
     "Primrose.modules.js.map"
@@ -82,8 +83,8 @@ var gulp = require("gulp"),
 
 // simplify some of the tasks to improve performance.
 delete jsESModules.default;
-html.default = justDemoHTML.default;
-css.default = justDemoCSS.default;
+// html.default = justDemoHTML.default;
+// css.default = justDemoCSS.default;
 
 gulp.task("serve", devServer);
 
