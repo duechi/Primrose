@@ -1,14 +1,69 @@
-extends ./templates/main.pug
+doctype html
+html
+  head
+    meta(charset="utf-8")
+    != liveReload
+    block viewport
+      != viewport()
 
-block head
+    != webapp("black")
+    != twitter("@Primrose_VR")
 
-block header
-  iframe#frontBuffer(src="demos/editorVR", role="application", allowfullscreen, allowvr)
+    <!-- start main.pug meta block -->
+    block meta
+      != screenshot("http://www.primrosevr.com/images/screenshot" + jpgExt)
+    <!-- end main.pug meta block -->
 
-  h1 Rapidly prototype VR applications in your browser
-  #cta
-    a(href="doc/") get started
-    a(href="demos/editorVR") try the demo
+    <!-- start main.pug title block -->
+    block title
+      != identity("https://www.pirmrosevr.com", "Primrose VR", "WebVR Framework", "A WebVR application framework.", ["WebGL", "WebVR", "HTML5", "JavaScript", "text editor", "source code editor", "virtual reality", "Primrose"])
+    <!-- end main.pug title block -->
 
-block main
-  p#intro Primrose is a JavaScript framework that helps web developers create virtual reality experiences within standard web browsers, on desktop and mobile devices alike, using the free, open source web development tools with which they are most familiar.
+    link(type="text/css", rel="stylesheet", href= fileRoot + "doc/style" + cssExt)
+
+    block head
+
+    script(src= fileRoot + "ga.js")
+  body
+
+    header(role="banner")
+      a#logo(href= fileRoot)
+        img(src= fileRoot + "doc/images/primrose40" + pngExt, alt="logo", title="Primrose logo")
+        span.version-number v#{pkg.version}
+
+
+      nav(role="navigation")
+        ul
+          li: a(href= fileRoot + "demos/") Demos
+          li: a(href= fileRoot + "doc/") Docs
+          li: a(href= fileRoot + "doc/faq.html") FAQ
+          li: a(href= fileRoot + "doc/community.html") Community
+          li!= offsite("https://github.com/capnmidnight/Primrose/", "Github")
+
+      block header
+        iframe#frontBuffer(src="demos/physics2/", role="application", allowfullscreen, allowvr)
+
+        h1 Create virtual reality applications in your browser
+        #cta
+          a(href="doc/") get started
+          a(href="demos/editorVR") try the demo
+
+    <!-- start main.pug banner block -->
+    block banner
+    <!-- end main.pug banner block -->
+
+    <!-- start main.pug main block -->
+    main
+      block main
+        p#intro Primrose is a JavaScript framework that helps web developers create virtual reality experiences within standard web browsers, on desktop and mobile devices alike, using the free, open source web development tools with which they are most familiar.
+    <!-- end main.pug main block -->
+
+    <!-- start main.pug footer block -->
+    footer
+      a(href= fileRoot + "doc/readme.html") About
+      a(href= fileRoot + "doc/license.html") License
+      a(href= fileRoot + "doc/changelog.html") Changelog
+      != offsite("https://www.github.com/capnmidnight/Primrose", "GitHub Repository", {className: "small icon github" })
+      != offsite("https://www.twitter.com/Primrose_VR", "Twitter Account", { className: "small icon twitter"})
+      block footer
+    <!-- end main.pug footer block -->
