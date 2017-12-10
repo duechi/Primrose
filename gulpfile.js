@@ -36,14 +36,15 @@ var gulp = require("gulp"),
 
   preloader = marigold.js({
     entry: "preloader/index.js",
-    disableGenerators: true
+    disableGenerators: true,
+    sourceMap: false
   }),
 
   jsOptions = (fmt) => {
     return {
       name: "Primrose",
       advertise: true,
-      sourceMap: (debug) => debug,
+      sourceMap: (debug) => debug && fmt === "umd",
       extractDocumentation: (debug) => !debug,
       format: fmt
     };
