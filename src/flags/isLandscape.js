@@ -3,7 +3,9 @@ pliny.function({
   parent: "Flags",
   name: "isLandscape",
   returns: "Boolean",
-  description: "Indicates whether or not the phone has been flipped to landscape mode."
+  description: `Indicates whether or not the phone has been flipped to landscape mode.
+
+NOTE: unlike the other flags in this namespace, this is a function, not a raw boolean value.`
 });
 */
 

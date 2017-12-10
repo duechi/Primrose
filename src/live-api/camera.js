@@ -2,8 +2,8 @@
 pliny.function({
   parent: "Live API",
   name: "camera",
-  returns: "THREE.Texture",
-  description: "Creates a texture that reads data from one of the cameras connected to the system.",
+  returns: "Primrose.Controls.Video",
+  description: "Creates a mesh mapped with a texture that reads data from one of the cameras connected to the system. Camera resolution defaults to 1280x768.",
   parameters: [{
     name: "index",
     type: "Number",
@@ -14,7 +14,7 @@ pliny.function({
     name: "options",
     type: "Live API.camera.optionsHash",
     optional: true,
-    description: "Extra parameters for the selected camera, including resolution."
+    description: "Extra parameters for creating the mesh."
   }]
 });
 */
@@ -27,11 +27,12 @@ pliny.record({
   parameters: [{
     name: "width",
     type: "Number",
-    description: "The width of the camera image to request. Note that if the camera does not support the resolution mode you are specifying, the request may not succeed, or may not give you the results you expect."
+    description: "The width of the camera image to request. Note that if the camera does not support the resolution mode you are specifying, the request may not succeed, or may not give you the results you expect. The specific behavior is browser-specific and may also be camera-device-specific."
   }]
 });
 */
 
+import cameras from "./cameras";
 import hub from "./hub";
 
 import Video from "../Primrose/Controls/Video";
@@ -45,13 +46,10 @@ export default function camera(index, options) {
       transparent: true,
       opacity: 0.5
     }, options);
-  return navigator.mediaDevices.enumerateDevices()
-    .catch(console.error.bind(console, "ERR [enumerating devices]:>"))
-    .then((devices) => devices.filter((d) => d.kind === "videoinput")[index])
-    .catch(console.error.bind(console, "ERR [filtering devices]:>"))
-    .then((device) => navigator.mediaDevices.getUserMedia({
+  return cameras()
+    .then((devices) => navigator.mediaDevices.getUserMedia({
       video: {
-        deviceId: device.deviceId,
+        deviceId: devices[index].deviceId,
         width: { ideal: 1280 },
         height: { ideal: 768 }
       }

@@ -11,6 +11,7 @@ import axis from "./axis";
 import box from "./box";
 import brick from "./brick";
 import camera from "./camera";
+import cameras from "./cameras";
 import circle from "./circle";
 import cloud from "./cloud";
 import colored from "./colored";
@@ -38,6 +39,7 @@ export {
   box,
   brick,
   camera,
+  cameras,
   circle,
   cloud,
   colored,
@@ -65,6 +67,7 @@ export default {
   box,
   brick,
   camera,
+  cameras,
   circle,
   cloud,
   colored,

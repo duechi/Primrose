@@ -37,6 +37,14 @@ import immutable from "./immutable";
 export default class AsyncLockRequest {
   constructor(name, elementOpts, changeEventOpts, errorEventOpts, requestMethodOpts, exitMethodOpts) {
 
+    /*
+    pliny.property({
+      parent: "Util.AsyncLockRequest",
+      name: "name",
+      type: "String",
+      description: "The name of the lock requesting object, reflecting what type of lock it will achieve."
+    })
+    */
     this.name = name;
 
     this._elementName = findProperty(document, elementOpts);
@@ -64,7 +72,7 @@ export default class AsyncLockRequest {
       type: "Boolean",
       description: "Returns true if the system actually supports the requested locking API."
     })
-*/
+    */
     this.available = immutable(!!this._requestMethodName);
 
     if(!this.available) {
@@ -114,7 +122,7 @@ export default class AsyncLockRequest {
       });
 
       this.addChangeListener(() => {
-        console.info(`The ${name} ${this.isActive ? "is" : "is not"} active.`);
+        console.info(`(MOCK) The ${name} ${this.isActive ? "is" : "is not"} active.`);
       });
     }
   }
@@ -122,14 +130,50 @@ export default class AsyncLockRequest {
   _onRequest() {}
   _preDispatchChangeEvent() {}
 
+  /*
+  pliny.property({
+    parent: "Util.AsyncLockRequest",
+    name: "element",
+    type: "Element",
+    description: "The DOM element on which the lock is currently held, or `null` if the lock is not currently active."
+  });
+  */
   get element(){
     return document[this._elementName];
   }
 
+  /*
+  pliny.property({
+    parent: "Util.AsyncLockRequest",
+    name: "isActive",
+    type: "Boolean",
+    description: "Returns true when the lock is active on an element in the document."
+  });
+  */
   get isActive(){
     return !!this.element;
   }
 
+  /*
+  pliny.method({
+    parent: "Util.AsyncLockRequest",
+    name: "addEventListener",
+    description: "Find the browser-specific name for a standard event name and add an event listener to the document for it.",
+    parameters: [{
+      name: "name",
+      type: "String",
+      description: "The name of the event as it should be in the standard implementation, sans browser prefix."
+    }, {
+      name: "thunk",
+      type: "Function",
+      description: "The callback function to invoke when the event occurs."
+    }, {
+      name: "bubbles",
+      type: "Boolean",
+      description: "Whether or not the event should be captured before any other event handlers."
+    }]
+  });
+  */
   addEventListener(name, thunk, bubbles){
     const eventName = this._events[name]();
     if(eventName) {
@@ -137,6 +181,22 @@ export default class AsyncLockRequest {
     }
   }
 
+  /*
+  pliny.method({
+    parent: "Util.AsyncLockRequest",
+    name: "removeEventListener",
+    description: "Find the browser-specific name for a standard event name and remove an event listener from the document for it.",
+    parameters: [{
+      name: "name",
+      type: "String",
+      description: "The name of the event as it should be in the standard implementation, sans browser prefix."
+    }, {
+      name: "thunk",
+      type: "Function",
+      description: "The callback function to remove from the event listener chain."
+    }]
+  });
+  */
   removeEventListener(name, thunk){
     const eventName = this._events[name]();
     if(eventName) {
@@ -144,18 +204,70 @@ export default class AsyncLockRequest {
     }
   };
 
+  /*
+  pliny.method({
+    parent: "Util.AsyncLockRequest",
+    name: "addChangeListener",
+    description: "Find the browser-specific name for the standard change event and add an event listener to the document for it.",
+    parameters: [{
+      name: "thunk",
+      type: "Function",
+      description: "The callback function to invoke when the event occurs."
+    }]
+  });
+  */
   addChangeListener (thunk, bubbles) {
     this.addEventListener("change", thunk, bubbles);
   }
 
+  /*
+  pliny.method({
+    parent: "Util.AsyncLockRequest",
+    name: "removeEventListener",
+    description: "Find the browser-specific name for the standard change event and remove an event listener from the document for it.",
+    parameters: [{
+      name: "thunk",
+      type: "Function",
+      description: "The callback function to remove from the event listener chain."
+    }]
+  });
+  */
   removeChangeListener(thunk){
     this.removeEventListener("change", thunk);
   }
 
+  /*
+  pliny.method({
+    parent: "Util.AsyncLockRequest",
+    name: "addEventListener",
+    description: "Find the browser-specific name for the standard error event and add an event listener to the document for it.",
+    parameters: [{
+      name: "thunk",
+      type: "Function",
+      description: "The callback function to invoke when the event occurs."
+    }, {
+      name: "bubbles",
+      type: "Boolean",
+      description: "Whether or not the event should be captured before any other event handlers."
+    }]
+  });
+  */
   addErrorListener(thunk, bubbles) {
     this.addEventListener("error", thunk, bubbles);
   }
 
+  /*
+  pliny.method({
+    parent: "Util.AsyncLockRequest",
+    name: "removeEventListener",
+    description: "Find the browser-specific name for the standard error event and remove an event listener from the document for it.",
+    parameters: [{
+      name: "thunk",
+      type: "Function",
+      description: "The callback function to remove from the event listener chain."
+    }]
+  });
+  */
   removeErrorListener(thunk){
     this.removeEventListener("error", thunk);
   }
@@ -200,6 +312,23 @@ export default class AsyncLockRequest {
     });
   }
 
+  /*
+  pliny.method({
+    parent: "Util.AsyncLockRequest",
+    name: "request",
+    returns: "Promise",
+    description: "Cancel whatever effect the current lock request had. The returned promise resolves when the lock request completes, or throws if there is an error or a timeout waiting for the lock request.",
+    parameters: [{
+      name: "elem",
+      type: "Element",
+      description: "The DOM element on which to request the lock."
+    }, {
+      name: "extraParam",
+      type: "Object",
+      description: "This could be anything. Some of the lock request APIs provide other optional parameters. They get passed through here."
+    }]
+  });
+  */
   request(elem, extraParam){
     return this._withChange(() => {
       if (!this._requestMethodName) {
@@ -217,6 +346,13 @@ export default class AsyncLockRequest {
     });
   }
 
+  /*
+  pliny.method({
+    parent: "Util.AsyncLockRequest",
+    name: "exit",
+    description: "Cancel whatever effect the current lock request had."
+  });
+  */
   exit(){
     return this._withChange(() => {
       if (!this._exitMethodName) {

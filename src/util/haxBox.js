@@ -1,3 +1,11 @@
+/*
+pliny.namespace({
+  parent: "Util",
+  name: "haxBox",
+  description: "This is a side-effecting module that captures the set of ICE servers that TokBox uses, and injects new getUserMedia parameters to enable screensharing. This module is not included in the public distribution, you have to `import` it manually."
+});
+*/
+
 import haxClass from "./haxClass";
 import haxFunction from "./haxFunction";
 

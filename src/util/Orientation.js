@@ -1,3 +1,24 @@
+/*
+pliny.namespace({
+  parent: "Util",
+  name: "Orientation",
+  description: "Lock and unlock the orientation of the screen on mobile devices."
+});
+*/
+
+/*
+pliny.function({
+  parent: "Util.Orientation",
+  name: "lock",
+  returns: "Promise",
+  description: "Lock the orientation of the screen to `landscape-primary`.",
+  parameters: [{
+    name: "element",
+    type: "Element",
+    description: "An object to resolve the lock request promise with."
+  }]
+});
+*/
 export function lock(element) {
   var type = screen.orientation && screen.orientation.type || screen.mozOrientation || "";
   if (type.indexOf("landscape") === -1) {
@@ -17,6 +38,13 @@ export function lock(element) {
   }
 }
 
+/*
+pliny.function({
+  parent: "Util.Orientation",
+  name: "unlock",
+  description: "Remove the orientation lock."
+});
+*/
 export function unlock() {
   if (screen.orientation && screen.orientation.unlock) {
     screen.orientation.unlock();
