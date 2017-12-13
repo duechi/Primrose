@@ -19,7 +19,7 @@ var GRASS = "../shared_assets/images/grass.png",
     groundTexture: DECK,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
     plugins: [
-      new Primrose.Plugin.Fog()
+      new Primrose.Graphics.Fog()
     ]
   });
 

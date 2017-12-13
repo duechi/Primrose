@@ -5,8 +5,8 @@ var env = new Primrose.BrowserEnvironment({
   groundModel: "Ground.obj",
   fullScreenButtonContainer: "#fullScreenButtonContainer",
   plugins: [
-    new Primrose.Plugin.Fog(),
-    new Primrose.Plugin.Shadows({
+    new Primrose.Graphics.Fog(),
+    new Primrose.Graphics.Shadows({
       radius: 3
     })
   ]

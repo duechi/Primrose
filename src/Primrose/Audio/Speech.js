@@ -1,22 +1,23 @@
+import BasePlugin from "../BasePlugin";
+
 /*
 pliny.class({
-  parent: "Primrose.Output",
-    name: "Speech",
-    description: "| [under construction]"
+  parent: "Primrose.Audio",
+  baseClass: "Primrose.BasePlugin",
+  name: "Speech",
+  description: "Installs a text-2-speech engine in the BrowserEnvironment"
 });
 */
-
-const DEFAULT_SPEECH_SETTINGS = {
-  remoteVoices: true,
-  volume: 1,
-  rate: 1,
-  pitch: 1,
-  voice: 0
-};
-
-export default class Speech {
+export default class Speech extends BasePlugin {
   constructor (options) {
-    this.options = Object.assign({}, DEFAULT_SPEECH_SETTINGS, options);
+    super("Text2Speech", options, {
+      remoteVoices: true,
+      volume: 1,
+      rate: 1,
+      pitch: 1,
+      voice: 0
+    });
+
     if(Speech.isAvailable) {
       const getVoices = () => {
         this.voices = speechSynthesis
@@ -28,6 +29,14 @@ export default class Speech {
       getVoices();
       speechSynthesis.onvoiceschanged = getVoices;
     }
+  }
+
+  get requirements() {
+    return [];
+  }
+
+  install(env) {
+    env.speech = this;
   }
 
   static get isAvailable () {

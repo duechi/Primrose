@@ -7,14 +7,17 @@ pliny.namespace({
 */
 
 import DirectedForceField from "./DirectedForceField";
+import Engine from "./Engine";
 import Spring from "./Spring";
 
 export {
   DirectedForceField,
+  Engine,
   Spring
 };
 
 export default {
   DirectedForceField,
+  Engine,
   Spring
 };

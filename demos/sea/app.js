@@ -7,8 +7,8 @@ var env = new Primrose.BrowserEnvironment({
   showHeadPointer: isMobile,
   fullScreenButtonContainer: "#fullScreenButtonContainer",
   plugins: [
-    new Primrose.Plugin.Fog(),
-    new Primrose.Plugin.Shadows()
+    new Primrose.Graphics.Fog(),
+    new Primrose.Graphics.Shadows()
   ]
 }),
 

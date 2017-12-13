@@ -4,8 +4,8 @@ var skyColor = 0xffff7f,
     groundTexture: "../shared_assets/images/sand.png",
     fullScreenButtonContainer: "#fullScreenButtonContainer",
     plugins: [
-      new Primrose.Plugin.Shadows(),
-      new Primrose.Plugin.Fog()
+      new Primrose.Graphics.Shadows(),
+      new Primrose.Graphics.Fog()
     ]
   }),
 

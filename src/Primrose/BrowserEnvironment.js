@@ -25,14 +25,13 @@ import { FullScreen, PointerLock, identity, Angle } from "../util";
 import Pointer from "./Pointer";
 import Keys from "./Keys";
 
-import Text2Speech from "./Audio/Speech";
 import Audio3D from "./Audio/Audio3D";
 import Music from "./Audio/Music";
 
 import { updateAll, eyeBlankAll } from "./Controls/BaseTextured";
 import Button3D from "./Controls/Button3D";
 import ButtonFactory from "./Controls/ButtonFactory";
-import { preStepAllEntities, postStepAllEntities, updateAllEntities } from "./Controls/Entity";
+import { updateAllEntities } from "./Controls/Entity";
 import Ground from "./Controls/Ground";
 import Sky from "./Controls/Sky";
 import Image from "./Controls/Image";
@@ -71,8 +70,6 @@ import {
   WebGLRenderer
 } from "three";
 
-import CANNON from "cannon";
-
 
 const MILLISECONDS_TO_SECONDS = 0.001,
   TELEPORT_DISPLACEMENT = new Vector3(),
@@ -99,6 +96,15 @@ export default class BrowserEnvironment extends EventDispatcher {
       .getHex();
 
     this.deltaTime = 1;
+
+    /*
+    pliny.property({
+      name: "plugins",
+      type: "Array",
+      description: "An array of `Primrose.Plugin.BasePlugin`s that will modify the BrowserEnvironment. By carving this functionality into Plugins, it allows the implementing developer to keep their bundle size small by avoiding features they don't care to use."
+    });
+    */
+    this.plugins = this.options.plugins;
 
     /*
     pliny.property({
@@ -161,11 +167,8 @@ export default class BrowserEnvironment extends EventDispatcher {
 
       iOSOrientationHack();
 
-      for(let i = 0; i < this.scene.children.length; ++i) {
-        const child = this.scene.children[i];
-        if(child.rigidBody && !child.rigidBody.world) {
-          this.physics.addBody(child.rigidBody);
-        }
+      for(let i = 0; i < this.plugins.length; ++i) {
+        this.plugins[i].preUpdate(this, dt);
       }
 
       dt = Math.min(1, dt * MILLISECONDS_TO_SECONDS);
@@ -335,7 +338,9 @@ export default class BrowserEnvironment extends EventDispatcher {
           }
         }
 
-        this.physics.step(this.deltaTime, dt);
+        for(let i = 0; i < this.plugins.length; ++i) {
+          this.plugins[i].postUpdate(this, dt);
+        }
 
         updateAllEntities();
       }
@@ -532,7 +537,7 @@ export default class BrowserEnvironment extends EventDispatcher {
       description: "A text-2-speech system."
     });
     */
-    this.speech = new Text2Speech(this.options.speech);
+    this.speech = null;
 
     /*
     pliny.property({
@@ -794,12 +799,7 @@ export default class BrowserEnvironment extends EventDispatcher {
       description: "The physics subsystem."
     });
     */
-    this.physics = new CANNON.World();
-    this.physics.gravity.set(0, this.options.gravity, 0);
-    this.physics.broadphase = new CANNON.NaiveBroadphase();
-    this.physics.solver.iterations = 10;
-    this.physics.addEventListener("preStep", preStepAllEntities);
-    this.physics.addEventListener("postStep", postStepAllEntities);
+    this.physics = null;
 
 
     /*
@@ -1528,15 +1528,23 @@ export default class BrowserEnvironment extends EventDispatcher {
     this.ready = Promise.all(this._readyParts)
       .then(() => {
 
-        if(this.ground.rigidBody) {
-          this.physics.addBody(this.ground.rigidBody);
-        }
-
         this.renderer.domElement.style.cursor = "none";
 
-        if(this.options.plugins && this.options.plugins instanceof Array) {
-          this.options.plugins.forEach((plugin) =>
-            plugin.install(this));
+        if(this.plugins && this.plugins instanceof Array) {
+          const toProcess = this.plugins.slice();
+          let keepInstalling = true;
+          while(toProcess.length > 0 && keepInstalling) {
+            const plugin = toProcess.shift();
+            if(plugin.requirementsMet(this)) {
+              const extras = plugin.install(this);
+              if(extras) {
+                toProcess.push.apply(toProcess, extras);
+              }
+            }
+            else{
+              toProcess.push(plugin);
+            }
+          }
         }
 
         this.VR.displays.forEach((display) => {
@@ -1896,12 +1904,6 @@ pliny.record({
     default: 0.02,
     description: "The rate at which the UI shell catches up with the user's movement."
   }, {
-    name: "gravity",
-    type: "Number",
-    optional: true,
-    default: 9.8,
-    description: "The acceleration applied to falling objects."
-  }, {
     name: "gazeLength",
     type: "Number",
     optional: true,
@@ -2037,7 +2039,6 @@ BrowserEnvironment.DEFAULTS = {
   },
   fadeRate: 5,
   vicinityFollowRate: 0.02,
-  gravity: -9.8,
   gazeLength: 1.5,
   disableAutoPause: false,
   disableMirroring: false,

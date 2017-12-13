@@ -22,8 +22,9 @@ var monthNames = ["January", "February", "March", "April", "May", "June", "July"
     drawDistance: hDim,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
     plugins: [
-      new Primrose.Plugin.Shadows(),
-      new Primrose.Plugin.Fog()
+      new Primrose.Graphics.Shadows(),
+      new Primrose.Graphics.Fog(),
+      new Primrose.Audio.Speech()
     ]
   });
 

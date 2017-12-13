@@ -23,7 +23,7 @@ var height = 8,
       drawDistance: 10,
       fullScreenButtonContainer: "#fullScreenButtonContainer",
       plugins: [
-        new Primrose.Plugin.Fog()
+        new Primrose.Graphics.Fog()
       ]
     });
 

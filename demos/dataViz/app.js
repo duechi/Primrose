@@ -7,6 +7,6 @@ var env = new Primrose.BrowserEnvironment({
   nonstandardNeckDepth: 0.075,
   gravity: 0,
   plugins: [
-    new Primrose.Plugin.Fog()
+    new Primrose.Graphics.Fog()
   ]
 });
