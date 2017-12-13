@@ -14,11 +14,7 @@ export default class Sky extends Entity {
       unshaded: true,
       skyRadius: options.drawDistance,
       texture: options.skyTexture,
-      progress: options.progress,
-      enableShadows: options.enableShadows,
-      shadowMapSize: options.shadowMapSize,
-      shadowCameraSize: options.shadowCameraSize,
-      shadowRadius: options.shadowRadius
+      progress: options.progress
     });
 
     this._image = null;
@@ -34,7 +30,7 @@ export default class Sky extends Entity {
         parent: "Primrose.Controls.Sky",
         name: "ambient",
         type: "THREE.AmbientLight",
-        description: "If the `disableDefaultLighting` option is not present, the ambient light provides a fill light so that dark shadows do not completely obscure object details."
+        description: "If the `disableDefaultLighting` option is not present, the ambient light provides a fill light so that dark areas do not completely obscure object details."
       });
       */
       this.ambient = new AmbientLight(0xffffff, 0.5)
@@ -53,16 +49,6 @@ export default class Sky extends Entity {
         .at(0, 100, 100);
 
       this.add(this.sun.target);
-
-      if(this.options.enableShadows) {
-        this.sun.castShadow = true;
-        this.sun.shadow.mapSize.width =
-        this.sun.shadow.mapSize.height = this.options.shadowMapSize;
-        this.sun.shadow.radius = this.options.shadowRadius;
-        this.sun.shadow.camera.top = this.sun.shadow.camera.right = this.options.shadowCameraSize;
-        this.sun.shadow.camera.bottom = this.sun.shadow.camera.left = -this.options.shadowCameraSize;
-        this.sun.shadow.camera.updateProjectionMatrix();
-      }
     }
   }
 

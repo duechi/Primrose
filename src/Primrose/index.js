@@ -20,6 +20,7 @@ import Keys from "./Keys";
 import Network from "./Network";
 import Pointer from "./Pointer";
 import Physics from "./Physics";
+import Plugin from "./Plugin";
 import Random from "./Random";
 import Replay from "./Replay";
 import Text from "./Text";
@@ -39,6 +40,7 @@ export {
   Network,
   Pointer,
   Physics,
+  Plugin,
   Random,
   Replay,
   Text,
@@ -59,6 +61,7 @@ export default {
   Network,
   Pointer,
   Physics,
+  Plugin,
   Random,
   Replay,
   Text,

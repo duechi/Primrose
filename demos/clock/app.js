@@ -4,8 +4,9 @@ var skyColor = 0xffff7f,
     groundTexture: "../shared_assets/images/sand.png",
     useFog: true,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
-    enableShadows: true,
-    shadowMapSize: 2048,
+    plugins: [
+      new Primrose.Plugin.Shadows()
+    ]
   }),
 
   sunDistance = 20,

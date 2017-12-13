@@ -21,8 +21,10 @@ var monthNames = ["January", "February", "March", "April", "May", "June", "July"
     backgroundColor: secondaryColor,
     useFog: true,
     drawDistance: hDim,
-    enableShadows: true,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
+    plugins: [
+      new Primrose.Plugin.Shadows()
+    ]
   });
 
 

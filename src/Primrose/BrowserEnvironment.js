@@ -249,7 +249,6 @@ import { Quality, PIXEL_SCALES } from "./constants";
 import {
   EventDispatcher,
   BackSide,
-  PCFSoftShadowMap,
   FogExp2,
   Scene,
   PerspectiveCamera,
@@ -1728,9 +1727,10 @@ export default class BrowserEnvironment extends EventDispatcher {
         }
 
         this.renderer.domElement.style.cursor = "none";
-        if(this.options.enableShadows && this.sky.sun) {
-          this.renderer.shadowMap.enabled = true;
-          this.renderer.shadowMap.type = PCFSoftShadowMap;
+
+        if(this.options.plugins && this.options.plugins instanceof Array) {
+          this.options.plugins.forEach((plugin) =>
+            plugin.install(this));
         }
 
         this.VR.displays.forEach((display) => {
@@ -2026,10 +2026,7 @@ BrowserEnvironment.DEFAULTS = {
   avatarHeight: 1.65,
   walkSpeed: 2,
   disableKeyboard: false,
-  enableShadows: false,
-  shadowMapSize: 2048,
-  shadowCameraSize: 15,
-  shadowRadius: 1,
+  plugins: null,
   progress: window.Preloader || {
     thunk: function() {},
     hide: function() {},

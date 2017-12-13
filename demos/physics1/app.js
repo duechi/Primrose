@@ -5,7 +5,10 @@ var env = new Primrose.BrowserEnvironment({
   drawDistance: 100,
   fullScreenButtonContainer: "#fullScreenButtonContainer",
   nonstandardNeckLength: 0.15,
-  nonstandardNeckDepth: 0.075
+  nonstandardNeckDepth: 0.075,
+  plugins: [
+    new Primrose.Plugin.Shadows()
+  ]
 });
 
 for(var i = 0; i < 50; ++i){

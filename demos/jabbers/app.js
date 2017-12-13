@@ -14,8 +14,10 @@ var WIDTH = 100,
     font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
     useFog: true,
     drawDistance: 100,
-    enableShadows: true,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
+    plugins: [
+      new Primrose.Plugin.Shadows()
+    ]
   });
 
 

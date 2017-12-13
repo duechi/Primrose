@@ -1,9 +1,11 @@
 const env = new Primrose.BrowserEnvironment({
     useFog: true,
-    enableShadows: true,
     groundTexture: 0x606060,
     backgroundColor: 0xd0d0d0,
-    fullScreenButtonContainer: "#fullScreenButtonContainer"
+    fullScreenButtonContainer: "#fullScreenButtonContainer",
+    plugins: [
+      new Primrose.Plugin.Shadows()
+    ]
   }).on("ready", function() {
 
     for(var i = 0; i < 10; ++i) {

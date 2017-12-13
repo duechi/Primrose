@@ -22,7 +22,6 @@ export default class Ground extends Entity {
       dim: options.drawDistance,
       texture: options.groundTexture,
       model: options.groundModel,
-      shadow: options.enableShadows,
       progress: options.progress
     });
   }
@@ -68,14 +67,13 @@ export default class Ground extends Entity {
 
     promise = promise.then(() => {
       if(this.isInfinite != null) {
-        this.model.receiveShadow = this.options.shadow;
         this.model
           .named(this.name + "-" + (this.options.model || this.options.texture))
           .addTo(this);
 
         this.watch(this.model, Pointer.EVENTS);
 
-        this.rigidBody = new CANNON.Body({ 
+        this.rigidBody = new CANNON.Body({
           mass: 0,
           type: CANNON.Body.KINEMATIC
         });
