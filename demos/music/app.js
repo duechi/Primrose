@@ -20,9 +20,11 @@ var height = 8,
       groundTexture: "../shared_assets/images/deck.png",
       font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
       backgroundColor: 0x000000,
-      useFog: true,
       drawDistance: 10,
-      fullScreenButtonContainer: "#fullScreenButtonContainer"
+      fullScreenButtonContainer: "#fullScreenButtonContainer",
+      plugins: [
+        new Primrose.Plugin.Fog()
+      ]
     });
 
 function text(size, text) {

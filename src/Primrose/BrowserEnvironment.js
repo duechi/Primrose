@@ -60,7 +60,6 @@ import { Quality, PIXEL_SCALES } from "./constants";
 import {
   EventDispatcher,
   BackSide,
-  FogExp2,
   Scene,
   PerspectiveCamera,
   TextGeometry,
@@ -812,10 +811,6 @@ export default class BrowserEnvironment extends EventDispatcher {
     });
     */
     this.options.scene = this.scene = this.options.scene || new Scene();
-
-    if (this.options.useFog) {
-      this.scene.fog = new FogExp2(this.options.backgroundColor, 1 / Math.sqrt(this.options.drawDistance));
-    }
 
     /*
     pliny.property({
@@ -1859,12 +1854,6 @@ pliny.record({
     optional: true,
     description: "Whether or not to used timed ring cursors. Defaults to true if the current system is a mobile device. Defaults to false if it's a desktop system."
   }, {
-    name: "useFog",
-    type: "Boolean",
-    description: "Whether or not to use fog in the scene to limit view distance.",
-    optional: true,
-    default: false
-  }, {
     name: "avatarHeight",
     type: "Number",
     optional: true,
@@ -2037,7 +2026,6 @@ BrowserEnvironment.DEFAULTS = {
   quality: Quality.MAXIMUM,
   fullScreenButtonContainer: null,
   useGaze: isCardboard,
-  useFog: false,
   avatarHeight: 1.65,
   walkSpeed: 2,
   disableKeyboard: false,

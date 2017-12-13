@@ -6,12 +6,15 @@ pliny.namespace({
 });
 */
 
+import Fog from "./Fog";
 import Shadows from "./Shadows";
 
 export default {
+  Fog,
   Shadows
 };
 
 export {
+  Fog,
   Shadows
 };
