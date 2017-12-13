@@ -79,19 +79,19 @@ pliny.method({
     type: "Number",
     description: "The latitude angle at which to set the object",
     optional: true,
-    defaultValue: 0
+    default: 0
   }, {
     name: "lng",
     type: "Number",
     description: "The longitude angle at which to set the object",
     optional: true,
-    defaultValue: 0
+    default: 0
   }. {
     name: "r",
     type: "Number",
     description: "The radius at which to set the object",
     optional: true,
-    defaultValue: 1.5
+    default: 1.5
   }]
 });
 */

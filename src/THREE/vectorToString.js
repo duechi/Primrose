@@ -11,7 +11,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -25,7 +25,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -39,7 +39,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -53,7 +53,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -67,7 +67,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 */
@@ -82,11 +82,12 @@ Vector4.prototype.toString =
     }
     var parts = this.toArray();
     for (var i = 0; i < parts.length; ++i) {
-      if (parts[i] !== null && parts[i] !== undefined) {
-        parts[i] = parts[i].toFixed(digits);
-      }
-      else {
+      const p = parts[i];
+      if (p === null || p === undefined) {
         parts[i] = "undefined";
+      }
+      else if(typeof p === "number" || p instanceof Number) {
+        parts[i] = p.toFixed(digits);
       }
     }
     return "<" + parts.join(", ") + ">";
@@ -107,7 +108,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -125,7 +126,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -143,7 +144,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -161,7 +162,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -179,7 +180,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 
@@ -197,7 +198,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 */

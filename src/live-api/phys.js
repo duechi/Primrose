@@ -34,7 +34,7 @@ pliny.record({
     type: "Boolean",
     description: "Set to true to disable using the Mesh's geometry to estimate a bounding box or sphere.",
     optional: true,
-    defaultValue: false
+    default: false
   }]
 });
 */

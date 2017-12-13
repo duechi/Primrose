@@ -12,7 +12,7 @@ pliny.method({
     type: "Number",
     description: "The number of significant digits to print per matrix element.",
     optional: true,
-    defaultValue: 10
+    default: 10
   }]
 });
 */
