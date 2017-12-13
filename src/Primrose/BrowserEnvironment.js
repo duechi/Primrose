@@ -25,9 +25,6 @@ import { FullScreen, PointerLock, identity, Angle } from "../util";
 import Pointer from "./Pointer";
 import Keys from "./Keys";
 
-import Audio3D from "./Audio/Audio3D";
-import Music from "./Audio/Music";
-
 import { updateAll, eyeBlankAll } from "./Controls/BaseTextured";
 import Button3D from "./Controls/Button3D";
 import ButtonFactory from "./Controls/ButtonFactory";
@@ -372,7 +369,6 @@ export default class BrowserEnvironment extends EventDispatcher {
         i, j;
       lt = t;
       update(dt);
-      this.audio.setPlayer(this.head.mesh);
       render();
     };
 
@@ -541,18 +537,7 @@ export default class BrowserEnvironment extends EventDispatcher {
       description: "An audio graph that keeps track of 3D information."
     });
     */
-    this.audio = new Audio3D();
-
-    if (this.options.ambientSound) {
-      this.audio.load3DSound(this.options.ambientSound, true, -1, 1, -1)
-        .then((aud) => {
-          if (!(aud.source instanceof MediaElementAudioSourceNode)) {
-            aud.volume.gain.value = 0.1;
-            aud.source.start();
-          }
-        })
-        .catch(console.error.bind(console, "Audio3D loadSource"));
-    }
+    this.audio = null;
 
     var documentReady = null;
     if (document.readyState === "complete") {
@@ -576,7 +561,7 @@ export default class BrowserEnvironment extends EventDispatcher {
       description: "A primitive sort of synthesizer for making simple music."
     });
     */
-    this.music = new Music(this.audio);
+    this.music = null;
 
     /*
     pliny.property({
@@ -972,9 +957,10 @@ export default class BrowserEnvironment extends EventDispatcher {
     this.start = () => {
       if(allowRestart) {
         this.ready.then(() => {
-          this.audio.start();
-          lt = performance.now() * MILLISECONDS_TO_SECONDS;
+          this.plugins.forEach((plugin) =>
+            plugin.start());
           this.VR.currentDevice.startAnimation(animate);
+          lt = performance.now() * MILLISECONDS_TO_SECONDS;
         });
       }
     };
@@ -1008,7 +994,8 @@ export default class BrowserEnvironment extends EventDispatcher {
         }
 
         this.VR.currentDevice.stopAnimation();
-        this.audio.stop();
+        this.plugins.forEach((plugin) =>
+          plugin.stop());
       }
     };
 
@@ -1677,7 +1664,7 @@ export default class BrowserEnvironment extends EventDispatcher {
   }
 
   get currentTime() {
-    return this.audio.context.currentTime;
+    return this.audio && this.audio.context && this.audio.context.currentTime;
   }
 
   addInputManager(mgr) {
@@ -1963,11 +1950,6 @@ pliny.record({
     default: 75,
     description: "The field of view to use in non-VR settings."
   }, {
-    name: "ambientSound",
-    type: "String",
-    optional: true,
-    description: "The sound to play on loop in the background."
-  }, {
     name: "canvasElement",
     type: "HTMLCanvasElement",
     optional: true,
@@ -2040,7 +2022,6 @@ BrowserEnvironment.DEFAULTS = {
   nearPlane: 0.01,
   drawDistance: 100,
   defaultFOV: StandardMonitorVRDisplay.DEFAULT_FOV,
-  ambientSound: null,
   canvasElement: "frontBuffer",
   renderer: null,
   context: null,

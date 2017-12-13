@@ -1,6 +1,6 @@
 /*
 pliny.class({
-  parent: "Primrose.Output",
+  parent: "Primrose.Audio",
     name: "PositionalSound",
     description: "| [under construction]"
 });

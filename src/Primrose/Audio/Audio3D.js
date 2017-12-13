@@ -1,73 +1,39 @@
 /*
 pliny.class({
-  parent: "Primrose.Output",
-    name: "Audio3D",
-    description: "| [under construction]"
+  parent: "Primrose.Audio",
+  name: "Audio3D",
+  description: "Positional audio rendering engine.",
+  parameters: [{
+    name: "options",
+    type: "Primrose.Audio.Audio3D.optionsHash",
+    description: "Optional settings."
+  }]
+});
+
+pliny.record({
+  parent: "Primrose.Audio.Audio3D",
+  name: "optionsHash",
+  parameters: [{
+    name: "ambientSound",
+    type: "String",
+    optional: true,
+    description: "The sound to play on loop in the background."
+  }]
 });
 */
-
-// polyfill
-window.AudioContext = (function(AC) {
-  Object.defineProperties(AC.prototype, {
-    createGain: {
-      value: AC.prototype.createGain || AC.prototype.createGainNode
-    },
-    createDelay: {
-      value: AC.prototype.createDelay|| AC.prototype.createDelayNode
-    },
-    createScriptProcessor: {
-      value: AC.prototype.createScriptProcessor || AC.prototype.createJavaScriptNode
-    }
-  });
-
-  var testContext = new AC(),
-    OscillatorNode = testContext.createOscillator().constructor,
-    BufferSourceNode = testContext.createBufferSource().constructor,
-    GainNodeGainValue = testContext.createGain().gain.constructor;
-
-  Object.defineProperties(OscillatorNode.prototype, {
-    setPeriodicWave: {
-      value: OscillatorNode.prototype.setPeriodicWave || OscillatorNode.prototype.setWaveTable
-    },
-    start: {
-      value: OscillatorNode.prototype.start || OscillatorNode.prototype.noteOn
-    },
-    stop: {
-      value: OscillatorNode.prototype.stop || OscillatorNode.prototype.noteOff
-    }
-  });
-
-  Object.defineProperties(BufferSourceNode.prototype, {
-    start: {
-      value: BufferSourceNode.prototype.start || function start() {
-        return arguments.length > 1
-          ? BufferSourceNode.prototype.noteGrainOn.apply(this, arguments)
-          : BufferSourceNode.prototype.noteOn.apply(this, arguments);
-      }
-    },
-    stop: {
-      value: BufferSourceNode.prototype.stop || BufferSourceNode.prototype.noteOff
-    }
-  });
-
-  Object.defineProperties(GainNodeGainValue.prototype, {
-    setTargetAtTime: {
-      value: GainNodeGainValue.prototype.setTargetAtTime || GainNodeGainValue.prototype.setTargetValueAtTime
-    }
-  });
-
-  return AC;
-})(window.AudioContext || window.webkitAudioContext);
 
 let VECTOR = new Vector3(),
   UP = new Vector3(),
   TEMP = new Matrix4();
 
 import { Vector3, Matrix4 } from "three";
+
 import { isiOS } from "../../flags";
+import BasePlugin from "../BasePlugin";
 import getBuffer from "../HTTP/getBuffer";
 import cascadeElement from "../DOM/cascadeElement"
-export default class Audio3D {
+
+export default class Audio3D extends BasePlugin {
 
   static setAudioStream(stream, id) {
     const audioElementCount = document.querySelectorAll("audio")
@@ -84,7 +50,9 @@ export default class Audio3D {
     element.crossOrigin = "anonymous";
   }
 
-  constructor() {
+  constructor(options) {
+    super("Audio3D", options);
+
     this.ready = new Promise((resolve, reject) => {
       try{
         if(Audio3D.isAvailable) {
@@ -139,15 +107,46 @@ export default class Audio3D {
     });
   }
 
-  setVelocity(x, y, z) {
-    if(this.context) {
-      this.context.listener.setVelocity(x, y, z);
+  get requirements() {
+    return [];
+  }
+
+  install(env) {
+    env.audio = this;
+
+    if (this.options.ambientSound) {
+      this.load3DSound(this.options.ambientSound, true, -1, 1, -1)
+        .then((aud) => {
+          if (!(aud.source instanceof MediaElementAudioSourceNode)) {
+            aud.volume.gain.value = 0.1;
+            aud.source.start();
+          }
+        })
+        .catch(console.error.bind(console, "Audio3D loadSource"));
     }
   }
 
-  setPlayer(obj) {
+  start() {
+    if(this.mainVolume){
+      this.mainVolume.connect(this.context.destination);
+    }
+    if(this.context && this.context.resume) {
+      this.context.resume();
+    }
+  }
+
+  stop() {
+    if(this.context && this.context.suspend) {
+      this.context.suspend();
+    }
+    if(this.mainVolume){
+      this.mainVolume.disconnect();
+    }
+  }
+
+  postUpdate(env, dt) {
     if(this.context && this.context.listener) {
-      var m = obj.matrixWorld,
+      var m = env.head.mesh.matrixWorld,
         e = m.elements,
         mx = e[12],
         my = e[13],
@@ -169,21 +168,9 @@ export default class Audio3D {
     }
   }
 
-  start() {
-    if(this.mainVolume){
-      this.mainVolume.connect(this.context.destination);
-    }
-    if(this.context && this.context.resume) {
-      this.context.resume();
-    }
-  }
-
-  stop() {
-    if(this.context && this.context.suspend) {
-      this.context.suspend();
-    }
-    if(this.mainVolume){
-      this.mainVolume.disconnect();
+  setVelocity(x, y, z) {
+    if(this.context) {
+      this.context.listener.setVelocity(x, y, z);
     }
   }
 

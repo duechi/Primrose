@@ -6,6 +6,7 @@ pliny.namespace({
 });
 */
 
+import "./polyfill";
 import Audio3D from "./Audio3D";
 import Music from "./Music";
 import Note from "./Note";

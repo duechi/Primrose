@@ -1,8 +1,12 @@
+import BasePlugin from "../BasePlugin";
+
+import Note from "./Note";
+
 /*
 pliny.class({
-  parent: "Primrose.Output",
-    name: "Music",
-    description: "| [under construction]"
+  parent: "Primrose.Audio",
+  name: "Music",
+  description: "A synthesizer that you can program to play notes."
 });
 */
 
@@ -13,23 +17,35 @@ var MAX_NOTE_COUNT = (navigator.maxTouchPoints || 10) + 1,
     "triangle"
   ];
 
-import Note from "./Note";
-export default class Music {
+export default class Music extends BasePlugin {
 
-  constructor(audio, numNotes) {
-    if (numNotes === undefined) {
-      numNotes = MAX_NOTE_COUNT;
-    }
+  constructor(options) {
+    super("Music", options, {
+      numNotes: MAX_NOTE_COUNT
+    });
 
     this.oscillators = {};
     this.isAvailable = false;
-    this.audio = audio;
+    this.audio = null;
+    this.mainVolume = null;
+    this.numNotes = 0;
+    this._type = null;
+
+  }
+
+  get requirements() {
+    return ["audio"];
+  }
+
+  install(env) {
+    env.music = this;
+    this.audio = env.audio;
     this.audio.ready.then(() => {
       const ctx = this.audio.context;
       this.mainVolume = ctx.createGain();
       this.mainVolume.connect(this.audio.mainVolume);
       this.mainVolume.gain.value = 1;
-      this.numNotes = numNotes;
+      this.numNotes = this.options.numNotes;
       TYPES.forEach((type) => {
         const oscs = this.oscillators[type] = [];
         this[type] = this.play.bind(this, type);
@@ -48,7 +64,8 @@ export default class Music {
   set type(v){
     if(this.isAvailable){
       this._type = v;
-      this.oscillators.forEach((o) => o.osc.type = this._type);
+      this.oscillators.forEach((o) =>
+        o.osc.type = this._type);
     }
   }
 
