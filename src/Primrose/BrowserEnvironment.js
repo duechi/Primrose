@@ -50,8 +50,6 @@ import GamepadManager from "./Input/GamepadManager";
 import Touch from "./Input/Touch";
 import VR from "./Input/VR";
 
-import NetworkManager from "./Network/Manager";
-
 import Teleporter from "./Tools/Teleporter";
 
 import { Quality, PIXEL_SCALES } from "./constants";
@@ -87,7 +85,7 @@ export default class BrowserEnvironment extends EventDispatcher {
       parent: "Primrose.BrowserEnvironment",
       name: "options",
       type: "Object",
-      description: "A manager for messages sent across the network."
+      description: "Options used to build the environment."
     });
     */
     this.options = Object.assign({}, BrowserEnvironment.DEFAULTS, options);
@@ -331,10 +329,6 @@ export default class BrowserEnvironment extends EventDispatcher {
           catch(exp){
             // don't let user script kill the runtime
             console.error("User update errored", exp);
-          }
-
-          if(frame === 0 && this.network){
-            this.network.update(dt);
           }
         }
 
@@ -1624,71 +1618,61 @@ export default class BrowserEnvironment extends EventDispatcher {
     this.start();
   }
 
+
+  /*
+  pliny.property({
+    parent: "Primrose.BrowserEnvironment",
+    name: "lockMovement",
+    type: "Boolean",
+    description: "True if the user is focused on a text box control. If the user is focused on a text box control, keyboard commands should not move their position."
+  });
+  */
   get lockMovement(){
-
-    /*
-    pliny.property({
-      parent: "Primrose.BrowserEnvironment",
-      name: "lockMovement",
-      type: "Boolean",
-      description: "True if the user is focused on a text box control. If the user is focused on a text box control, keyboard commands should not move their position."
-    });
-    */
-
     return this.currentControl && this.currentControl.lockMovement;
   }
 
+
+  /*
+  pliny.method({
+    parent: "Primrose.BrowserEnvironment",
+    name: "connect",
+    description: "Connect to a server at a WebSocket using a specific userName. NOTE: this does not handle authentication or authorization. You must handle those tasks yourself. This only binds an authenticated WebSocket connection to the framework so the framework may use it to transmit user state.",
+    parameters: [{
+      name: "socket",
+      type: "WebSocket",
+      description: "The socket connecting us to the server."
+    }, {
+      name: "userName",
+      type: "String",
+      description: "The name of the user being connected."
+    }]
+  });
+  */
   connect(socket, userName) {
-
-    /*
-    pliny.method({
-      parent: "Primrose.BrowserEnvironment",
-      name: "connect",
-      description: "Connect to a server at a WebSocket using a specific userName. NOTE: this does not handle authentication or authorization. You must handle those tasks yourself. This only binds an authenticated WebSocket connection to the framework so the framework may use it to transmit user state.",
-      parameters: [{
-        name: "socket",
-        type: "WebSocket",
-        description: "The socket connecting us to the server."
-      }, {
-        name: "userName",
-        type: "String",
-        description: "The name of the user being connected."
-      }]
-    });
-    */
-
-    if(!this.network){
-      this.network = new NetworkManager(this, this.audio, this.factories, this.options);
-      this.network.addEventListener("addavatar", this.addAvatar);
-      this.network.addEventListener("removeavatar", this.removeAvatar);
-    }
     return this.network && this.network.connect(socket, userName);
   }
 
+  /*
+  pliny.method({
+    parent: "Primrose.BrowserEnvironment",
+    name: "disconnect",
+    description: "Disconnect from the server."
+  });
+  */
   disconnect() {
-
-    /*
-    pliny.method({
-      parent: "Primrose.BrowserEnvironment",
-      name: "disconnect",
-      description: "Disconnect from the server."
-    });
-    */
-
     return this.network && this.network.disconnect();
   }
 
+
+  /*
+  pliny.property({
+    parent: "Primrose.BrowserEnvironment",
+    name: "displays",
+    type: "Array of BaseVRDisplay",
+    description: "The VRDisplays available on the system."
+  });
+  */
   get displays() {
-
-    /*
-    pliny.property({
-      parent: "Primrose.BrowserEnvironment",
-      name: "displays",
-      type: "Array of BaseVRDisplay",
-      description: "The VRDisplays available on the system."
-    });
-    */
-
     return this.VR.displays;
   }
 

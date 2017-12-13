@@ -2,7 +2,7 @@
 pliny.class({
   parent: "Primrose.Network",
   name: "Manager",
-  baseClass: "THREE.EventDispatcher",
+  baseClass: "Primrose.BasePlugin",
   parameters: [{
     name: "localUser",
     type: "Primrose.Input.FPSInput",
@@ -19,16 +19,15 @@ pliny.class({
 });
 */
 
-import { EventDispatcher } from "three";
+import BasePlugin from "../BasePlugin";
 import RemoteUser from "./RemoteUser";
 
-export default class Manager extends EventDispatcher {
-  constructor(localUser, audio, factories, options) {
-    super();
-    this.localUser = localUser;
-    this.audio = audio;
-    this.factories = factories;
-    this.options = options;
+export default class Manager extends BasePlugin {
+  constructor(options) {
+    super("NetworkManager", options);
+    this.localUser = null;
+    this.audio = null;
+    this.factories = null;
     this.lastNetworkUpdate = 0;
     this.oldState = [];
     this.users = {};
@@ -39,7 +38,22 @@ export default class Manager extends EventDispatcher {
     this.audioHeap = {};
   }
 
-  update(dt) {
+  get requirements() {
+    return [
+      "audio",
+      "factories.avatar"
+    ];
+  }
+
+  install(env) {
+    this.localUser = env;
+    this.audio = env.audio;
+    this.factories = env.factories;
+    this.addEventListener("addavatar", env.addAvatar);
+    this.addEventListener("removeavatar", env.removeAvatar);
+  }
+
+  postUpdate(env, dt) {
     if (this._socket && this.deviceIndex === 0) {
       this.lastNetworkUpdate += dt;
       if (this.lastNetworkUpdate >= RemoteUser.NETWORK_DT) {

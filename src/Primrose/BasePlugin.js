@@ -1,7 +1,10 @@
+import { EventDispatcher } from "three";
+
 /*
 pliny.class({
   parent: "Primrose.Plugin",
   name: "BasePlugin",
+  baseClass: "THREE.EventDispatcher",
   description: "A common base class for all plugins.",
   parameters: [{
     name: "name",
@@ -22,9 +25,10 @@ pliny.class({
   }]
 });
 */
-export default class BasePlugin {
+export default class BasePlugin extends EventDispatcher {
 
   constructor(name, options, defaults) {
+    super();
     this.firstAttempt = true;
     this.name = name;
     this.options = Object.assign({}, defaults, options);;
