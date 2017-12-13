@@ -25,6 +25,7 @@ pliny.class({
 export default class BasePlugin {
 
   constructor(name, options, defaults) {
+    this.firstAttempt = true;
     this.name = name;
     this.options = Object.assign({}, defaults, options);;
   }
@@ -56,23 +57,34 @@ export default class BasePlugin {
   */
   requirementsMet(env) {
 
-    const reqs = this.requirements;
-    let good = true;
+    const reqs = this.requirements,
+      missing = [];
 
-    for(let i = 0; good && reqs && i < reqs.length; ++i) {
+    for(let i = 0; reqs && i < reqs.length; ++i) {
 
       const parts = reqs[i].split(".");
-      let head = env;
+      let head = env,
+        name = "";
 
-      for(let j = 0; good && j < parts.length; ++j) {
-        head = head[parts[j]];
-        good = !!head;
+      for(let j = 0; j < parts.length; ++j) {
+
+        if(head) {
+          head = head[parts[j]];
+        }
+
+        if(name.length > 0) {
+          name += ".";
+        }
+        name += parts[j];
+
+        if(!head && missing.indexOf(name) === -1) {
+          missing.push(name);
+        }
       }
 
     }
 
-    console.log(this.name, good);
-    return good;
+    return missing;
   }
 
   /*

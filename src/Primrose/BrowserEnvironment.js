@@ -1534,15 +1534,20 @@ export default class BrowserEnvironment extends EventDispatcher {
           const toProcess = this.plugins.slice();
           let keepInstalling = true;
           while(toProcess.length > 0 && keepInstalling) {
-            const plugin = toProcess.shift();
-            if(plugin.requirementsMet(this)) {
+            const plugin = toProcess.shift(),
+              missingRequirements = plugin.requirementsMet(this);
+            if(missingRequirements.length === 0) {
               const extras = plugin.install(this);
               if(extras) {
                 toProcess.push.apply(toProcess, extras);
               }
             }
-            else{
+            else if(plugin.firstAttempt) {
+              plugin.firstAttempt = false;
               toProcess.push(plugin);
+            }
+            else {
+              console.error(`Couldn't install plugin: ${plugin.name}. Missing requirements: [${missingRequirements.join(", ")}]`);
             }
           }
         }
