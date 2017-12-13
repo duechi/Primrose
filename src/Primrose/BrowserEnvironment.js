@@ -16,195 +16,6 @@ The `BrowserEnvironment` class provides a plethora of options for setting up new
 });
 */
 
-/*
-pliny.record({
-  parent: "Primrose.BrowserEnvironment",
-  name: "optionsHash",
-  description: "Settings to change how the environment looks and behaves.",
-  parameters: [{
-    name: "antialias",
-    type: "Boolean",
-    optional: true,
-    default: true,
-    description: "Enable or disable anti-aliasing"
-  }, {
-    name: "quality",
-    type: "Primrose.Constants.Quality",
-    optional: true,
-    default: "Primrose.Constants.Quality.MAXIMUM",
-    description: "The quality level at which to start rendering."
-  }, {
-    name: "fullScreenButtonContainer",
-    type: "String",
-    optional: true,
-    description: "A DOM query selector that, if provided, will have buttons added to it for each of the fullscreen modes."
-  }, {
-    name: "useGaze",
-    type: "Boolean",
-    optional: true,
-    description: "Whether or not to used timed ring cursors."
-  }, {
-    name: "useFog",
-    type: "Boolean",
-    optional: true,
-    description: "Whether or not to use fog in the scene to limit view distance."
-  }, {
-    name: "avatarHeight",
-    type: "Number",
-    optional: true,
-    default: 1.65,
-    description: "The default height of the user's avatar, if the VR system doesn't provide a height."
-  }, {
-    name: "walkSpeed",
-    type: "Number",
-    optional: true,
-    default: 2,
-    description: "The number of meters per second at which the user runs."
-  }, {
-    name: "disableKeyboard",
-    type: "Boolean",
-    optional: true,
-    description: "Set to true to disable keyboard-based input."
-  }, {
-    name: "enableShadows",
-    type: "Boolean",
-    optional: true,
-    description: "Set to true to enable the use of shadows on objects in the scene."
-  }, {
-    name: "shadowMapSize",
-    type: "Number",
-    optional: true,
-    default: 1024,
-    description: "The size to use for the width and height of the shadow map that will be generated."
-  }, {
-    name: "shadowRadius",
-    type: "Number",
-    optional: true,
-    default: 1,
-    description: "The number of pixels of blurring to perform at the edge of the shadows."
-  }, {
-    name: "progress",
-    type: "Function",
-    optional: true,
-    description: "Callback function for recording model download progress."
-  }, {
-    name: "gravity",
-    type: "Number",
-    optional: true,
-    default: 9.8,
-    description: "The acceleration applied to falling objects."
-  }, {
-    name: "gazeLength",
-    type: "Number",
-    optional: true,
-    default: 1.5,
-    description: "The amount of time in seconds to require gazes on objects before triggering the gaze event."
-  }, {
-    name: "disableMirroring",
-    type: "Boolean",
-    optional: true,
-    description: "By default, what we see in the VR view will get mirrored to a regular view on the primary screen. Set to true to improve performance."
-  }, {
-    name: "disableMotion",
-    type: "Boolean",
-    optional: true,
-    description: "By default, mobile devices have a motion sensor that can be used to update the view. Set to true to disable motion tracking."
-  }, {
-    name: "disableDefaultLighting",
-    type: "Boolean",
-    optional: true,
-    description: "By default, a single light is added to the scene,"
-  }, {
-    name: "backgroundColor",
-    type: "Number",
-    optional: true,
-    default: 0xafbfff,
-    description: "The color that WebGL clears the background with before drawing."
-  }, {
-    name: "skyTexture",
-    type: "String or Array of String",
-    optional: true,
-    description: "The texture(s) to use for the sky."
-  }, {
-    name: "groundTexture",
-    type: "String",
-    optional: true,
-    description: "The texture to use for the ground."
-  }, {
-    name: "groundModel",
-    type: "String",
-    optional: true,
-    description: "A model file to use for the ground."
-  }, {
-    name: "nearPlane",
-    type: "Number",
-    optional: true,
-    default: 0.01,
-    description: "The near plane of the camera."
-  }, {
-    name: "drawDistance",
-    type: "Number",
-    optional: true,
-    default: 100,
-    description: "The distance from the near plane to the far plane of the camera."
-  }, {
-    name: "defaultFOV",
-    type: "Number",
-    optional: true,
-    default: 75,
-    description: "The field of view to use in non-VR settings."
-  }, {
-    name: "ambientSound",
-    type: "String",
-    optional: true,
-    description: "The sound to play on loop in the background."
-  }, {
-    name: "canvasElement",
-    type: "HTMLCanvasElement",
-    optional: true,
-    default: "frontBuffer",
-    description: "HTML5 canvas element to which to render, if one had already been created."
-  }, {
-    name: "renderer",
-    type: "THREE.WebGLRenderer",
-    optional: true,
-    description: "Three.js renderer, if one had already been created."
-  }, {
-    name: "context",
-    type: "WebGLRenderingContext",
-    optional: true,
-    description: "A WebGL context to use, if one had already been created."
-  }, {
-    name: "scene",
-    type: "THREE.Scene",
-    optional: true,
-    description: "Three.js scene, if one had already been created."
-  }, {
-
-    name: "nonstandardNeckLength",
-    type: "Number",
-    optional: true,
-    description: "When creating a neck model, this is how high the neck runs. This is an experimental feature for setting the height of a user's \"neck\" on orientation-only systems (such as Google Cardboard and Samsung Gear VR) to create a more realistic feel."
-  }, {
-    name: "nonstandardNeckDepth",
-    type: "Number",
-    optional: true,
-    description: "When creating a neck model, this is the distance from the center meridian of the neck to the eyes."
-  }, {
-    name: "showHeadPointer",
-    type: "Boolean",
-    optional: true,
-    default: true,
-    description: "Whether or not to show a pointer tracking the gaze direction."
-  }, {
-    name: "nonstandardIPD",
-    type: "Number",
-    optional: true,
-    description: "When creating a neck model, this is the how far apart to set the eyes. I highly suggest you don't go down the road that requires setting this. I will not help you understand what it does, because I would rather you just not use it."
-  }]
-});
-*/
-
 import { isCardboard, isiOS, isLandscape } from "../flags";
 
 import { box, hub } from "../live-api";
@@ -2018,9 +1829,213 @@ export default class BrowserEnvironment extends EventDispatcher {
   }
 }
 
+
+/*
+pliny.record({
+  parent: "Primrose.BrowserEnvironment",
+  name: "optionsHash",
+  description: "Settings to change how the environment looks and behaves.",
+  parameters: [{
+    name: "antialias",
+    type: "Boolean",
+    optional: true,
+    default: true,
+    description: "Enable or disable anti-aliasing"
+  }, {
+    name: "quality",
+    type: "Primrose.Constants.Quality",
+    optional: true,
+    default: "Primrose.Constants.Quality.MAXIMUM",
+    description: "The quality level at which to start rendering."
+  }, {
+    name: "fullScreenButtonContainer",
+    type: "String",
+    optional: true,
+    default: null,
+    description: "A DOM query selector that, if provided, will have buttons added to it for each of the fullscreen modes."
+  }, {
+    name: "useGaze",
+    type: "Boolean",
+    optional: true,
+    description: "Whether or not to used timed ring cursors. Defaults to true if the current system is a mobile device. Defaults to false if it's a desktop system."
+  }, {
+    name: "useFog",
+    type: "Boolean",
+    description: "Whether or not to use fog in the scene to limit view distance.",
+    optional: true,
+    default: false
+  }, {
+    name: "avatarHeight",
+    type: "Number",
+    optional: true,
+    default: 1.65,
+    description: "The default height of the user's avatar, if the VR system doesn't provide a height."
+  }, {
+    name: "walkSpeed",
+    type: "Number",
+    optional: true,
+    default: 2,
+    description: "The number of meters per second at which the user runs."
+  }, {
+    name: "disableKeyboard",
+    type: "Boolean",
+    optional: true,
+    default: false,
+    description: "Set to true to disable keyboard-based input."
+  }, {
+    name: "plugins",
+    type: "Array",
+    optional: true,
+    default: null,
+    description: "An array of `Primrose.Plugin.BasePlugin`s that will modify the BrowserEnvironment. By carving this functionality into Plugins, it allows the implementing developer to keep their bundle size small by avoiding features they don't care to use."
+  }, {
+    name: "progress",
+    type: "Object",
+    optional: true,
+    default: null,
+    description: "A hash object with callback functions for recording model download progress. Callbacks are named `thunk`, `hide`, and `resize`."
+  }, {
+    name: "fadeRate",
+    type: "Number",
+    optional: true,
+    default: 5,
+    description: "The change in opacity per second when fading between scenes."
+  }, {
+    name: "vicinityFollowRate",
+    type: "Number",
+    optional: true,
+    default: 0.02,
+    description: "The rate at which the UI shell catches up with the user's movement."
+  }, {
+    name: "gravity",
+    type: "Number",
+    optional: true,
+    default: 9.8,
+    description: "The acceleration applied to falling objects."
+  }, {
+    name: "gazeLength",
+    type: "Number",
+    optional: true,
+    default: 1.5,
+    description: "The amount of time in seconds to require gazes on objects before triggering the gaze event."
+  }, {
+    name: "disableAutoPause",
+    type: "Boolean",
+    description: "By default, the rendering will be paused when the browser window loses focus.",
+    optional: true,
+    default: false
+  }, {
+    name: "disableMirroring",
+    type: "Boolean",
+    optional: true,
+    default: false,
+    description: "By default, what we see in the VR view will get mirrored to a regular view on the primary screen. Set to true to improve performance."
+  }, {
+    name: "disableMotion",
+    type: "Boolean",
+    optional: true,
+    default: false,
+    description: "By default, mobile devices have a motion sensor that can be used to update the view. Set to true to disable motion tracking."
+  }, {
+    name: "disableDefaultLighting",
+    type: "Boolean",
+    optional: true,
+    default: false,
+    description: "By default, a single light is added to the scene,"
+  }, {
+    name: "backgroundColor",
+    type: "Number",
+    optional: true,
+    default: 0xafbfff,
+    description: "The color that WebGL clears the background with before drawing."
+  }, {
+    name: "skyTexture",
+    type: "String or Array of String",
+    optional: true,
+    description: "The texture(s) to use for the sky."
+  }, {
+    name: "groundTexture",
+    type: "String",
+    optional: true,
+    description: "The texture to use for the ground."
+  }, {
+    name: "groundModel",
+    type: "String",
+    optional: true,
+    default: null,
+    description: "A model file to use for the ground."
+  }, {
+    name: "nearPlane",
+    type: "Number",
+    optional: true,
+    default: 0.01,
+    description: "The near plane of the camera."
+  }, {
+    name: "drawDistance",
+    type: "Number",
+    optional: true,
+    default: 100,
+    description: "The distance from the near plane to the far plane of the camera."
+  }, {
+    name: "defaultFOV",
+    type: "Number",
+    optional: true,
+    default: 75,
+    description: "The field of view to use in non-VR settings."
+  }, {
+    name: "ambientSound",
+    type: "String",
+    optional: true,
+    description: "The sound to play on loop in the background."
+  }, {
+    name: "canvasElement",
+    type: "HTMLCanvasElement",
+    optional: true,
+    default: "frontBuffer",
+    description: "HTML5 canvas element to which to render, if one had already been created."
+  }, {
+    name: "renderer",
+    type: "THREE.WebGLRenderer",
+    optional: true,
+    description: "Three.js renderer, if one had already been created."
+  }, {
+    name: "context",
+    type: "WebGLRenderingContext",
+    optional: true,
+    description: "A WebGL context to use, if one had already been created."
+  }, {
+    name: "scene",
+    type: "THREE.Scene",
+    optional: true,
+    description: "Three.js scene, if one had already been created."
+  }, {
+    name: "nonstandardNeckLength",
+    type: "Number",
+    optional: true,
+    description: "When creating a neck model, this is how high the neck runs. This is an experimental feature for setting the height of a user's \"neck\" on orientation-only systems (such as Google Cardboard and Samsung Gear VR) to create a more realistic feel."
+  }, {
+    name: "nonstandardNeckDepth",
+    type: "Number",
+    optional: true,
+    description: "When creating a neck model, this is the distance from the center meridian of the neck to the eyes."
+  }, {
+    name: "showHeadPointer",
+    type: "Boolean",
+    optional: true,
+    default: true,
+    description: "Whether or not to show a pointer tracking the gaze direction."
+  }, {
+    name: "nonstandardIPD",
+    type: "Number",
+    optional: true,
+    description: "When creating a neck model, this is the how far apart to set the eyes. I highly suggest you don't go down the road that requires setting this. I will not help you understand what it does, because I would rather you just not use it."
+  }]
+});
+*/
 BrowserEnvironment.DEFAULTS = {
   antialias: true,
   quality: Quality.MAXIMUM,
+  fullScreenButtonContainer: null,
   useGaze: isCardboard,
   useFog: false,
   avatarHeight: 1.65,
@@ -2032,42 +2047,25 @@ BrowserEnvironment.DEFAULTS = {
     hide: function() {},
     resize: function() {}
   },
-  // The rate at which the view fades in and out.
   fadeRate: 5,
-  // The rate at which the UI shell catches up with the user's movement.
   vicinityFollowRate: 0.02,
-  // The acceleration applied to falling objects.
   gravity: -9.8,
-  // The amount of time in seconds to require gazes on objects before triggering the gaze event.
   gazeLength: 1.5,
-  // By default, the rendering will be paused when the browser window loses focus.
   disableAutoPause: false,
-  // By default, what we see in the VR view will get mirrored to a regular view on the primary screen. Set to true to improve performance.
   disableMirroring: false,
-  // By default, motion is enabled,
   disableMotion: false,
-  // By default, a single light is added to the scene,
   disableDefaultLighting: false,
-  // The color that WebGL clears the background with before drawing.
   backgroundColor: 0xafbfff,
-  // the textures to use for the sky and ground
   skyTexture: null,
   groundTexture: null,
-  // the near plane of the camera.
+  groundModel: null,
   nearPlane: 0.01,
-  // the far plane of the camera.
   drawDistance: 100,
-  // the field of view to use in non-VR settings.
   defaultFOV: StandardMonitorVRDisplay.DEFAULT_FOV,
-  // The sound to play on loop in the background.
   ambientSound: null,
-  // HTML5 canvas element, if one had already been created.
   canvasElement: "frontBuffer",
-  // Three.js renderer, if one had already been created.
   renderer: null,
-  // A WebGL context to use, if one had already been created.
   context: null,
-  // Three.js scene, if one had already been created.
   scene: null,
   // This is an experimental feature for setting the height of a user's "neck" on orientation-only systems (such as Google Cardboard and Samsung Gear VR) to create a more realistic feel.
   nonstandardNeckLength: null,
