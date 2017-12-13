@@ -55,6 +55,6 @@
   },
   "devDependencies": {
     "gulp": "^3.9.1",
-    "marigold-build": "file://../../marigold-build/marigold-build"
+    "marigold-build": "^1.18.6"
   }
 }
