@@ -1,3 +1,13 @@
+/*
+pliny.class({
+	parent: "THREE",
+	name: "OBJLoader",
+	description: "A loader class for the Wavefront OBJ file format",
+	link: "https://github.com/mrdoob/three.js/blob/master/examples/js/loaders/OBJLoader.js"
+});
+*/
+
+
 /**
  * @author mrdoob / http://mrdoob.com/
  */

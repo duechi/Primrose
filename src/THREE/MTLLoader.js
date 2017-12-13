@@ -1,3 +1,12 @@
+/*
+pliny.class({
+  parent: "THREE",
+  name: "MTLLoader",
+  description: "A loader class for the Wavefront MTL file format",
+  link: "https://github.com/mrdoob/three.js/blob/master/examples/js/loaders/MTLLoader.js"
+});
+*/
+
 /**
  * Loads a Wavefront .mtl file specifying materials
  *

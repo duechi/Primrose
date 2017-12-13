@@ -1,11 +1,3 @@
-/*
-pliny.function({
-  parent: "Live API",
-  name: "phys",
-  description: "Make a 3D object react to physics updates."
-});
-*/
-
 import CANNON from "cannon";
 import { Vector3 } from "three";
 
@@ -14,6 +6,38 @@ import Entity from "../Primrose/Controls/Entity";
 
 const TEMP = new Vector3();
 
+/*
+pliny.function({
+  parent: "Live API",
+  name: "phys",
+  description: "Make a 3D object react to physics updates.",
+  returns: "Primrose.Controls.Entity",
+  parameters: [{
+    name: "obj",
+    type: "THREE.Mesh",
+    description: "The object to which to add physics capability."
+  }, {
+    name: "options",
+    type: "Live API.phys.optionsHash",
+    description: "Optional settings for creating the physics settings."
+  }]
+});
+
+pliny.record({
+  parent: "Live API.phys",
+  name: "optionsHash",
+  type: "Object",
+  description: "A record holding options for the `phys` function. Extends CANNON.Body's constructor options.",
+  link: "http://schteppe.github.io/cannon.js/docs/classes/Body.html",
+  parameters: [{
+    name: "disableAutoShape",
+    type: "Boolean",
+    description: "Set to true to disable using the Mesh's geometry to estimate a bounding box or sphere.",
+    optional: true,
+    defaultValue: false
+  }]
+});
+*/
 export default function phys(obj, options) {
   options = Object.assign({}, options);
 

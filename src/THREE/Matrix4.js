@@ -1,5 +1,21 @@
 import { Matrix4 } from "three";
 
+
+/*
+pliny.method({
+  parent: "THREE.Matrix4",
+  name: "toString",
+  returns: "String",
+  description: "Prints a debugging log of the matrix.",
+  parameters: [{
+    name: "digits",
+    type: "Number",
+    description: "The number of significant digits to print per matrix element.",
+    optional: true,
+    defaultValue: 10
+  }]
+});
+*/
 Matrix4.prototype.toString = function(digits) {
   if(digits === undefined){
     digits = 10;
