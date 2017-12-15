@@ -1,15 +1,10 @@
 var env = new Primrose.BrowserEnvironment({
   backgroundColor: 0x000000,
-  groundTexture: "../shared_assets/images/deck.png",
+  useFog: true,
   drawDistance: 100,
   fullScreenButtonContainer: "#fullScreenButtonContainer",
   nonstandardNeckLength: 0.15,
-  nonstandardNeckDepth: 0.075,
-  plugins: [
-    new Primrose.Graphics.Fog(),
-    new Primrose.Graphics.Shadows(),
-    new Primrose.Physics.Engine()
-  ]
+  nonstandardNeckDepth: 0.075
 });
 
 for(var i = 0; i < 50; ++i){

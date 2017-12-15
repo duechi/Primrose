@@ -1,21 +1,49 @@
 import { box, quad, sphere } from "../../live-api";
 import { isMobile } from "../../flags";
+import BasePlugin from "../BasePlugin";
 import Entity from "./Entity";
 import Image from "./Image";
 
 import { DirectionalLight, AmbientLight, BackSide } from "three";
 
-export default class Sky extends Entity {
-
+/*, {
+    name: "texture",
+    type: "String or Array of String",
+    optional: true,
+    description: "The texture(s) to use for the sky."
+  }*/
+export default class SkyPlugin extends BasePlugin {
   constructor(options) {
-    super("Sky", {
+    super("Sky", options);
+  }
+
+  get requirements(){
+    return ["scene"];
+  }
+
+  _install(env) {
+    env.sky = new Sky({
       transparent: false,
       useFog: false,
       unshaded: true,
-      skyRadius: options.drawDistance,
-      texture: options.skyTexture,
-      progress: options.progress
+      texture: this.options.texture,
+      skyRadius: env.options.drawDistance,
+      progress: env.options.progress
     });
+
+    return env.sky.ready.then(() =>
+      env.sky.addTo(env.scene));
+  }
+
+  postUpdate(env, dt) {
+    env.sky.position.copy(env.head.position);
+  }
+}
+
+class Sky extends Entity {
+
+  constructor(options) {
+    super("Sky", options);
 
     this._image = null;
 

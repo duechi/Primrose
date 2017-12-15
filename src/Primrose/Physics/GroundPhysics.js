@@ -18,7 +18,7 @@ export default class GroundPhysics extends BasePlugin {
     return ["ground.rigidBody", "physics"];
   }
 
-  install(env) {
+  _install(env) {
     env.physics.addBody(env.ground.rigidBody);
   }
 

@@ -1,6 +1,8 @@
 import { Vector3 } from "three";
 
-import { sphere } from "../../live-api"
+import { sphere } from "../../live-api";
+
+import BasePlugin from "../BasePlugin";
 
 const DIFF = new Vector3(),
   MAX_MOVE_DISTANCE = 5,
@@ -9,11 +11,12 @@ const DIFF = new Vector3(),
   TELEPORT_PAD_RADIUS = 0.4,
   TELEPORT_COOLDOWN = 250;
 
-export default class Teleporter {
-  constructor(env) {
+export default class Teleporter extends BasePlugin{
+  constructor() {
+    super("Teleporter");
 
     this.enabled = true;
-    this._environment = env;
+    this._environment = null;
 
     this._startPoint = new Vector3();
     this._moveDistance = 0;
@@ -23,6 +26,28 @@ export default class Teleporter {
     this._move = this._move.bind(this);
     this._end = this._end.bind(this);
 
+    this.disk = sphere(TELEPORT_PAD_RADIUS, 128, 3)
+      .colored(0xff0000, {
+        unshaded: true
+      })
+      .named("disk");
+
+    this.disk.geometry.computeBoundingBox();
+    this.disk.geometry.vertices.forEach((v) => {
+      v.y = 0.1 * (v.y - this.disk.geometry.boundingBox.min.y);
+    });
+    this.disk.geometry.computeBoundingBox();
+
+    this.disk.visible = false;
+  }
+
+  get requirements() {
+    return ["scene", "ground"];
+  }
+
+  _install(env){
+    this._environment = env;
+    this.disk.addTo(env.scene);
     env.ground.on("exit", this._exit)
       .on("gazecancel", this._exit)
       .on("gazecomplete", this._exit)
@@ -35,22 +60,6 @@ export default class Teleporter {
       .on("gazemove", this._move)
 
       .on("select", this._end);
-
-
-    this.disk = sphere(TELEPORT_PAD_RADIUS, 128, 3)
-      .colored(0xff0000, {
-        unshaded: true
-      })
-      .named("disk")
-      .addTo(env.scene);
-
-    this.disk.geometry.computeBoundingBox();
-    this.disk.geometry.vertices.forEach((v) => {
-      v.y = 0.1 * (v.y - this.disk.geometry.boundingBox.min.y);
-    });
-    this.disk.geometry.computeBoundingBox();
-
-    this.disk.visible = false;
   }
 
   _exit(evt) {

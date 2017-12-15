@@ -13,6 +13,7 @@ import Constants from "./constants";
 import Controls from "./Controls";
 import Displays from "./Displays";
 import DOM from "./DOM";
+import Environment from "./Environment";
 import Graphics from "./Graphics";
 import HTTP from "./HTTP";
 import Input from "./Input";
@@ -32,6 +33,7 @@ export {
   Controls,
   Displays,
   DOM,
+  Environment,
   Graphics,
   HTTP,
   Input,
@@ -52,6 +54,7 @@ export default {
   Controls,
   Displays,
   DOM,
+  Environment,
   Graphics,
   HTTP,
   Input,

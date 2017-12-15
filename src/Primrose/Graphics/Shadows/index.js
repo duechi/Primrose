@@ -53,7 +53,7 @@ export default class Shadows extends BasePlugin {
     return [];
   }
 
-  install(env) {
+  _install(env) {
     return [
       new EnableShadows(),
       new GroundShadows(),

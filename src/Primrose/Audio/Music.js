@@ -37,7 +37,7 @@ export default class Music extends BasePlugin {
     return ["audio"];
   }
 
-  install(env) {
+  _install(env) {
     env.music = this;
     this.audio = env.audio;
     this.audio.ready.then(() => {

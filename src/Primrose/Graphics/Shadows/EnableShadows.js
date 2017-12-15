@@ -20,7 +20,7 @@ export default class EnableShadows extends BasePlugin {
     return ["renderer"];
   }
 
-  install(env) {
+  _install(env) {
     env.renderer.shadowMap.enabled = true;
     env.renderer.shadowMap.type = PCFSoftShadowMap;
   }

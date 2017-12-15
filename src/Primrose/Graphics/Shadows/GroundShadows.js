@@ -18,7 +18,7 @@ export default class GroundShadows extends BasePlugin {
     return ["ground.model"];
   }
 
-  install(env) {
+  _install(env) {
     const ground = env.ground.model;
     if(ground.isMesh) {
       ground.receiveShadow = true;

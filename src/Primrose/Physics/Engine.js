@@ -41,7 +41,7 @@ export default class Engine extends BasePlugin {
     return ["scene"];
   }
 
-  install(env) {
+  _install(env) {
     env.physics = new CANNON.World();
     env.physics.gravity.set(0, this.options.gravity, 0);
     env.physics.broadphase = new CANNON.NaiveBroadphase();

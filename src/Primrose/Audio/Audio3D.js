@@ -111,7 +111,7 @@ export default class Audio3D extends BasePlugin {
     return [];
   }
 
-  install(env) {
+  _install(env) {
     env.audio = this;
 
     if (this.options.ambientSound) {

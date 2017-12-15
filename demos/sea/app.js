@@ -2,14 +2,11 @@ var env = new Primrose.BrowserEnvironment({
   font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
   backgroundColor: 0x07001f,
   groundTexture: "../shared_assets/images/water.png",
+  useFog: true,
   drawDistance: 25,
   gazeLength: 0.25,
   showHeadPointer: isMobile,
-  fullScreenButtonContainer: "#fullScreenButtonContainer",
-  plugins: [
-    new Primrose.Graphics.Fog(),
-    new Primrose.Graphics.Shadows()
-  ]
+  fullScreenButtonContainer: "#fullScreenButtonContainer"
 }),
 
   moon = textured(circle(1, 45), "moon.jpg", {

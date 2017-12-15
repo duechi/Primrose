@@ -12,13 +12,10 @@ var WIDTH = 100,
     skyTexture: "../shared_assets/images/bg.jpg",
     groundTexture: "../shared_assets/images/grass.png",
     font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
+    useFog: true,
     drawDistance: 100,
+    enableShadows: true,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
-    plugins: [
-      new Primrose.Graphics.Fog(),
-      new Primrose.Graphics.Shadows(),
-      new Primrose.Physics.Engine()
-    ]
   });
 
 

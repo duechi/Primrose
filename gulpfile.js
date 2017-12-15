@@ -14,7 +14,7 @@ var gulp = require("gulp"),
   justDemoPugFiles = ["demos/**/*.pug"],
   stylusFiles = inplace("styl"),
   justDemoStylusFiles = ["demos/**/*.styl"],
-  justDemoJSFiles = ["demos/**/*.js", "!demos/**/*.min.js", "!demos/pacman/pacman.js"],
+  justDemoJSFiles = ["demos/**/*.js", "!demos/**/*.min.js", "!demos/**/src/*.js", "!demos/pacman/pacman.js"],
   htmlFiles = inplace("html"),
   cssFiles = inplace("css"),
   jsFiles = inplace("js"),
@@ -36,22 +36,37 @@ var gulp = require("gulp"),
 
   preloader = marigold.js({
     entry: "preloader/index.js",
+    advertise: false,
     disableGenerators: true,
     sourceMap: false
   }),
 
-  jsOptions = (fmt) => {
-    return {
+  demos = glob("demos/*/src/index.js").map((entry) => {
+    const name = entry.match(/demos\/(\w+)\/src\/index.js/)[1],
+      fileName = entry.replace("src/index.js", "app.js");
+    return marigold.js({
+      name: "demo:" + name,
+      entry,
+      fileName,
+      advertise: false,
+      sourceMap: false,
+      extractDocumentation: false,
+      format: "umd"
+    });
+  }),
+
+  jsBuild = (fmt) => {
+    return marigold.js({
       name: "Primrose",
       advertise: true,
       sourceMap: (debug) => debug && fmt === "umd",
       extractDocumentation: (debug) => !debug,
       format: fmt
-    };
+    });
   },
 
-  jsUMD = marigold.js(jsOptions("umd")),
-  jsESModules = marigold.js(jsOptions("es")),
+  jsUMD = jsBuild("umd"),
+  jsESModules = jsBuild("es"),
 
   tidyFiles = [
     "preloader.min.js.map",
@@ -66,16 +81,19 @@ var gulp = require("gulp"),
     .concat(pugFiles)
     .concat(stylusFiles)
     .concat(preloaderFiles)
-    .concat(srcFiles),
+    .concat(srcFiles)
+    .concat(["demos/*/src/*.js"]),
 
   reloadOnFiles = ["!gulpfile.js"]
     .concat(jsFiles)
     .concat(cssFiles)
-    .concat(htmlFiles),
+    .concat(htmlFiles)
+    .concat(["demos/*/app.js"]),
 
   devServer = marigold.devServer(stopOnFiles, reloadOnFiles, {
     debounceDelay: 1500,
-    url: "fx/"
+    keepOpenOnLastDisconnect: true,
+    url: "fx/demos/empty"
   }),
 
   copyQuickstart = marigold.move(["Primrose.min.js"], "quickstart"),
@@ -92,11 +110,11 @@ gulp.task("serve", devServer);
 marigold.taskify([
   html,
   css,
-  images,
+  //images,
   preloader,
   jsUMD,
   jsESModules
-], {
+].concat(demos), {
   default: devServer,
   release() {
     gulp.start(tidy.release);

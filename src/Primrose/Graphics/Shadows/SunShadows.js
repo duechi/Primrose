@@ -51,7 +51,7 @@ export default class SunShadows extends BasePlugin {
     return ["sky.sun"];
   }
 
-  install(env) {
+  _install(env) {
     const sun = env.sky.sun;
     sun.castShadow = true;
     sun.shadow.mapSize.width =

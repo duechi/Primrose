@@ -45,7 +45,7 @@ export default class Manager extends BasePlugin {
     ];
   }
 
-  install(env) {
+  _install(env) {
     this.localUser = env;
     this.audio = env.audio;
     this.factories = env.factories;

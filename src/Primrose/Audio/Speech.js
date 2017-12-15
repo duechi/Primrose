@@ -35,7 +35,7 @@ export default class Speech extends BasePlugin {
     return [];
   }
 
-  install(env) {
+  _install(env) {
     env.speech = this;
   }
 

@@ -1,5 +1,6 @@
 import { EventDispatcher } from "three";
 
+import { coallesce } from "../util";
 /*
 pliny.class({
   parent: "Primrose.Plugin",
@@ -29,9 +30,9 @@ export default class BasePlugin extends EventDispatcher {
 
   constructor(name, options, defaults) {
     super();
-    this.firstAttempt = true;
+    this.retry = 3;
     this.name = name;
-    this.options = Object.assign({}, defaults, options);;
+    this.options = coallesce({}, defaults, options);
   }
 
   /*
@@ -91,6 +92,8 @@ export default class BasePlugin extends EventDispatcher {
     return missing;
   }
 
+  get isBasePlugin() { return true; }
+
   /*
   plugin.method({
     parent: "Primrose.Plugin.BasePlugin",
@@ -105,6 +108,25 @@ export default class BasePlugin extends EventDispatcher {
   });
   */
   install(env) {
+    let task = this._install(env);
+
+    if(!(task instanceof Promise)) {
+      task = Promise.resolve(task);
+    }
+
+    return task.then((results) => {
+      if(results === undefined || results === null) {
+        results = [];
+      }
+      else if(!(results instanceof Array)) {
+        results = [results];
+      }
+
+      return results.filter(r => r.isBasePlugin);
+    });
+  }
+
+  _install(env) {
     throw new Error("Primrose.Plugin.BasePlugin::install() > not implemented");
   }
 

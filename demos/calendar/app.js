@@ -19,13 +19,10 @@ var monthNames = ["January", "February", "March", "April", "May", "June", "July"
     groundTexture: "../shared_assets/images/ideck.png",
     font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
     backgroundColor: secondaryColor,
+    useFog: true,
     drawDistance: hDim,
+    enableShadows: true,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
-    plugins: [
-      new Primrose.Graphics.Shadows(),
-      new Primrose.Graphics.Fog(),
-      new Primrose.Audio.Speech()
-    ]
   });
 
 

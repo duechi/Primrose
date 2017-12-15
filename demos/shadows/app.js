@@ -1,12 +1,10 @@
 const env = new Primrose.BrowserEnvironment({
+    useFog: true,
+    enableShadows: true,
     groundTexture: 0x606060,
     backgroundColor: 0xd0d0d0,
-    fullScreenButtonContainer: "#fullScreenButtonContainer",
-    plugins: [
-      new Primrose.Graphics.Fog(),
-      new Primrose.Graphics.Shadows()
-    ]
-  }).on("ready", function() {
+    fullScreenButtonContainer: "#fullScreenButtonContainer"
+  }.on("ready", function() {
 
     for(var i = 0; i < 10; ++i) {
       box(0.125)

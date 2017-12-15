@@ -8,8 +8,10 @@ When including Primrose as a `script` tag, the Util functions are imported direc
 */
 
 import Angle from "./Angle";
+import any from "./any";
 import AsyncLockRequest from "./AsyncLockRequest";
 import cache from "./cache";
+import coallesce from "./coallesce";
 import deleteSetting from "./deleteSetting";
 import findProperty from "./findProperty";
 import FullScreen from "./FullScreen";
@@ -33,8 +35,10 @@ import Workerize from "./Workerize";
 
 export {
   Angle,
+  any,
   AsyncLockRequest,
   cache,
+  coallesce,
   deleteSetting,
   findProperty,
   FullScreen,
@@ -58,8 +62,10 @@ export {
 
 export default {
   Angle,
+  any,
   AsyncLockRequest,
   cache,
+  coallesce,
   deleteSetting,
   findProperty,
   FullScreen,
