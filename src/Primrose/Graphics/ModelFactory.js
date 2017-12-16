@@ -40,7 +40,7 @@ pliny.class({
 });
 */
 
-import { ObjectLoader, FontLoader, AnimationClip } from "three";
+import { ObjectLoader, AnimationClip } from "three";
 
 import { MTLLoader, OBJLoader } from "../../THREE"
 
@@ -183,8 +183,7 @@ export default class ModelFactory {
         loaders = {
           ".json": ObjectLoader,
           ".mtl": MTLLoader,
-          ".obj": OBJLoader,
-          ".typeface.json": FontLoader
+          ".obj": OBJLoader
         }
       }
       var LoaderType = loaders[extension];

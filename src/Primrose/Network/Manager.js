@@ -12,7 +12,7 @@ pliny.class({
     type: "Primrose.Output.Audio3D",
     description: "The audio manager being used in the current Environment."
   }, {
-    name: "factories",
+    name: "avatar",
     type: "Primrose.Controls.ModelFactory",
     description: "Model factory for creating avatars for new remote users."
   }]
@@ -25,9 +25,10 @@ import RemoteUser from "./RemoteUser";
 export default class Manager extends BasePlugin {
   constructor(options) {
     super("NetworkManager", options);
+    this.avatarNameColor = null;
     this.localUser = null;
     this.audio = null;
-    this.factories = null;
+    this.avatar = null;
     this.lastNetworkUpdate = 0;
     this.oldState = [];
     this.users = {};
@@ -41,14 +42,15 @@ export default class Manager extends BasePlugin {
   get requirements() {
     return [
       "audio",
-      "factories.avatar"
+      "avatar"
     ];
   }
 
   _install(env) {
     this.localUser = env;
     this.audio = env.audio;
-    this.factories = env.factories;
+    this.avatar = env.avatar;
+    this.avatarNameColor = env.options.foregroundColor;
     this.addEventListener("addavatar", env.addAvatar);
     this.addEventListener("removeavatar", env.removeAvatar);
   }
@@ -123,10 +125,10 @@ export default class Manager extends BasePlugin {
     this._socket = null;
   }
 
-  addUser(state, goSecond) {
+  addUser(state) {
     console.log("User %s logging on.", state[0]);
     var toUserName = state[0],
-      user = new RemoteUser(toUserName, this.factories.avatar, this.options.foregroundColor, this.options.disableWebRTC, this.options.webRTC, this.microphone, this.userName, goSecond);
+      user = new RemoteUser(toUserName, this.avatar, this.avatarNameColor);
     this.users[toUserName] = user;
     this.updateUser(state);
     this.emit("addavatar", user);
@@ -148,7 +150,7 @@ export default class Manager extends BasePlugin {
     Object.keys(this.users)
       .forEach(this.removeUser.bind(this));
     while (newUsers.length > 0) {
-      this.addUser(newUsers.shift(), true);
+      this.addUser(newUsers.shift());
     }
     this.emit("authorizationsucceeded");
   }

@@ -16,18 +16,6 @@ pliny.class({
     name: "nameMaterial",
     type: "Number",
     description: "The color to use with `colored()` to set as the material for the NAME object that will float above the user's avatar."
-  }, {
-    name: "requestICEPath",
-    type: "string",
-    description: "A request path at which to retrieve the extra ICE servers to use with the connection."
-  }, {
-    name: "microphone",
-    type: "Promise",
-    description: "A promise that resolves with an audio stream that can be sent to the remote user, representing the local user's voice chat."
-  }, {
-    name: "localUserName",
-    type: "String",
-    description: "The name of the user initiating the peer connection."
   }]
 });
 */
@@ -42,7 +30,7 @@ import { Quaternion, Vector3 } from "three";
 
 export default class RemoteUser extends EventDispatcher {
 
-  constructor(userName, modelFactory, nameMaterial, disableWebRTC, requestICEPath, microphone, localUserName, goSecond) {
+  constructor(userName, modelFactory, nameMaterial) {
     super();
     this.time = 0;
 

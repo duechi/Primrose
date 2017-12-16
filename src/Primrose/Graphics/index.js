@@ -11,7 +11,9 @@ import Fog from "./Fog";
 import InsideSphereGeometry from "./InsideSphereGeometry";
 import loadTexture from "./loadTexture";
 import ModelFactory from "./ModelFactory";
+import ModelFactoryPlugin from "./ModelFactoryPlugin";
 import Shadows from "./Shadows";
+import Text3D from "./Text3D";
 
 export {
   fixGeometry,
@@ -19,7 +21,9 @@ export {
   InsideSphereGeometry,
   loadTexture,
   ModelFactory,
-  Shadows
+  ModelFactoryPlugin,
+  Shadows,
+  Text3D
 };
 
 export default {
@@ -28,5 +32,7 @@ export default {
   InsideSphereGeometry,
   loadTexture,
   ModelFactory,
-  Shadows
+  ModelFactoryPlugin,
+  Shadows,
+  Text3D
 };

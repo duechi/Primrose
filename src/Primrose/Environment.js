@@ -20,14 +20,12 @@ import { isCardboard, isiOS, isLandscape } from "../flags";
 
 import { box, hub } from "../live-api";
 
-import { FullScreen, PointerLock, identity, Angle } from "../util";
+import { FullScreen, PointerLock, identity, Angle, documentReady } from "../util";
 
 import Pointer from "./Pointer";
 import Keys from "./Keys";
 
 import { updateAll, eyeBlankAll } from "./Controls/BaseTextured";
-import Button3D from "./Controls/Button3D";
-import ButtonFactory from "./Controls/ButtonFactory";
 import { updateAllEntities } from "./Controls/Entity";
 import Image from "./Controls/Image";
 
@@ -35,8 +33,6 @@ import StandardMonitorVRDisplay from "./Displays/StandardMonitorVRDisplay";
 
 import cascadeElement from "./DOM/cascadeElement";
 import makeHidingContainer from "./DOM/makeHidingContainer";
-
-import ModelFactory from "./Graphics/ModelFactory";
 
 import Keyboard from "./Input/Keyboard";
 import Mouse from "./Input/Mouse";
@@ -52,7 +48,6 @@ import {
   BackSide,
   Scene,
   PerspectiveCamera,
-  TextGeometry,
   Quaternion,
   Color,
   Euler,
@@ -437,25 +432,17 @@ export default class BrowserEnvironment extends EventDispatcher {
       qPitch = new Quaternion(),
       vEye = new Vector3(),
       vBody = new Vector3(),
-      modelFiles = {
-        scene: this.options.sceneModel,
-        avatar: this.options.avatarModel,
-        button: this.options.button && typeof this.options.button.model === "string" && this.options.button.model,
-        font: this.options.font
-      },
       resolutionScale = 1;
 
     /*
     pliny.property({
       parent: "Primrose.BrowserEnvironment",
-      name: "factories",
+      name: "avatar",
       type: "Object",
-      description: "A database of object factories, generally used to create 3D models."
+      description: "An object factory for the 3D model representing users."
     });
     */
-    this.factories = {
-      avatar: null
-    };
+    this.avatar = null;
 
     function setColor(model, color) {
       return model.children[0].material.color.set(color);
@@ -470,45 +457,6 @@ export default class BrowserEnvironment extends EventDispatcher {
       rgb.setHSL(hsl.h, hsl.s, hsl.l);
       return rgb;
     }
-
-    var modelsReady = ModelFactory.loadObjects(modelFiles, this.options.progress.thunk)
-      .then((models) => {
-        window.text3D = function (font, size, text) {
-          var geom = new TextGeometry(text, {
-            font: font,
-            size: size,
-            height: size / 5,
-            curveSegments: 2
-          });
-          geom.computeBoundingSphere();
-          geom.computeBoundingBox();
-          return geom;
-        }.bind(window, models.font);
-
-        if (models.scene) {
-          buildScene(models.scene);
-        }
-
-        if (models.avatar) {
-          this.factories.avatar = new ModelFactory(models.avatar);
-        }
-
-        /*
-        pliny.property({
-          parent: "Primrose.BrowserEnvironment",
-          name: "buttonFactory",
-          type: "Primrose.Controls.ButtonFactory",
-          description: "A factory for creating the geometry for individual 3D buttons whenever they are needed."
-        })
-*/
-        if (models.button) {
-          this.buttonFactory = new ButtonFactory(
-            models.button,
-            this.options.button.options);
-        }
-      })
-      .catch((err) => console.error(err))
-      .then(() => this.buttonFactory = this.buttonFactory || ButtonFactory.DEFAULT);
 
     //
     // Initialize public properties
@@ -533,20 +481,6 @@ export default class BrowserEnvironment extends EventDispatcher {
     });
     */
     this.audio = null;
-
-    var documentReady = null;
-    if (document.readyState === "complete") {
-      documentReady = Promise.resolve("already");
-    }
-    else {
-      documentReady = new Promise((resolve, reject) => {
-        document.addEventListener("readystatechange", (evt) => {
-          if (document.readyState === "complete") {
-            resolve("had to wait for it");
-          }
-        }, false);
-      });
-    }
 
     /*
     pliny.property({
@@ -831,42 +765,6 @@ export default class BrowserEnvironment extends EventDispatcher {
     this.vicinity = hub().named("Vicinity").addTo(this.scene);
     this.ui = hub().named("UI").addTo(this.vicinity);
 
-    var buildScene = (sceneGraph) => {
-      sceneGraph.buttons = [];
-      sceneGraph.traverse(function (child) {
-        if (child.isButton) {
-          sceneGraph.buttons.push(
-            new Button3D(child.parent, child.name));
-        }
-        if (child.name) {
-          sceneGraph[child.name] = child;
-        }
-      });
-      this.scene.add.apply(this.scene, sceneGraph.children);
-      this.scene.traverse((obj) => {
-        if (this.options.disableDefaultLighting && obj.material) {
-          if(obj.material.map){
-            obj.textured(obj.material.map, {
-              unshaded: true
-            });
-          }
-          else{
-            obj.colored(obj.material.color.getHex(), {
-              unshaded: true
-            });
-          }
-        }
-        if (obj.name) {
-          this.scene[obj.name] = obj;
-        }
-      });
-      if (sceneGraph.Camera) {
-        this.camera.position.copy(sceneGraph.Camera.position);
-        this.camera.quaternion.copy(sceneGraph.Camera.quaternion);
-      }
-      return sceneGraph;
-    };
-
     /*
     pliny.method({
       parent: "Primrose.BrowserEnvironment",
@@ -1014,484 +912,6 @@ export default class BrowserEnvironment extends EventDispatcher {
       description: "The Three.js renderer being used to draw the scene."
     });
     */
-    documentReady = documentReady.then(() => {
-      if (this.options.renderer) {
-        this.renderer = this.options.renderer;
-      }
-      else {
-        this.renderer = new WebGLRenderer({
-          canvas: cascadeElement(this.options.canvasElement, "canvas", HTMLCanvasElement),
-          context: this.options.context,
-          antialias: this.options.antialias,
-          alpha: true,
-          logarithmicDepthBuffer: false
-        });
-        this.renderer.autoClear = false;
-        this.renderer.sortObjects = true;
-        this.renderer.setClearColor(this.options.backgroundColor);
-        if (!this.renderer.domElement.parentElement) {
-          document.body.appendChild(this.renderer.domElement);
-        }
-      }
-
-      this.options.fullScreenElement = cascadeElement(this.options.fullScreenElement) || this.renderer.domElement.parentElement;
-      let maxTabIndex = 0;
-      const elementsWithTabIndex = document.querySelectorAll("[tabIndex]");
-      for(let i = 0; i < elementsWithTabIndex.length; ++i){
-        maxTabIndex = Math.max(maxTabIndex, elementsWithTabIndex[i].tabIndex);
-      }
-
-      this.renderer.domElement.tabIndex = maxTabIndex + 1;
-      this.renderer.domElement.addEventListener('webglcontextlost', this.pause, false);
-      this.renderer.domElement.addEventListener('webglcontextrestored', this.start, false);
-
-      this.managers = [];
-      this.newState = [];
-      this.pointers = [];
-      this.motionDevices = [];
-      this.velocity = new Vector3();
-      this.matrix = new Matrix4();
-
-      if(!this.options.disableKeyboard) {
-        this.addInputManager(new Keyboard(this, {
-          strafeLeft: {
-            buttons: [
-              -Keys.A,
-              -Keys.LEFTARROW
-            ]
-          },
-          strafeRight: {
-            buttons: [
-              Keys.D,
-              Keys.RIGHTARROW
-            ]
-          },
-          strafe: {
-            commands: ["strafeLeft", "strafeRight"]
-          },
-          driveForward: {
-            buttons: [
-              -Keys.W,
-              -Keys.UPARROW
-            ]
-          },
-          driveBack: {
-            buttons: [
-              Keys.S,
-              Keys.DOWNARROW
-            ]
-          },
-          drive: {
-            commands: ["driveForward", "driveBack"]
-          },
-          select: {
-            buttons: [Keys.ENTER]
-          },
-          dSelect: {
-            buttons: [Keys.ENTER],
-            delta: true
-          },
-          zero: {
-            buttons: [Keys.Z],
-            metaKeys: [
-              -Keys.CTRL,
-              -Keys.ALT,
-              -Keys.SHIFT,
-              -Keys.META
-            ],
-            commandUp: this.emit.bind(this, "zero")
-          }
-        }));
-
-        this.Keyboard.operatingSystem = this.options.os;
-        this.Keyboard.codePage = this.options.language;
-      }
-
-      this.addInputManager(new Touch(this.renderer.domElement, {
-        U: { axes: ["X0"], min: 0, max: 2, offset: 0 },
-        V: { axes: ["Y0"], min: 0, max: 2 },
-        buttons: {
-          axes: ["FINGERS"]
-        },
-        dButtons: {
-          axes: ["FINGERS"],
-          delta: true
-        },
-        heading: {
-          axes: ["DX0"],
-          integrate: true
-        },
-        pitch: {
-          axes: ["DY0"],
-          integrate: true,
-          min: -Math.PI * 0.5,
-          max: Math.PI * 0.5
-        }
-      }));
-
-
-      this.addInputManager(new Mouse(this.options.fullScreenElement, {
-        U: { axes: ["X"], min: 0, max: 2, offset: 0 },
-        V: { axes: ["Y"], min: 0, max: 2 },
-        buttons: {
-          axes: ["BUTTONS"]
-        },
-        dButtons: {
-          axes: ["BUTTONS"],
-          delta: true
-        },
-        _dx: {
-          axes: ["X"],
-          delta: true,
-          scale: 0.25
-        },
-        dx: {
-          buttons: [0],
-          commands: ["_dx"]
-        },
-        heading: {
-          commands: ["dx"],
-          integrate: true
-        },
-        _dy: {
-          axes: ["Y"],
-          delta: true,
-          scale: 0.25
-        },
-        dy: {
-          buttons: [0],
-          commands: ["_dy"]
-        },
-        pitch: {
-          commands: ["dy"],
-          integrate: true,
-          min: -Math.PI * 0.5,
-          max: Math.PI * 0.5
-        }
-      }));
-
-      // toggle back and forth between touch and mouse
-      this.Touch.addEventListener("activate", (evt) => this.Mouse.inPhysicalUse = false);
-      this.Mouse.addEventListener("activate", (evt) => this.Touch.inPhysicalUse = false);
-
-      this.addInputManager(new VR(this.options));
-
-      this.motionDevices.push(this.VR);
-
-      if(!this.options.disableGamepad && GamepadManager.isAvailable){
-        this.gamepadMgr = new GamepadManager();
-        this.gamepadMgr.addEventListener("gamepadconnected", (pad) => {
-          const padID = Gamepad.ID(pad);
-          let mgr = null;
-
-          if (padID !== "Unknown" && padID !== "Rift") {
-            if (Gamepad.isMotionController(pad)) {
-              let controllerNumber = 0;
-              for (let i = 0; i < this.managers.length; ++i) {
-                mgr = this.managers[i];
-                if (mgr.currentPad && mgr.currentPad.id === pad.id) {
-                  ++controllerNumber;
-                }
-              }
-
-              mgr = new Gamepad(this.gamepadMgr, pad, controllerNumber, {
-                buttons: {
-                  axes: ["BUTTONS"]
-                },
-                dButtons: {
-                  axes: ["BUTTONS"],
-                  delta: true
-                },
-                zero: {
-                  buttons: [Gamepad.VIVE_BUTTONS.GRIP_PRESSED],
-                  commandUp: this.emit.bind(this, "zero")
-                }
-              });
-
-              this.addInputManager(mgr);
-              this.motionDevices.push(mgr);
-
-              const shift = (this.motionDevices.length - 2) * 8,
-                color = 0x0000ff << shift,
-                highlight = 0xff0000 >> shift,
-                ptr = new Pointer(padID + "Pointer", color, 1, highlight, [mgr], null, this.options);
-
-              // a rough model to represent the motion controller
-              box(0.1, 0.025, 0.2)
-                .colored(color, { emissive: highlight })
-                .addTo(ptr);
-
-              ptr.route(Pointer.EVENTS, this.consumeEvent.bind(this));
-
-              this.pointers.push(ptr);
-              this.scene.add(ptr);
-
-              this.emit("motioncontrollerfound", mgr);
-            }
-            else {
-              mgr = new Gamepad(this.gamepadMgr, pad, 0, {
-                buttons: {
-                  axes: ["BUTTONS"]
-                },
-                dButtons: {
-                  axes: ["BUTTONS"],
-                  delta: true
-                },
-                strafe: {
-                  axes: ["LSX"],
-                  deadzone: 0.2
-                },
-                drive: {
-                  axes: ["LSY"],
-                  deadzone: 0.2
-                },
-                heading: {
-                  axes: ["RSX"],
-                  scale: -1,
-                  deadzone: 0.2,
-                  integrate: true
-                },
-                dHeading: {
-                  commands: ["heading"],
-                  delta: true
-                },
-                pitch: {
-                  axes: ["RSY"],
-                  scale: -1,
-                  deadzone: 0.2,
-                  integrate: true
-                },
-                zero: {
-                  buttons: [Gamepad.XBOX_ONE_BUTTONS.BACK],
-                  commandUp: this.emit.bind(this, "zero")
-                }
-              });
-              this.addInputManager(mgr);
-              this.mousePointer.addDevice(mgr, mgr);
-            }
-          }
-        });
-
-        this.gamepadMgr.addEventListener("gamepaddisconnected", this.removeInputManager.bind(this));
-      }
-
-      this.stage = hub();
-
-      this.head = new Pointer("GazePointer", 0xffff00, 0x0000ff, 0.8, [
-        this.VR
-      ], [
-        this.Mouse,
-        this.Touch,
-        this.Keyboard
-      ], this.options)
-        .addTo(this.scene);
-
-      this.head.route(Pointer.EVENTS, this.consumeEvent.bind(this));
-
-      this.head.rotation.order = "YXZ";
-      this.head.useGaze = this.options.useGaze;
-      this.pointers.push(this.head);
-
-      this.mousePointer = new Pointer("MousePointer", 0xff0000, 0x00ff00, 1, [
-        this.Mouse,
-        this.Touch
-      ], null, this.options);
-      this.mousePointer.route(Pointer.EVENTS, this.consumeEvent.bind(this));
-      this.mousePointer.unproject = new Matrix4();
-      this.pointers.push(this.mousePointer);
-      this.head.add(this.mousePointer);
-
-      this.VR.ready.then((displays) => displays.forEach((display, i) => {
-        window.addEventListener("vrdisplayactivate", (evt) => {
-          if(evt.display === display) {
-            const exitVR = () => {
-              window.removeEventListener("vrdisplaydeactivate", exitVR);
-              this.cancelVR();
-            };
-            window.addEventListener("vrdisplaydeactivate", exitVR, false);
-            this.goFullScreen(i);
-          }
-        }, false);
-      }));
-
-      this.fader = box(1, 1, 1).colored(this.options.backgroundColor, {
-        opacity: 0,
-        useFog: false,
-        transparent: true,
-        unshaded: true,
-        side: BackSide
-      }).addTo(this.head);
-      this.fader.visible = false;
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "select",
-        description: "Fired when an object has been selected, either by a physical cursor or a gaze-based cursor. You will typically want to use this instead of pointerend or gazecomplete."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "pointerstart",
-        description: "Fired when mouse, gamepad, or touch-based pointers have their trigger buttons depressed."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "pointerend",
-        description: "Fired when mouse, gamepad, or touch-based pointers have their trigger buttons released."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "pointermove",
-        description: "Fired when mouse, gamepad, or touch-based pointers are moved away from where they were last frame."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "gazestart",
-        description: "Fired when a gaze-based cursor starts spinning on a selectable object."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "gazemove",
-        description: "Fired when a gaze-based cursor moves across an object that it is attempting to select."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "gazecomplete",
-        description: "Fired when a gaze-based cursor finishes spinning on a selectable object."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "gazecancel",
-        description: "Fired when a gaze-based cursor is moved off of the object it is attempting to select before it can finish spinning."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "exit",
-        description: "Fired when a pointer leaves an object."
-      });
-      */
-
-      /*
-      pliny.event({
-        parent: "Primrose.BrowserEnvironment",
-        name: "enter",
-        description: "Fired when a pointer hovers over an object."
-      });
-      */
-
-
-      if(!this.options.disableKeyboard) {
-        const keyDown =  (evt) => {
-            if (this.VR.isPresenting) {
-              if (evt.keyCode === Keys.ESCAPE && !this.VR.isPolyfilled) {
-                this.cancelVR();
-              }
-            }
-
-            this.Keyboard.consumeEvent(evt);
-            this.consumeEvent(evt);
-          },
-
-          keyUp = (evt) => {
-            this.Keyboard.consumeEvent(evt);
-            this.consumeEvent(evt);
-          },
-
-          withCurrentControl = (name) => {
-            return (evt) => {
-              if (this.currentControl) {
-                if (this.currentControl[name]) {
-                  this.currentControl[name](evt);
-                }
-                else {
-                  console.warn("Couldn't find %s on %o", name, this.currentControl);
-                }
-              }
-            };
-          };
-
-        window.addEventListener("keydown", keyDown, false);
-
-        window.addEventListener("keyup", keyUp, false);
-
-
-        window.addEventListener("paste", withCurrentControl("readClipboard"), false);
-        window.addEventListener("wheel", withCurrentControl("readWheel"), false);
-
-
-        const focusClipboard = (evt) => {
-          if (this.lockMovement) {
-            var cmdName = this.Keyboard.operatingSystem.makeCommandName(evt, this.Keyboard.codePage);
-            if (cmdName === "CUT" || cmdName === "COPY") {
-              surrogate.style.display = "block";
-              surrogate.focus();
-            }
-          }
-        };
-
-        const clipboardOperation = (evt) => {
-          if (this.currentControl) {
-            this.currentControl[evt.type + "SelectedText"](evt);
-            if (!evt.returnValue) {
-              evt.preventDefault();
-            }
-            surrogate.style.display = "none";
-            this.currentControl.focus();
-          }
-        };
-
-        // the `surrogate` textarea makes clipboard events possible
-        var surrogate = cascadeElement("primrose-surrogate-textarea", "textarea", HTMLTextAreaElement),
-          surrogateContainer = makeHidingContainer("primrose-surrogate-textarea-container", surrogate);
-
-        surrogateContainer.style.position = "absolute";
-        surrogateContainer.style.overflow = "hidden";
-        surrogateContainer.style.width = 0;
-        surrogateContainer.style.height = 0;
-
-        function setFalse(evt) {
-          evt.returnValue = false;
-        }
-        surrogate.addEventListener("beforecopy", setFalse, false);
-        surrogate.addEventListener("copy", clipboardOperation, false);
-        surrogate.addEventListener("beforecut", setFalse, false);
-        surrogate.addEventListener("cut", clipboardOperation, false);
-        document.body.insertBefore(surrogateContainer, document.body.children[0]);
-
-        window.addEventListener("beforepaste", setFalse, false);
-        window.addEventListener("keydown", focusClipboard, true);
-      }
-
-      this.head.add(this.camera);
-
-      return Promise.all(this.managers
-        .map((mgr) => mgr.ready)
-        .filter(identity));;
-    });
 
 
     const installPlugins = (toProcess) => {
@@ -1534,10 +954,486 @@ export default class BrowserEnvironment extends EventDispatcher {
     };
 
 
-    this.ready = Promise.all([
-      modelsReady,
-      documentReady
-    ]).then(() => installPlugins(this.plugins.slice()))
+    this.ready = documentReady
+      .then(() => {
+        if (this.options.renderer) {
+          this.renderer = this.options.renderer;
+        }
+        else {
+          this.renderer = new WebGLRenderer({
+            canvas: cascadeElement(this.options.canvasElement, "canvas", HTMLCanvasElement),
+            context: this.options.context,
+            antialias: this.options.antialias,
+            alpha: true,
+            logarithmicDepthBuffer: false
+          });
+          this.renderer.autoClear = false;
+          this.renderer.sortObjects = true;
+          this.renderer.setClearColor(this.options.backgroundColor);
+          if (!this.renderer.domElement.parentElement) {
+            document.body.appendChild(this.renderer.domElement);
+          }
+        }
+
+        this.options.fullScreenElement = cascadeElement(this.options.fullScreenElement) || this.renderer.domElement.parentElement;
+        let maxTabIndex = 0;
+        const elementsWithTabIndex = document.querySelectorAll("[tabIndex]");
+        for(let i = 0; i < elementsWithTabIndex.length; ++i){
+          maxTabIndex = Math.max(maxTabIndex, elementsWithTabIndex[i].tabIndex);
+        }
+
+        this.renderer.domElement.tabIndex = maxTabIndex + 1;
+        this.renderer.domElement.addEventListener('webglcontextlost', this.pause, false);
+        this.renderer.domElement.addEventListener('webglcontextrestored', this.start, false);
+
+        this.managers = [];
+        this.newState = [];
+        this.pointers = [];
+        this.motionDevices = [];
+        this.velocity = new Vector3();
+        this.matrix = new Matrix4();
+
+        if(!this.options.disableKeyboard) {
+          this.addInputManager(new Keyboard(this, {
+            strafeLeft: {
+              buttons: [
+                -Keys.A,
+                -Keys.LEFTARROW
+              ]
+            },
+            strafeRight: {
+              buttons: [
+                Keys.D,
+                Keys.RIGHTARROW
+              ]
+            },
+            strafe: {
+              commands: ["strafeLeft", "strafeRight"]
+            },
+            driveForward: {
+              buttons: [
+                -Keys.W,
+                -Keys.UPARROW
+              ]
+            },
+            driveBack: {
+              buttons: [
+                Keys.S,
+                Keys.DOWNARROW
+              ]
+            },
+            drive: {
+              commands: ["driveForward", "driveBack"]
+            },
+            select: {
+              buttons: [Keys.ENTER]
+            },
+            dSelect: {
+              buttons: [Keys.ENTER],
+              delta: true
+            },
+            zero: {
+              buttons: [Keys.Z],
+              metaKeys: [
+                -Keys.CTRL,
+                -Keys.ALT,
+                -Keys.SHIFT,
+                -Keys.META
+              ],
+              commandUp: this.emit.bind(this, "zero")
+            }
+          }));
+
+          this.Keyboard.operatingSystem = this.options.os;
+          this.Keyboard.codePage = this.options.language;
+        }
+
+        this.addInputManager(new Touch(this.renderer.domElement, {
+          U: { axes: ["X0"], min: 0, max: 2, offset: 0 },
+          V: { axes: ["Y0"], min: 0, max: 2 },
+          buttons: {
+            axes: ["FINGERS"]
+          },
+          dButtons: {
+            axes: ["FINGERS"],
+            delta: true
+          },
+          heading: {
+            axes: ["DX0"],
+            integrate: true
+          },
+          pitch: {
+            axes: ["DY0"],
+            integrate: true,
+            min: -Math.PI * 0.5,
+            max: Math.PI * 0.5
+          }
+        }));
+
+
+        this.addInputManager(new Mouse(this.options.fullScreenElement, {
+          U: { axes: ["X"], min: 0, max: 2, offset: 0 },
+          V: { axes: ["Y"], min: 0, max: 2 },
+          buttons: {
+            axes: ["BUTTONS"]
+          },
+          dButtons: {
+            axes: ["BUTTONS"],
+            delta: true
+          },
+          _dx: {
+            axes: ["X"],
+            delta: true,
+            scale: 0.25
+          },
+          dx: {
+            buttons: [0],
+            commands: ["_dx"]
+          },
+          heading: {
+            commands: ["dx"],
+            integrate: true
+          },
+          _dy: {
+            axes: ["Y"],
+            delta: true,
+            scale: 0.25
+          },
+          dy: {
+            buttons: [0],
+            commands: ["_dy"]
+          },
+          pitch: {
+            commands: ["dy"],
+            integrate: true,
+            min: -Math.PI * 0.5,
+            max: Math.PI * 0.5
+          }
+        }));
+
+        // toggle back and forth between touch and mouse
+        this.Touch.addEventListener("activate", (evt) => this.Mouse.inPhysicalUse = false);
+        this.Mouse.addEventListener("activate", (evt) => this.Touch.inPhysicalUse = false);
+
+        this.addInputManager(new VR(this.options));
+
+        this.motionDevices.push(this.VR);
+
+        if(!this.options.disableGamepad && GamepadManager.isAvailable){
+          this.gamepadMgr = new GamepadManager();
+          this.gamepadMgr.addEventListener("gamepadconnected", (pad) => {
+            const padID = Gamepad.ID(pad);
+            let mgr = null;
+
+            if (padID !== "Unknown" && padID !== "Rift") {
+              if (Gamepad.isMotionController(pad)) {
+                let controllerNumber = 0;
+                for (let i = 0; i < this.managers.length; ++i) {
+                  mgr = this.managers[i];
+                  if (mgr.currentPad && mgr.currentPad.id === pad.id) {
+                    ++controllerNumber;
+                  }
+                }
+
+                mgr = new Gamepad(this.gamepadMgr, pad, controllerNumber, {
+                  buttons: {
+                    axes: ["BUTTONS"]
+                  },
+                  dButtons: {
+                    axes: ["BUTTONS"],
+                    delta: true
+                  },
+                  zero: {
+                    buttons: [Gamepad.VIVE_BUTTONS.GRIP_PRESSED],
+                    commandUp: this.emit.bind(this, "zero")
+                  }
+                });
+
+                this.addInputManager(mgr);
+                this.motionDevices.push(mgr);
+
+                const shift = (this.motionDevices.length - 2) * 8,
+                  color = 0x0000ff << shift,
+                  highlight = 0xff0000 >> shift,
+                  ptr = new Pointer(padID + "Pointer", color, 1, highlight, [mgr], null, this.options);
+
+                // a rough model to represent the motion controller
+                box(0.1, 0.025, 0.2)
+                  .colored(color, { emissive: highlight })
+                  .addTo(ptr);
+
+                ptr.route(Pointer.EVENTS, this.consumeEvent.bind(this));
+
+                this.pointers.push(ptr);
+                this.scene.add(ptr);
+
+                this.emit("motioncontrollerfound", mgr);
+              }
+              else {
+                mgr = new Gamepad(this.gamepadMgr, pad, 0, {
+                  buttons: {
+                    axes: ["BUTTONS"]
+                  },
+                  dButtons: {
+                    axes: ["BUTTONS"],
+                    delta: true
+                  },
+                  strafe: {
+                    axes: ["LSX"],
+                    deadzone: 0.2
+                  },
+                  drive: {
+                    axes: ["LSY"],
+                    deadzone: 0.2
+                  },
+                  heading: {
+                    axes: ["RSX"],
+                    scale: -1,
+                    deadzone: 0.2,
+                    integrate: true
+                  },
+                  dHeading: {
+                    commands: ["heading"],
+                    delta: true
+                  },
+                  pitch: {
+                    axes: ["RSY"],
+                    scale: -1,
+                    deadzone: 0.2,
+                    integrate: true
+                  },
+                  zero: {
+                    buttons: [Gamepad.XBOX_ONE_BUTTONS.BACK],
+                    commandUp: this.emit.bind(this, "zero")
+                  }
+                });
+                this.addInputManager(mgr);
+                this.mousePointer.addDevice(mgr, mgr);
+              }
+            }
+          });
+
+          this.gamepadMgr.addEventListener("gamepaddisconnected", this.removeInputManager.bind(this));
+        }
+
+        this.stage = hub();
+
+        this.head = new Pointer("GazePointer", 0xffff00, 0x0000ff, 0.8, [
+          this.VR
+        ], [
+          this.Mouse,
+          this.Touch,
+          this.Keyboard
+        ], this.options)
+          .addTo(this.scene);
+
+        this.head.route(Pointer.EVENTS, this.consumeEvent.bind(this));
+
+        this.head.rotation.order = "YXZ";
+        this.head.useGaze = this.options.useGaze;
+        this.pointers.push(this.head);
+
+        this.mousePointer = new Pointer("MousePointer", 0xff0000, 0x00ff00, 1, [
+          this.Mouse,
+          this.Touch
+        ], null, this.options);
+        this.mousePointer.route(Pointer.EVENTS, this.consumeEvent.bind(this));
+        this.mousePointer.unproject = new Matrix4();
+        this.pointers.push(this.mousePointer);
+        this.head.add(this.mousePointer);
+
+        this.VR.ready.then((displays) => displays.forEach((display, i) => {
+          window.addEventListener("vrdisplayactivate", (evt) => {
+            if(evt.display === display) {
+              const exitVR = () => {
+                window.removeEventListener("vrdisplaydeactivate", exitVR);
+                this.cancelVR();
+              };
+              window.addEventListener("vrdisplaydeactivate", exitVR, false);
+              this.goFullScreen(i);
+            }
+          }, false);
+        }));
+
+        this.fader = box(1, 1, 1).colored(this.options.backgroundColor, {
+          opacity: 0,
+          useFog: false,
+          transparent: true,
+          unshaded: true,
+          side: BackSide
+        }).addTo(this.head);
+        this.fader.visible = false;
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "select",
+          description: "Fired when an object has been selected, either by a physical cursor or a gaze-based cursor. You will typically want to use this instead of pointerend or gazecomplete."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "pointerstart",
+          description: "Fired when mouse, gamepad, or touch-based pointers have their trigger buttons depressed."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "pointerend",
+          description: "Fired when mouse, gamepad, or touch-based pointers have their trigger buttons released."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "pointermove",
+          description: "Fired when mouse, gamepad, or touch-based pointers are moved away from where they were last frame."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "gazestart",
+          description: "Fired when a gaze-based cursor starts spinning on a selectable object."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "gazemove",
+          description: "Fired when a gaze-based cursor moves across an object that it is attempting to select."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "gazecomplete",
+          description: "Fired when a gaze-based cursor finishes spinning on a selectable object."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "gazecancel",
+          description: "Fired when a gaze-based cursor is moved off of the object it is attempting to select before it can finish spinning."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "exit",
+          description: "Fired when a pointer leaves an object."
+        });
+        */
+
+        /*
+        pliny.event({
+          parent: "Primrose.BrowserEnvironment",
+          name: "enter",
+          description: "Fired when a pointer hovers over an object."
+        });
+        */
+
+
+        if(!this.options.disableKeyboard) {
+          const keyDown =  (evt) => {
+              if (this.VR.isPresenting) {
+                if (evt.keyCode === Keys.ESCAPE && !this.VR.isPolyfilled) {
+                  this.cancelVR();
+                }
+              }
+
+              this.Keyboard.consumeEvent(evt);
+              this.consumeEvent(evt);
+            },
+
+            keyUp = (evt) => {
+              this.Keyboard.consumeEvent(evt);
+              this.consumeEvent(evt);
+            },
+
+            withCurrentControl = (name) => {
+              return (evt) => {
+                if (this.currentControl) {
+                  if (this.currentControl[name]) {
+                    this.currentControl[name](evt);
+                  }
+                  else {
+                    console.warn("Couldn't find %s on %o", name, this.currentControl);
+                  }
+                }
+              };
+            };
+
+          window.addEventListener("keydown", keyDown, false);
+
+          window.addEventListener("keyup", keyUp, false);
+
+
+          window.addEventListener("paste", withCurrentControl("readClipboard"), false);
+          window.addEventListener("wheel", withCurrentControl("readWheel"), false);
+
+
+          const focusClipboard = (evt) => {
+            if (this.lockMovement) {
+              var cmdName = this.Keyboard.operatingSystem.makeCommandName(evt, this.Keyboard.codePage);
+              if (cmdName === "CUT" || cmdName === "COPY") {
+                surrogate.style.display = "block";
+                surrogate.focus();
+              }
+            }
+          };
+
+          const clipboardOperation = (evt) => {
+            if (this.currentControl) {
+              this.currentControl[evt.type + "SelectedText"](evt);
+              if (!evt.returnValue) {
+                evt.preventDefault();
+              }
+              surrogate.style.display = "none";
+              this.currentControl.focus();
+            }
+          };
+
+          // the `surrogate` textarea makes clipboard events possible
+          var surrogate = cascadeElement("primrose-surrogate-textarea", "textarea", HTMLTextAreaElement),
+            surrogateContainer = makeHidingContainer("primrose-surrogate-textarea-container", surrogate);
+
+          surrogateContainer.style.position = "absolute";
+          surrogateContainer.style.overflow = "hidden";
+          surrogateContainer.style.width = 0;
+          surrogateContainer.style.height = 0;
+
+          function setFalse(evt) {
+            evt.returnValue = false;
+          }
+          surrogate.addEventListener("beforecopy", setFalse, false);
+          surrogate.addEventListener("copy", clipboardOperation, false);
+          surrogate.addEventListener("beforecut", setFalse, false);
+          surrogate.addEventListener("cut", clipboardOperation, false);
+          document.body.insertBefore(surrogateContainer, document.body.children[0]);
+
+          window.addEventListener("beforepaste", setFalse, false);
+          window.addEventListener("keydown", focusClipboard, true);
+        }
+
+        this.head.add(this.camera);
+
+        return Promise.all(this.managers
+          .map((mgr) => mgr.ready)
+          .filter(identity));
+      })
+      .then(() => installPlugins(this.plugins.slice()))
       .then(() => {
         this.renderer.domElement.style.cursor = "none";
 
@@ -1964,11 +1860,13 @@ pliny.record({
     name: "nonstandardNeckLength",
     type: "Number",
     optional: true,
+    default: 0.15,
     description: "When creating a neck model, this is how high the neck runs. This is an experimental feature for setting the height of a user's \"neck\" on orientation-only systems (such as Google Cardboard and Samsung Gear VR) to create a more realistic feel."
   }, {
     name: "nonstandardNeckDepth",
     type: "Number",
     optional: true,
+    default: 0.075,
     description: "When creating a neck model, this is the distance from the center meridian of the neck to the eyes."
   }, {
     name: "showHeadPointer",
@@ -1999,6 +1897,7 @@ BrowserEnvironment.DEFAULTS = {
     resize: function() {}
   },
   fadeRate: 5,
+  fullScreenElement: document.body,
   vicinityFollowRate: 0.02,
   gazeLength: 1.5,
   disableAutoPause: false,

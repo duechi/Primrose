@@ -13,6 +13,7 @@ import AsyncLockRequest from "./AsyncLockRequest";
 import cache from "./cache";
 import coallesce from "./coallesce";
 import deleteSetting from "./deleteSetting";
+import documentReady from "./documentReady";
 import findProperty from "./findProperty";
 import FullScreen from "./FullScreen";
 import getSetting from "./getSetting";
@@ -40,6 +41,7 @@ export {
   cache,
   coallesce,
   deleteSetting,
+  documentReady,
   findProperty,
   FullScreen,
   getSetting,
@@ -67,6 +69,7 @@ export default {
   cache,
   coallesce,
   deleteSetting,
+  documentReady,
   findProperty,
   FullScreen,
   getSetting,

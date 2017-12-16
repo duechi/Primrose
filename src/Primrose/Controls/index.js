@@ -8,7 +8,6 @@ pliny.namespace({
 
 import Button2D from "./Button2D";
 import Button3D from "./Button3D";
-import ButtonFactory from "./ButtonFactory";
 import Component from "./Component";
 import Entity from "./Entity";
 import Ground from "./Ground";
@@ -45,7 +44,6 @@ export {
 export default {
   Button2D,
   Button3D,
-  ButtonFactory,
   Component,
   Entity,
   Ground,
