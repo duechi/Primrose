@@ -8,6 +8,7 @@ pliny.namespace({
 
 import CardboardVRDisplay from "./CardboardVRDisplay";
 import install from "./install";
+import iOSOrientationHack from "./iOSOrientationHack";
 import MagicWindowVRDisplay from "./MagicWindowVRDisplay";
 import MixedRealityVRDisplay from "./MixedRealityVRDisplay";
 import MockVRDisplay from "./MockVRDisplay";
@@ -17,6 +18,7 @@ import StandardMonitorVRDisplay from "./StandardMonitorVRDisplay";
 export {
   CardboardVRDisplay,
   install,
+  iOSOrientationHack,
   MagicWindowVRDisplay,
   MockVRDisplay,
   PolyfilledVRFrameData,
@@ -26,6 +28,7 @@ export {
 export default {
   CardboardVRDisplay,
   install,
+  iOSOrientationHack,
   MagicWindowVRDisplay,
   MixedRealityVRDisplay,
   MockVRDisplay,
