@@ -132,23 +132,10 @@ export default class Environment extends EventDispatcher {
       }
     };
 
-    let wasLandscape = isLandscape();
-    function iOSOrientationHack() {
-      if(isiOS) {
-        const nowLandscape = isLandscape();
-        if(nowLandscape != wasLandscape) {
-          wasLandscape = nowLandscape;
-          window.dispatchEvent(new Event("resize"));
-        }
-      }
-    }
-
     let missedFrames = 0,
       accumTime = 0;
 
     const update = (dt) => {
-
-      iOSOrientationHack();
 
       dt = Math.min(1, dt * MILLISECONDS_TO_SECONDS);
       if(dt > 0) {

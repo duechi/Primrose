@@ -3,6 +3,7 @@ import { any, coalesce } from "../util";
 import Environment from "./Environment";
 import { Audio3D, Music } from "./Audio";
 import { Ground, Sky } from "./Controls";
+import { iOSOrientationHack } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
 import { Engine } from "./Physics";
 import { Teleporter } from "./Tools";
@@ -31,6 +32,8 @@ export default class BrowserEnvironment extends Environment {
     if(!options.groundTexture && !options.groundModel) {
       options.groundTexture = DECK_GRID;
     }
+
+    add(iOSOrientationHack);
 
     add(Audio3D, { ambientSound: options.ambientSound });
 
@@ -69,7 +72,6 @@ export default class BrowserEnvironment extends Environment {
 
       add(Manager);
     }
-
 
     super(options);
   }
