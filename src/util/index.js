@@ -11,7 +11,7 @@ import Angle from "./Angle";
 import any from "./any";
 import AsyncLockRequest from "./AsyncLockRequest";
 import cache from "./cache";
-import coallesce from "./coallesce";
+import coalesce from "./coalesce";
 import deleteSetting from "./deleteSetting";
 import documentReady from "./documentReady";
 import findProperty from "./findProperty";
@@ -39,7 +39,7 @@ export {
   any,
   AsyncLockRequest,
   cache,
-  coallesce,
+  coalesce,
   deleteSetting,
   documentReady,
   findProperty,
@@ -67,7 +67,7 @@ export default {
   any,
   AsyncLockRequest,
   cache,
-  coallesce,
+  coalesce,
   deleteSetting,
   documentReady,
   findProperty,

@@ -1,4 +1,4 @@
-import { any, coallesce } from "../util";
+import { any, coalesce } from "../util";
 
 import Environment from "./Environment";
 import { Audio3D, Music } from "./Audio";
@@ -17,7 +17,7 @@ export default class BrowserEnvironment extends Environment {
       }
     };
 
-    options = coallesce({
+    options = coalesce({
       plugins: [],
       backgroundColor: 0x000000,
       skyTexture: 0x000000,

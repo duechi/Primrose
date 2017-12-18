@@ -1,6 +1,6 @@
 import { EventDispatcher } from "three";
 
-import { coallesce } from "../util";
+import { coalesce } from "../util";
 /*
 pliny.class({
   parent: "Primrose.Plugin",
@@ -32,7 +32,7 @@ export default class BasePlugin extends EventDispatcher {
     super();
     this.retry = 3;
     this.name = name;
-    this.options = coallesce({}, defaults, options);
+    this.options = coalesce({}, defaults, options);
   }
 
   /*
