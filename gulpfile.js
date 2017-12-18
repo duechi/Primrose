@@ -47,7 +47,7 @@ var gulp = require("gulp"),
     const name = entry.match(/demos\/(\w+)\/src\/index.js/)[1],
       fileName = entry.replace("src/index.js", "app.js");
     return marigold.js({
-      name: "demo:" + name,
+      name: "demo_" + name,
       entry,
       fileName,
       advertise: false,
