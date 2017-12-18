@@ -2,7 +2,7 @@ import { any, coalesce } from "../util";
 
 import Environment from "./Environment";
 import { Audio3D, Music } from "./Audio";
-import { Ground, Sky } from "./Controls";
+import { Ground, Sky, Fader } from "./Controls";
 import { iOSOrientationHack } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
 import { Engine } from "./Physics";
@@ -47,6 +47,8 @@ export default class BrowserEnvironment extends Environment {
       texture: options.groundTexture,
       model: options.groundModel
     });
+
+    add(Fader, { rate: options.fadeRate });
 
     add(Teleporter);
 

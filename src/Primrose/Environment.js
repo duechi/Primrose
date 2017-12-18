@@ -167,8 +167,6 @@ export default class Environment extends EventDispatcher {
           this.plugins[i].preUpdate(this, dt);
         }
 
-        updateFade(dt);
-
         for(let frame = 0; frame < numFrames; ++frame) {
 
           accumTime -= this.deltaTime;
@@ -495,28 +493,7 @@ export default class Environment extends EventDispatcher {
       description: "Causes the fully rendered view fade out to the color provided `options.backgroundColor`"
     });
     */
-    let fadeOutPromise = null,
-      fadeOutPromiseResolver = null,
-      fadeInPromise = null,
-      fadeInPromiseResolver = null;
-    this.fadeOut = () => {
-      if(fadeInPromise) {
-        return Promise.reject("Currently fading in.");
-      }
-      if(!fadeOutPromise) {
-        this.fader.visible = true;
-        this.fader.material.opacity = 0;
-        this.fader.material.needsUpdate = true;
-        fadeOutPromise = new Promise((resolve, reject) =>
-          fadeOutPromiseResolver = (obj) => {
-            fadeOutPromise = null;
-            fadeOutPromiseResolver = null;
-            resolve(obj);
-          });
-      }
-      return fadeOutPromise;
-    };
-
+    this.fadeOut = () => this.fader && this.fader.fadeOut();
 
     /*
     pliny.method({
@@ -526,43 +503,7 @@ export default class Environment extends EventDispatcher {
       description: "Causes the faded out cube to disappear."
     });
     */
-    this.fadeIn = () => {
-      if(fadeOutPromise) {
-        return Promise.reject("Currently fading out.");
-      }
-      if(!fadeInPromise){
-        fadeInPromise = new Promise((resolve, reject) =>
-          fadeInPromiseResolver = (obj) => {
-            fadeInPromise = null;
-            fadeInPromiseResolver = null;
-            this.fader.visible = false;
-            resolve(obj);
-          });
-      }
-      return fadeInPromise;
-    };
-
-    const updateFade = (dt) => {
-      if(fadeOutPromise || fadeInPromise) {
-        const m = this.fader.material,
-          f = this.options.fadeRate * dt;
-        m.needsUpdate = true;
-        if(fadeOutPromise) {
-          m.opacity += f;
-          if(1 <= m.opacity){
-            m.opacity = 1;
-            fadeOutPromiseResolver();
-          }
-        }
-        else {
-          m.opacity -= f;
-          if(m.opacity <= 0){
-            m.opacity = 0;
-            fadeInPromiseResolver();
-          }
-        }
-      }
-    };
+    this.fadeIn = () => this.fader && this.fader.fadeIn();
 
     /*
     pliny.property({
@@ -587,18 +528,7 @@ export default class Environment extends EventDispatcher {
       }]
     });
     */
-    this.transition = (thunk, check, immediate) => {
-      if(immediate) {
-        thunk();
-        return Promise.resolve();
-      }
-      else if(!check || check()){
-        return this.fadeOut()
-          .then(thunk)
-          .then(this.fadeIn)
-          .catch(console.warn.bind(console, "Error transitioning"));
-      }
-    };
+    this.transition = (thunk, check, immediate) => this.fader && this.fader.transition(thunk, check, immediate);
 
 
     /*
@@ -1239,14 +1169,7 @@ export default class Environment extends EventDispatcher {
           }, false);
         }));
 
-        this.fader = box(1, 1, 1).colored(this.options.backgroundColor, {
-          opacity: 0,
-          useFog: false,
-          transparent: true,
-          unshaded: true,
-          side: BackSide
-        }).addTo(this.head);
-        this.fader.visible = false;
+        this.fader = null;
 
         /*
         pliny.event({
