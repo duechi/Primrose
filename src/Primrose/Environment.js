@@ -1036,11 +1036,11 @@ export default class Environment extends EventDispatcher {
         if(!this.options.disableGamepad && GamepadManager.isAvailable){
           this.gamepadMgr = new GamepadManager();
           this.gamepadMgr.addEventListener("gamepadconnected", (pad) => {
-            const padID = Gamepad.ID(pad);
+            const padID = GamepadManager.ID(pad);
             let mgr = null;
 
             if (padID !== "Unknown" && padID !== "Rift") {
-              if (Gamepad.isMotionController(pad)) {
+              if (GamepadManager.isMotionController(pad)) {
                 let controllerNumber = 0;
                 for (let i = 0; i < this.managers.length; ++i) {
                   mgr = this.managers[i];

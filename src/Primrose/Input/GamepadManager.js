@@ -24,6 +24,33 @@ export default class GamepadManager extends EventDispatcher {
      && !!navigator.getGamepads;
   }
 
+  static ID(pad) {
+    var id = pad.id;
+    if (id === "OpenVR Gamepad") {
+      id = "Vive";
+    }
+    else if (id.indexOf("Rift") === 0) {
+      id = "Rift";
+    }
+    else if (id.indexOf("Unknown") === 0) {
+      id = "Unknown";
+    }
+    else {
+      id = "Gamepad";
+    }
+    id = (id + "_" + (pad.index || 0))
+      .replace(/\s+/g, "_");
+    return id;
+  }
+
+  static isMotionController(pad){
+    if(pad) {
+      const obj = pad.capabilities || pad.pose;
+      return obj && obj.hasOrientation;
+    }
+    return false;
+  }
+
   constructor(){
     super();
     this.currentDevices = [];
@@ -44,7 +71,7 @@ export default class GamepadManager extends EventDispatcher {
         for (i = 0; i < maybePads.length; ++i) {
           var maybePad = maybePads[i];
           if (maybePad) {
-            padID = Gamepad.ID(maybePad);
+            padID = GamepadManager.ID(maybePad);
             var padIdx = this.currentDeviceIDs.indexOf(padID);
             pads.push(maybePad);
             padIDs.push(padID);

@@ -19,37 +19,13 @@ function playPattern(devices, pattern, pause){
   }
 }
 
-import PoseInputProcessor from "./PoseInputProcessor"
-export default class Gamepad extends PoseInputProcessor {
-  static ID(pad) {
-    var id = pad.id;
-    if (id === "OpenVR Gamepad") {
-      id = "Vive";
-    }
-    else if (id.indexOf("Rift") === 0) {
-      id = "Rift";
-    }
-    else if (id.indexOf("Unknown") === 0) {
-      id = "Unknown";
-    }
-    else {
-      id = "Gamepad";
-    }
-    id = (id + "_" + (pad.index || 0))
-      .replace(/\s+/g, "_");
-    return id;
-  }
+import GamepadManager from "./GamepadManager";
+import PoseInputProcessor from "./PoseInputProcessor";
 
-  static isMotionController(pad){
-    if(pad) {
-      const obj = pad.capabilities || pad.pose;
-      return obj && obj.hasOrientation;
-    }
-    return false;
-  }
+export default class Gamepad extends PoseInputProcessor {
 
   constructor(mgr, pad, axisOffset, commands) {
-    var padID = Gamepad.ID(pad);
+    var padID = GamepadManager.ID(pad);
     super(padID, commands, ["LSX", "LSY", "RSX", "RSY", "IDK1", "IDK2", "Z", "BUTTONS"]);
     mgr.registerPad(padID, this)
 
@@ -58,7 +34,7 @@ export default class Gamepad extends PoseInputProcessor {
   }
 
   get hasOrientation() {
-    return Gamepad.isMotionController(this.currentDevice);
+    return GamepadManager.isMotionController(this.currentDevice);
   }
 
   getPose() {
