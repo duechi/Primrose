@@ -505,5 +505,5 @@ WebRTCSocket.DEFAULT_ICE_CONFIG = {
       urls: address,
       username: null
     };
-  });
+  })
 };
