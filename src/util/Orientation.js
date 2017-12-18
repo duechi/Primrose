@@ -54,7 +54,9 @@ export function unlock() {
   }
 }
 
-export default {
+const Orientation = {
   lock,
   unlock
 };
+
+export default Orientation;
