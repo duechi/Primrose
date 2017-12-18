@@ -10,8 +10,10 @@ var gulp = require("gulp"),
     });
   },
 
-  pugFiles = inplace("pug"),
+  preloaderFiles = ["preloader/**/*.js"],
+  srcFiles = ["src/**/*.js"],
   justDemoPugFiles = ["demos/**/*.pug"],
+  pugFiles = inplace("pug"),
   stylusFiles = inplace("styl"),
   justDemoStylusFiles = ["demos/**/*.styl"],
   justDemoJSFiles = ["demos/**/*.js", "!demos/**/*.min.js", "!demos/**/src/*.js", "!demos/pacman/pacman.js"],
@@ -51,7 +53,8 @@ var gulp = require("gulp"),
       advertise: false,
       sourceMap: false,
       extractDocumentation: false,
-      format: "umd"
+      format: "umd",
+      watchFiles: srcFiles
     });
   }),
 
@@ -75,8 +78,6 @@ var gulp = require("gulp"),
     "Primrose.modules.js.map"
   ],
 
-  preloaderFiles = ["preloader/**/*.js"],
-  srcFiles = ["src/**/*.js"],
   stopOnFiles = []
     .concat(pugFiles)
     .concat(stylusFiles)
