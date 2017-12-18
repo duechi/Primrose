@@ -1,22 +1,19 @@
-/// NOTE: maybe BrowserEnvironment should be a subclass of THREE.Scene.
-
-
 /*
 pliny.class({
   parent: "Primrose",
-  name: "BrowserEnvironment",
+  name: "Environment",
   description: "Make a Virtual Reality app in your web browser!\n\
 \n\
-The `BrowserEnvironment` class provides a plethora of options for setting up new scenes and customizing the VR experience to your system. It is the starting point for all of your projects. It is named `BrowserEnvironment` as one day their may be an `AltspaceVREnvironment` or a `HiFidelityEnvironment`.",
+The `Environment` class provides a plethora of options for setting up new scenes and customizing the VR experience to your system. It is the starting point for all of your projects. It is named `Environment` as one day their may be an `AltspaceVREnvironment` or a `HiFidelityEnvironment`.",
   parameters: [{
     name: "options",
-    type: "Primrose.BrowserEnvironment.optionsHash",
-    description: "Settings to change how the environment looks and behaves. See [`Primrose.BrowserEnvironment.optionsHash`](#Primrose_BrowserEnvironment_optionsHash) for more information."
+    type: "Primrose.Environment.optionsHash",
+    description: "Settings to change how the environment looks and behaves. See [`Primrose.Environment.optionsHash`](#Primrose_Environment_optionsHash) for more information."
   }]
 });
 */
 
-import { isCardboard, isiOS, isLandscape } from "../flags";
+import { isCardboard } from "../flags";
 
 import { box, hub } from "../live-api";
 
@@ -64,19 +61,19 @@ const MILLISECONDS_TO_SECONDS = 0.001,
   QUAT_TEMP = new Quaternion(),
   WEDGE = Math.PI / 3;
 
-export default class BrowserEnvironment extends EventDispatcher {
+export default class Environment extends EventDispatcher {
   constructor(options) {
     super();
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "options",
       type: "Object",
       description: "Options used to build the environment."
     });
     */
-    this.options = Object.assign({}, BrowserEnvironment.DEFAULTS, options);
+    this.options = Object.assign({}, Environment.DEFAULTS, options);
 
     this.options.foregroundColor = this.options.foregroundColor || complementColor(new Color(this.options.backgroundColor))
       .getHex();
@@ -87,14 +84,14 @@ export default class BrowserEnvironment extends EventDispatcher {
     pliny.property({
       name: "plugins",
       type: "Array",
-      description: "An array of `Primrose.Plugin.BasePlugin`s that will modify the BrowserEnvironment. By carving this functionality into Plugins, it allows the implementing developer to keep their bundle size small by avoiding features they don't care to use."
+      description: "An array of `Primrose.Plugin.BasePlugin`s that will modify the Environment. By carving this functionality into Plugins, it allows the implementing developer to keep their bundle size small by avoiding features they don't care to use."
     });
     */
     this.plugins = this.options.plugins;
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "network",
       type: "Primrose.Network.Manager",
       description: "A manager for messages sent across the network."
@@ -108,10 +105,10 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "audioQueue",
       type: "Array",
-      description: "Remote user Audio elements that joined as peers before the `BrowserEnvironment` could finish loading all of the assets."
+      description: "Remote user Audio elements that joined as peers before the `Environment` could finish loading all of the assets."
     });
     */
     this.audioQueue = [];
@@ -119,7 +116,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "zero",
       description: "Zero and reset sensor data."
     });
@@ -305,7 +302,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
           /*
           pliny.event({
-            parent: "Primrose.BrowserEnvironment",
+            parent: "Primrose.Environment",
             name: "update",
             description: "Fires after every animation update."
           });
@@ -329,7 +326,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "turns",
       type: "Util.Angle",
       description: "A slewing angle that loosely follows the user around."
@@ -436,7 +433,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "avatar",
       type: "Object",
       description: "An object factory for the 3D model representing users."
@@ -464,7 +461,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "speech",
       type: "Primrose.Audio.Speech",
       description: "A text-2-speech system."
@@ -474,7 +471,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "audio",
       type: "Primrose.Audio.Audio3D",
       description: "An audio graph that keeps track of 3D information."
@@ -484,7 +481,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "music",
       type: "Primrose.Audio.Music",
       description: "A primitive sort of synthesizer for making simple music."
@@ -494,7 +491,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "currentControl",
       type: "Primrose.Control.Entity",
       description: "The currently selected control, by a user-click or some other function."
@@ -505,7 +502,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "fadeOut",
       returns: "Promise",
       description: "Causes the fully rendered view fade out to the color provided `options.backgroundColor`"
@@ -536,7 +533,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "fadeIn",
       returns: "Promise",
       description: "Causes the faded out cube to disappear."
@@ -582,7 +579,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "teleportAvailable",
       type: "Boolean",
       description: "Returns true when the system is not currently fading out or in.`"
@@ -592,7 +589,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "transition",
       returns: "Promise",
       description: "Perform an action in between a fade-out and a fade-in. Useful for hiding actions that might cause the view update to freeze, so the user doesn't get sick.",
@@ -619,7 +616,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "teleport",
       returns: "Promise",
       description: "Move the user to a position, using the fade-out/fade-in transition effect.",
@@ -656,7 +653,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "consumeEvent",
       description: "Handles pointer interactions and differentiates between teleportation and selecting controls on the screen.",
       parameters: [{
@@ -701,7 +698,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "physics",
       type: "CANNON.World",
       description: "The physics subsystem."
@@ -712,7 +709,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "scene",
       type: "THREE.Scene",
       description: "The 3D scene that gets displayed to the user."
@@ -722,7 +719,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "camera",
       type: "THREE.PerspectiveCamera",
       description: "The camera used to render the view."
@@ -732,7 +729,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "sky",
       type: "THREE.Object3D",
       description: "If a `skyTexture` option is provided, it will be a texture cube or photosphere. If no `skyTexture` option is provided, there will only be a THREE.Object3D, to create an anchor point on which implementing scripts can add objects that follow the user's position."
@@ -743,7 +740,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "ground",
       type: "THREE.Object3D",
       description: "If a `groundTexture` option is provided, it will be a flat plane extending to infinity. As the user moves, the ground will shift under them by whole texture repeats, making the ground look infinite."
@@ -756,7 +753,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "ui",
       type: "THREE.Object3D",
       description: "An anchor point on which objects can be added that follows the user around in both position and orientation. The orientation lags following the user, so if the UI is ever in the way, the user can turn slightly and it won't follow them."
@@ -767,7 +764,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "goFullScreen",
       returns: "Promise",
       description: "Enter full-screen mode on one of the available displays. NOTE: due to a defect in iOS, this feature is not available on iPhones or iPads."
@@ -839,7 +836,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "start",
       returns: "Promise",
       description: "Restart animation after it has been stopped."
@@ -859,7 +856,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "stop",
       description: "Pause animation.",
       parameters: [ {
@@ -906,7 +903,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "renderer",
       type: "THREE.WebGLRenderer",
       description: "The Three.js renderer being used to draw the scene."
@@ -1266,7 +1263,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "select",
           description: "Fired when an object has been selected, either by a physical cursor or a gaze-based cursor. You will typically want to use this instead of pointerend or gazecomplete."
         });
@@ -1274,7 +1271,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "pointerstart",
           description: "Fired when mouse, gamepad, or touch-based pointers have their trigger buttons depressed."
         });
@@ -1282,7 +1279,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "pointerend",
           description: "Fired when mouse, gamepad, or touch-based pointers have their trigger buttons released."
         });
@@ -1290,7 +1287,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "pointermove",
           description: "Fired when mouse, gamepad, or touch-based pointers are moved away from where they were last frame."
         });
@@ -1298,7 +1295,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "gazestart",
           description: "Fired when a gaze-based cursor starts spinning on a selectable object."
         });
@@ -1306,7 +1303,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "gazemove",
           description: "Fired when a gaze-based cursor moves across an object that it is attempting to select."
         });
@@ -1314,7 +1311,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "gazecomplete",
           description: "Fired when a gaze-based cursor finishes spinning on a selectable object."
         });
@@ -1322,7 +1319,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "gazecancel",
           description: "Fired when a gaze-based cursor is moved off of the object it is attempting to select before it can finish spinning."
         });
@@ -1330,7 +1327,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "exit",
           description: "Fired when a pointer leaves an object."
         });
@@ -1338,7 +1335,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "enter",
           description: "Fired when a pointer hovers over an object."
         });
@@ -1450,7 +1447,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
         /*
         pliny.event({
-          parent: "Primrose.BrowserEnvironment",
+          parent: "Primrose.Environment",
           name: "ready",
           description: "Fires after the initial assets have been downloaded and the scene initialized, just before animation starts."
         });
@@ -1460,7 +1457,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.property({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "quality",
       type: "Primrose.Constants.Quality",
       description: "The current render quality."
@@ -1510,7 +1507,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
   /*
   pliny.property({
-    parent: "Primrose.BrowserEnvironment",
+    parent: "Primrose.Environment",
     name: "lockMovement",
     type: "Boolean",
     description: "True if the user is focused on a text box control. If the user is focused on a text box control, keyboard commands should not move their position."
@@ -1523,7 +1520,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
   /*
   pliny.method({
-    parent: "Primrose.BrowserEnvironment",
+    parent: "Primrose.Environment",
     name: "connect",
     description: "Connect to a server at a WebSocket using a specific userName. NOTE: this does not handle authentication or authorization. You must handle those tasks yourself. This only binds an authenticated WebSocket connection to the framework so the framework may use it to transmit user state.",
     parameters: [{
@@ -1543,7 +1540,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
   /*
   pliny.method({
-    parent: "Primrose.BrowserEnvironment",
+    parent: "Primrose.Environment",
     name: "disconnect",
     description: "Disconnect from the server."
   });
@@ -1555,7 +1552,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
   /*
   pliny.property({
-    parent: "Primrose.BrowserEnvironment",
+    parent: "Primrose.Environment",
     name: "displays",
     type: "Array of BaseVRDisplay",
     description: "The VRDisplays available on the system."
@@ -1622,7 +1619,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "setAudioFromUser",
       description: "When using a 3D-party voice chat provider, this method associates the `HTMLVideoElement` or `HTMLAudioElement` created by the chat provider with the remote user, so that their audio may be spatialized with their position.",
       parameters: [{
@@ -1649,7 +1646,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
     /*
     pliny.method({
-      parent: "Primrose.BrowserEnvironment",
+      parent: "Primrose.Environment",
       name: "insertFullScreenButtons",
       description: "Add the default UI for managing full screen state.",
       returns: "Array of `HTMLButtonElement`s",
@@ -1713,7 +1710,7 @@ export default class BrowserEnvironment extends EventDispatcher {
 
 /*
 pliny.record({
-  parent: "Primrose.BrowserEnvironment",
+  parent: "Primrose.Environment",
   name: "optionsHash",
   description: "Settings to change how the environment looks and behaves.",
   parameters: [{
@@ -1762,7 +1759,7 @@ pliny.record({
     type: "Array",
     optional: true,
     default: null,
-    description: "An array of `Primrose.Plugin.BasePlugin`s that will modify the BrowserEnvironment. By carving this functionality into Plugins, it allows the implementing developer to keep their bundle size small by avoiding features they don't care to use."
+    description: "An array of `Primrose.Plugin.BasePlugin`s that will modify the Environment. By carving this functionality into Plugins, it allows the implementing developer to keep their bundle size small by avoiding features they don't care to use."
   }, {
     name: "progress",
     type: "Object",
@@ -1882,7 +1879,7 @@ pliny.record({
   }]
 });
 */
-BrowserEnvironment.DEFAULTS = {
+Environment.DEFAULTS = {
   antialias: true,
   quality: Quality.MAXIMUM,
   fullScreenButtonContainer: null,
