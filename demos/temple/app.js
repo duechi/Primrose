@@ -17,7 +17,6 @@ var GRASS = "../shared_assets/images/grass.png",
   env = new Primrose.BrowserEnvironment({
     skyTexture: "../shared_assets/images/bg.jpg",
     groundTexture: DECK,
-    useFog: true,
     fullScreenButtonContainer: "#fullScreenButtonContainer"
   });
 

@@ -11,11 +11,7 @@ var WIDTH = 100,
     backgroundColor: 0xC9E6EE,
     skyTexture: "../shared_assets/images/bg.jpg",
     groundTexture: "../shared_assets/images/grass.png",
-    font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
-    useFog: true,
-    drawDistance: 100,
-    enableShadows: true,
-    fullScreenButtonContainer: "#fullScreenButtonContainer",
+    fullScreenButtonContainer: "#fullScreenButtonContainer"
   });
 
 

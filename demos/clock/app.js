@@ -2,10 +2,7 @@ var skyColor = 0xffff7f,
   env = new Primrose.BrowserEnvironment({
     backgroundColor: skyColor,
     groundTexture: "../shared_assets/images/sand.png",
-    useFog: true,
-    fullScreenButtonContainer: "#fullScreenButtonContainer",
-    enableShadows: true,
-    shadowMapSize: 2048,
+    fullScreenButtonContainer: "#fullScreenButtonContainer"
   }),
 
   sunDistance = 20,

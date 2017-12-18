@@ -6,10 +6,8 @@ var GRASS = "../shared_assets/images/grass.png",
   CODE_KEY = "Pacman code",
 
   env = new Primrose.BrowserEnvironment({
-    backgroundColor: 0x000000,
     skyTexture: DECK,
     groundTexture: DECK,
-    font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
     fullScreenButtonContainer: "#fullScreenButtonContainer"
   }),
 

@@ -1,9 +1,6 @@
 var cube = range(6, function(i) { return "../shared_assets/images/space" + i + ".jpg"; }),
   env = new Primrose.BrowserEnvironment({
-    font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
     skyTexture: cube,
-    backgroundColor: 0x000000,
-    drawDistance: 100,
     gazeLength: 0.25,
     showHeadPointer: isMobile,
     ambientSound: "../shared_assets/audio/space.ogg",

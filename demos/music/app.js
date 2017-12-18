@@ -17,9 +17,6 @@ var height = 8,
     perMeasure = 2 / height,
     DIST = v3(),
     env = new Primrose.BrowserEnvironment({
-      font: "../shared_assets/fonts/helvetiker_regular.typeface.json",
-      backgroundColor: 0x000000,
-      useFog: true,
       drawDistance: 10,
       fullScreenButtonContainer: "#fullScreenButtonContainer"
     });
