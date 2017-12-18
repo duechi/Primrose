@@ -52,7 +52,7 @@ import ComplementaryFilter from "./ComplementaryFilter";
 import PosePredictor from "./PosePredictor";
 import { Quaternion, Vector3 } from "three";
 import { Math as _Math } from "three";
-import { isTimestampDeltaValid } from "../../../util";
+import { isTimestampDeltaValid, coalesce } from "../../../util";
 import { isLandscape, isiOS, isFirefox, isMobile } from "../../../flags";
 
 
@@ -64,7 +64,7 @@ const { DEG2RAD } = _Math;
  */
 export default class FusionPoseSensor {
   constructor(options) {
-    options = Object.assign({
+    options = coalesce({
       // Complementary filter coefficient. 0 for accelerometer, 1 for gyro.
       K_FILTER: 0.98,
 

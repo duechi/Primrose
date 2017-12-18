@@ -17,9 +17,12 @@ pliny.class({
     }]
 });
 */
+
+import { coalesce } from "../../../util";
+
 export default class CommandPack {
   constructor (commandPackName, commands) {
     this.name = commandPackName;
-    Object.assign(this, commands);
+    coalesce(this, commands);
   }
 };

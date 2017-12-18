@@ -17,7 +17,7 @@ import { isCardboard } from "../flags";
 
 import { box, hub } from "../live-api";
 
-import { FullScreen, PointerLock, identity, Angle, documentReady } from "../util";
+import { FullScreen, PointerLock, identity, Angle, documentReady, coalesce } from "../util";
 
 import Pointer from "./Pointer";
 import Keys from "./Keys";
@@ -73,7 +73,7 @@ export default class Environment extends EventDispatcher {
       description: "Options used to build the environment."
     });
     */
-    this.options = Object.assign({}, Environment.DEFAULTS, options);
+    this.options = coalesce({}, Environment.DEFAULTS, options);
 
     this.options.foregroundColor = this.options.foregroundColor || complementColor(new Color(this.options.backgroundColor))
       .getHex();

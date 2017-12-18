@@ -16,17 +16,20 @@ pliny.class({
 });
 */
 
-var COUNTER = 0;
+import { coalesce } from "../../util";
 
 import Surface from "./Surface";
 import Size from "../Text/Size";
 import DefaultTheme from "../Text/Themes/Default";
+
+let COUNTER = 0;
+
 export default class Label extends Surface {
   constructor(options) {
     ////////////////////////////////////////////////////////////////////////
     // normalize input parameters
     ////////////////////////////////////////////////////////////////////////
-    super(Object.assign({}, {
+    super(coalesce({
       id: "Primrose.Controls.Label[" + (COUNTER++) + "]"
     }, options));
 
@@ -77,7 +80,7 @@ export default class Label extends Surface {
   }
 
   set theme(t) {
-    this._theme = Object.assign({}, DefaultTheme, t);
+    this._theme = coalesce({}, DefaultTheme, t);
     this._theme.fontSize = this.fontSize;
     this.refreshCharacter();
     this.render();

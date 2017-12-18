@@ -29,13 +29,16 @@ pliny.record({
 });
 */
 
-var COUNTER = 0;
-
 import { Texture } from "three";
+
 import { isChrome } from "../../flags";
+import { textured,  quad, shell } from "../../live-api";
+import { coalesce } from "../../util";
+
 import BaseTextured from "./BaseTextured";
 import Rectangle from "../Text/Rectangle";
-import { textured,  quad, shell }from "../../live-api";
+
+let COUNTER = 0;
 
 export default class Surface extends BaseTextured {
 
@@ -70,7 +73,7 @@ export default class Surface extends BaseTextured {
 
 
 
-    options = Object.assign({}, {
+    options = coalesce({
       id: "Primrose.Controls.Surface[" + (COUNTER++) + "]",
       bounds: new Rectangle()
     }, options);
@@ -258,7 +261,7 @@ export default class Surface extends BaseTextured {
 
   _loadFiles(canvases, progress) {
     return Promise.all(canvases.map((canvas, i) => {
-      const loadOptions = Object.assign({}, this.options);
+      const loadOptions = coalesce({}, this.options);
       this._meshes[i] = this._geometry.textured(canvas, loadOptions);
       return loadOptions.promise.then((txt) => this._textures[i] = txt);
     }));

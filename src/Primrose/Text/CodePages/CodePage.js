@@ -21,7 +21,9 @@ As we work in the browser and not at the operating system level, we do not recei
 });
 */
 
+import { coalesce } from "../../../util";
 import Keys from "../../Keys";
+
 export default class CodePage {
   constructor(codePageName, lang, options) {
     this.name = codePageName;
@@ -87,7 +89,7 @@ export default class CodePage {
     };
 
     for(var key in options){
-      commands[key] = Object.assign({}, commands[key], options[key]);
+      commands[key] = coalesce({}, commands[key], options[key]);
     }
 
     var char, code, cmdName;

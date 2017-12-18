@@ -20,11 +20,14 @@ pliny.class({
 });
 */
 
-import Entity from "./Entity";
 import { Color } from "three";
+
+import { coalesce } from "../../util";
+import Entity from "./Entity";
+
 export default class Button3D extends Entity {
   constructor(model, buttonName, options) {
-    super(buttonName, Object.assign({}, Button3D.DEFAULTS, options));
+    super(buttonName, coalesce({}, Button3D.DEFAULTS, options));
 
     this.options.minDeflection = Math.cos(this.options.minDeflection);
     this.options.colorUnpressed = new Color(this.options.colorUnpressed);

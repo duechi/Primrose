@@ -18,11 +18,13 @@ pliny.class({
 
 var COUNTER = 0;
 
+import { coalesce } from "../../util";
+
 import Label from "./Label";
 export default class Button2D extends Label {
 
   constructor(options) {
-    super(Object.assign({}, {
+    super(coalesce({
       id: "Primrose.Controls.Button2D[" + (COUNTER++) + "]",
       textAlign: "center"
     }, options));

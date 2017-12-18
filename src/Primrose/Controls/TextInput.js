@@ -16,14 +16,17 @@ pliny.class({
 });
 */
 
-var COUNTER = 0;
-
-import TextBox from "./TextBox";
+import { coalesce }from "../../util";
 import PlainText from "../Text/Grammars/PlainText";
 import TextInputCommands from "../Text/CommandPacks/TextInput";
+
+import TextBox from "./TextBox";
+
+let COUNTER = 0;
+
 export default class TextInput extends TextBox {
   constructor(options) {
-    super(Object.assign({}, {
+    super(coalesce({
         id: "Primrose.Controls.TextInput[" + (COUNTER++) + "]",
         padding: 5,
         singleLine: true,

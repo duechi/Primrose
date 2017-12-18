@@ -16,9 +16,11 @@ import enableInlineVideo from "iphone-inline-video";
 
 import { LinearFilter } from "three";
 
-import BaseTextured from "./BaseTextured";
 import { textured } from "../../live-api";
 import { isiOS } from "../../flags";
+import { coalesce }from "../../util";
+
+import BaseTextured from "./BaseTextured";
 
 let COUNTER = 0;
 
@@ -55,7 +57,7 @@ export default class Video extends BaseTextured {
       videos = [videos];
     }
 
-    options = Object.assign({}, {
+    options = coalesce({
       id: "Primrose.Controls.Video[" + (COUNTER++) + "]"
     }, options);
 
@@ -89,7 +91,7 @@ export default class Video extends BaseTextured {
         video.preload = "auto";
       }
 
-      const loadOptions = Object.assign({}, this.options);
+      const loadOptions = coalesce({}, this.options);
       this._meshes[i] = textured(
         this._geometry,
         video,

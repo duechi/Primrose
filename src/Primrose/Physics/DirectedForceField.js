@@ -41,6 +41,7 @@ pliny.class({
 import CANNON from "cannon";
 const { Vec3 } = CANNON;
 
+import { coalesce } from "../../util";
 import Component from "../Controls/Component";
 
 
@@ -53,7 +54,7 @@ export default class DirectedForceField extends Component {
     this.bodyStart = bodyStart;
     this.bodyEnd = bodyEnd;
 
-    options = Object.assign({
+    options = coalesce({
       force: 1,
       gravitational: false,
       falloff: true

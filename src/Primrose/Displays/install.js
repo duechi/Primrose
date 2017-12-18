@@ -8,7 +8,7 @@ import StandardMonitorVRDisplay from "./StandardMonitorVRDisplay";
 
 import { isMobile, isGearVR, isiOS } from "../../flags";
 
-import { FullScreen } from "../../util";
+import { FullScreen, coalesce } from "../../util";
 
 import { getObject } from "../HTTP";
 
@@ -171,7 +171,7 @@ function installMockDisplay(options) {
 }
 
 export default function install(options) {
-  options = Object.assign({
+  options = coalesce({
       // Forces availability of VR mode, even for non-mobile devices.
       FORCE_ENABLE_VR: false
     }, options);

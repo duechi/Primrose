@@ -3,16 +3,22 @@ pliny.class({
   parent: "Primrose.Input",
   name: "Location",
   baseClass: "Primrose.Input.InputProcessor",
-  description: "| [under construction]"
+  description: "Provides GPS data to the input system."
 });
 */
 
+import { coalesce } from "../../util";
 import InputProcessor from "./InputProcessor";
+
 export default class Location extends InputProcessor {
   constructor(commands, options) {
     super("Location", commands, ["LONGITUDE", "LATITUDE", "ALTITUDE", "HEADING", "SPEED"]);
 
-    this.options = Object.assign({}, Location.DEFAULTS, options);
+    this.options = coalesce({
+      enableHighAccuracy: true,
+      maximumAge: 30000,
+      timeout: 25000
+    }, options);
 
     this.available = !!navigator.geolocation;
     if (this.available) {
@@ -33,10 +39,4 @@ export default class Location extends InputProcessor {
     }
     this.update();
   }
-};
-
-Location.DEFAULTS = {
-  enableHighAccuracy: true,
-  maximumAge: 30000,
-  timeout: 25000
 };

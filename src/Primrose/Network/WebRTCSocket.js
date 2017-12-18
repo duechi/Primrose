@@ -498,10 +498,12 @@ WebRTCSocket.DEFAULT_ICE_CONFIG = {
     "stun:stun2.l.google.com:19302",
     "stun:stun3.l.google.com:19302",
     "stun:stun4.l.google.com:19302"
-  ].map((address) => Object.assign({
-    credential: null,
-    url: address,
-    urls: address,
-    username: null
-  }))
+  ].map((address) => {
+    return {
+      credential: null,
+      url: address,
+      urls: address,
+      username: null
+    };
+  });
 };

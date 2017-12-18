@@ -13,6 +13,7 @@ pliny.class({
 */
 
 import { textured } from "../../live-api";
+import { coalesce } from "../../util";
 
 import BaseTextured from "./BaseTextured";
 
@@ -29,7 +30,7 @@ export default class Image extends BaseTextured {
       images = [images];
     }
 
-    options = Object.assign({}, {
+    options = coalesce({
       id: "Primrose.Controls.Image[" + (COUNTER++) + "]"
     }, options);
 
@@ -38,7 +39,7 @@ export default class Image extends BaseTextured {
 
   _loadFiles(images, progress) {
     return Promise.all(Array.prototype.map.call(images, (src, i) => {
-      const loadOptions = Object.assign({}, this.options, {
+      const loadOptions = coalesce({}, this.options, {
         progress: progress
       });
 
