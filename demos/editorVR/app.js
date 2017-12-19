@@ -9,6 +9,8 @@ var SCRIPT_UPDATE_TIME = 1000,
   env = new Primrose.BrowserEnvironment({
     skyTexture: "../shared_assets/images/bg2.jpg",
     groundTexture: GRASS,
+    backgroundColor: 0xafbfff,
+    useFog: false,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
   }),
   subScene = hub(),

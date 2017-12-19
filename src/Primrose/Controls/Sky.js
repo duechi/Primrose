@@ -88,16 +88,11 @@ class Sky extends Entity {
 
   get _ready() {
     const type = typeof  this.options.texture;
-    if(type === "number") {
-      const skyDim = this.options.skyRadius / Math.sqrt(2);
+    if(type === "string") {
       this.options.side = BackSide;
-      this.add(box(skyDim, skyDim, skyDim)
-        .colored(this.options.texture, this.options));
-    }
-    else if(type === "string") {
-      this.options.side = BackSide;
-      this.add(sphere(0.95 * this.options.skyRadius, 46, 24)
-        .textured(this.options.texture, this.options));
+      this._image = sphere(0.95 * this.options.skyRadius, 46, 24)
+        .textured(this.options.texture, this.options)
+        .addTo(this);
     }
     else if(this.options.texture instanceof Array && this.options.texture.length === 6 && typeof this.options.texture[0] === "string") {
       this._image = new Image(this.options.texture, this.options);

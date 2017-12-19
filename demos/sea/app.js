@@ -14,26 +14,29 @@ var env = new Primrose.BrowserEnvironment({
     progress: Preloader.thunk
   }),
 
-  pod = hub();
+  pod = hub(),
 
-env.scene.add(pod);
-pod.position.set(0, 0, -5);
-
-env.sky.add(moon);
-moon.latLng(-30, 30, 7);
-moon.lookAt(env.scene.position);
-
-modelPromise = Primrose.Graphics.ModelFactory.loadModel("../shared_assets/models/dolphin.obj", "obj", Preloader.thunk).then((porpoise) =>
-  range(3, function(i) {
-    var dolphin = porpoise.clone();
-    dolphin.castShadow = true;
-    dolphin.rotation.set(0, 0, i * 1.1, "ZYX");
-    dolphin.position.set(0, 0, -i);
-    pod.add(dolphin);
-  }));
+  modelPromise = Primrose.Graphics.ModelFactory
+    .loadModel("../shared_assets/models/dolphin.obj", "obj", Preloader.thunk);
 
 env.addEventListener("ready", function(){
-  modelPromise.then(Preloader.hide);
+  modelPromise.then((porpoise) => {
+    range(3, function(i) {
+      var dolphin = porpoise.clone();
+      dolphin.castShadow = true;
+      dolphin.rotation.set(0, 0, i * 1.1, "ZYX");
+      dolphin.position.set(0, 0, -i);
+      pod.add(dolphin);
+    })
+
+    env.scene.add(pod);
+    pod.position.set(0, 0, -5);
+
+    env.sky.add(moon);
+    moon.latLng(-30, 30, 7);
+    moon.lookAt(env.scene.position);
+
+  }).then(Preloader.hide);
 });
 
 env.addEventListener("update", function(dt) {
