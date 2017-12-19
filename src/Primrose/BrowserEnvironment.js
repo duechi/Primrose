@@ -1,4 +1,6 @@
-import { any, coalesce } from "../util";
+import { isCardboard } from "../flags";
+
+import { any, coalesce, FullScreen, PointerLock } from "../util";
 
 import Environment from "./Environment";
 import { Audio3D, Music } from "./Audio";
@@ -20,14 +22,16 @@ export default class BrowserEnvironment extends Environment {
     };
 
     options = coalesce({
-      plugins: [],
       backgroundColor: 0x000000,
-      skyTexture: 0x000000,
-      font: HELVETIKER,
       enableShadows: true,
-      useFog: true,
+      font: HELVETIKER,
+      fullScreenElement: document.body,
       nonstandardNeckLength: 0.15,
-      nonstandardNeckDepth: 0.075
+      nonstandardNeckDepth: 0.075,
+      plugins: [],
+      skyTexture: 0x000000,
+      useFog: true,
+      useGaze: isCardboard
     }, options);
 
     if(!options.groundTexture && !options.groundModel) {
@@ -81,6 +85,122 @@ export default class BrowserEnvironment extends Environment {
     }
 
     super(options);
+
+    this.ready.then(() => {
+      if(options.fullScreenButtonContainer){
+        this.insertFullScreenButtons(options.fullScreenButtonContainer);
+      }
+
+      PointerLock.addChangeListener((evt) => {
+        if(PointerLock.isActive) {
+          this.Mouse.removeButton("dx", 0);
+          this.Mouse.removeButton("dy", 0);
+        }
+        else {
+          this.Mouse.addButton("dx", 0);
+          this.Mouse.addButton("dy", 0);
+          if (this.VR.isPresenting) {
+            this.cancelVR();
+          }
+        }
+      });
+    });
+  }
+
+
+
+  /*
+  pliny.method({
+    parent: "Primrose.Environment",
+    name: "insertFullScreenButtons",
+    description: "Add the default UI for managing full screen state.",
+    returns: "Array of `HTMLButtonElement`s",
+    parameters: [{
+      name: "containerSpec",
+      type: "String",
+      description: "A query selector for the DOM element to which to add the buttons."
+    }]
+  });
+  */
+  insertFullScreenButtons(containerSpec){
+
+    const container = document.querySelector(containerSpec);
+    const newButton = (title, text, thunk) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.title = title;
+      btn.appendChild(document.createTextNode(text));
+      btn.addEventListener("click", thunk, false);
+      container.appendChild(btn);
+      return btn;
+    };
+
+    const buttons = this.displays
+      .map((display, i) => {
+        const enterVR = this.goFullScreen.bind(this, i),
+          btn = newButton(display.displayName, display.displayName, enterVR);
+        btn.className = "enterVRButton " + display.isStereo ? "stereo" : "mono";
+        return btn;
+      });
+
+    if(!/(www\.)?primrosevr.com/.test(document.location.hostname) && !this.options.disableAdvertising) {
+      const visitPrimroseButton = newButton("Primrose", "✿", () => open("https://www.primrosevr.com", "_blank"));
+      visitPrimroseButton.className = "visitPrimroseButton";
+      buttons.push(visitPrimroseButton);
+    }
+
+    const exitFullScreenButton = newButton("Exit Fullscreen", "🗙", () => {
+      FullScreen.exit();
+      PointerLock.exit();
+    });
+
+    exitFullScreenButton.className = "exitVRButton"
+    exitFullScreenButton.style.display = "none";
+
+    buttons.push(exitFullScreenButton);
+
+    FullScreen.addChangeListener(() => {
+      const enterVRStyle = FullScreen.isActive ? "none" : "",
+        exitVRStyle = FullScreen.isActive ? "" : "none";
+
+      buttons.forEach((btn) =>
+        btn.style.display = enterVRStyle);
+
+      exitFullScreenButton.style.display = exitVRStyle;
+    });
+
+    return buttons;
+  }
+
+
+
+  /*
+  pliny.method({
+    parent: "Primrose.Environment",
+    name: "goFullScreen",
+    returns: "Promise",
+    description: "Enter full-screen mode on one of the available displays. NOTE: due to a defect in iOS, this feature is not available on iPhones or iPads."
+  });
+  */
+  goFullScreen(index, evt) {
+    if (evt !== "Gaze") {
+
+      this.VR.connect(index);
+
+      let elem = null;
+      if(evt === "force" || this.VR.canMirror || !this.VR.isPolyfilled) {
+        elem = this.renderer.domElement;
+      }
+      else{
+        elem = this.options.fullScreenElement;
+      }
+
+      return this.VR.requestPresent([{
+          source: elem
+        }])
+        .catch((exp) => console.error("whaaat", exp))
+        .then(() => elem.focus());
+    }
   }
 };
 
