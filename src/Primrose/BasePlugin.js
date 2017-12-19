@@ -127,7 +127,7 @@ export default class BasePlugin extends EventDispatcher {
   }
 
   _install(env) {
-    throw new Error("Primrose.Plugin.BasePlugin::install() > not implemented");
+    throw new Error("Primrose.Plugin.BasePlugin::_install() > not implemented");
   }
 
   start() {
@@ -142,7 +142,7 @@ export default class BasePlugin extends EventDispatcher {
   plugin.method({
     parent: "Primrose.Plugin.BasePlugin",
     name: "preUpdate",
-    description: "Modify the BrowserEnvironment before the main update loop performs.",
+    description: "Modify or read the BrowserEnvironment before the main update loop performs.",
     parameters: [{
       name: "env",
       type: "Primrose.BrowserEnvironment",
@@ -163,7 +163,7 @@ export default class BasePlugin extends EventDispatcher {
   plugin.method({
     parent: "Primrose.Plugin.BasePlugin",
     name: "preUpdate",
-    description: "Modify the BrowserEnvironment after the main update loop performs.",
+    description: "Modify or read the BrowserEnvironment after the main update loop performs.",
     parameters: [{
       name: "env",
       type: "Primrose.BrowserEnvironment",

@@ -7,7 +7,7 @@ import { Audio3D, Music } from "./Audio";
 import { Ground, Sky, Fader } from "./Controls";
 import { iOSOrientationHack } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
-import { GamepadManager } from "./Input";
+import { Clipboard, GamepadManager } from "./Input";
 import { Engine } from "./Physics";
 import { Teleporter } from "./Tools";
 import { Manager } from "./Network";
@@ -29,13 +29,16 @@ export default class BrowserEnvironment extends Environment {
       nonstandardNeckLength: 0.15,
       nonstandardNeckDepth: 0.075,
       plugins: [],
-      skyTexture: 0x000000,
       useFog: true,
       useGaze: isCardboard
     }, options);
 
     if(!options.groundTexture && !options.groundModel) {
       options.groundTexture = DECK_GRID;
+    }
+
+    if(!options.skyTexture) {
+      options.skyTexture = options.backgroundColor;
     }
 
     add(iOSOrientationHack);
@@ -58,6 +61,10 @@ export default class BrowserEnvironment extends Environment {
     add(Teleporter);
 
     add(Engine, { gravity: options.gravity });
+
+    if(!options.disableKeyboard) {
+      add(Clipboard);
+    }
 
     if(!options.disableGamepad && GamepadManager.isAvailable) {
       add(GamepadManager);

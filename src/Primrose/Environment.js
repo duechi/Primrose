@@ -36,10 +36,7 @@ import Image from "./Controls/Image";
 
 import StandardMonitorVRDisplay from "./Displays/StandardMonitorVRDisplay";
 
-import {
-  cascadeElement,
-  makeHidingContainer
-} from "./DOM";
+import { cascadeElement } from "./DOM";
 
 import {
   Keyboard,
@@ -55,7 +52,6 @@ import {
 
 import {
   EventDispatcher,
-  BackSide,
   Scene,
   PerspectiveCamera,
   Quaternion,
@@ -1137,69 +1133,22 @@ export default class Environment extends EventDispatcher {
               this.consumeEvent(evt);
             },
 
-            withCurrentControl = (name) => {
-              return (evt) => {
-                if (this.currentControl) {
-                  if (this.currentControl[name]) {
-                    this.currentControl[name](evt);
-                  }
-                  else {
-                    console.warn("Couldn't find %s on %o", name, this.currentControl);
-                  }
+            readWheel = (evt) => {
+              if (this.currentControl) {
+                if (this.currentControl.readWheel) {
+                  this.currentControl.readWheel(evt);
                 }
-              };
-            };
+                else {
+                  console.warn("Couldn't find readWheel on %o", this.currentControl);
+                }
+              }
+            };;
 
           window.addEventListener("keydown", keyDown, false);
 
           window.addEventListener("keyup", keyUp, false);
 
-
-          window.addEventListener("paste", withCurrentControl("readClipboard"), false);
-          window.addEventListener("wheel", withCurrentControl("readWheel"), false);
-
-
-          const focusClipboard = (evt) => {
-            if (this.lockMovement) {
-              var cmdName = this.Keyboard.operatingSystem.makeCommandName(evt, this.Keyboard.codePage);
-              if (cmdName === "CUT" || cmdName === "COPY") {
-                surrogate.style.display = "block";
-                surrogate.focus();
-              }
-            }
-          };
-
-          const clipboardOperation = (evt) => {
-            if (this.currentControl) {
-              this.currentControl[evt.type + "SelectedText"](evt);
-              if (!evt.returnValue) {
-                evt.preventDefault();
-              }
-              surrogate.style.display = "none";
-              this.currentControl.focus();
-            }
-          };
-
-          // the `surrogate` textarea makes clipboard events possible
-          var surrogate = cascadeElement("primrose-surrogate-textarea", "textarea", HTMLTextAreaElement),
-            surrogateContainer = makeHidingContainer("primrose-surrogate-textarea-container", surrogate);
-
-          surrogateContainer.style.position = "absolute";
-          surrogateContainer.style.overflow = "hidden";
-          surrogateContainer.style.width = 0;
-          surrogateContainer.style.height = 0;
-
-          function setFalse(evt) {
-            evt.returnValue = false;
-          }
-          surrogate.addEventListener("beforecopy", setFalse, false);
-          surrogate.addEventListener("copy", clipboardOperation, false);
-          surrogate.addEventListener("beforecut", setFalse, false);
-          surrogate.addEventListener("cut", clipboardOperation, false);
-          document.body.insertBefore(surrogateContainer, document.body.children[0]);
-
-          window.addEventListener("beforepaste", setFalse, false);
-          window.addEventListener("keydown", focusClipboard, true);
+          window.addEventListener("wheel", readWheel, false);
         }
 
         this.head.add(this.camera);

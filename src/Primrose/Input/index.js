@@ -6,6 +6,7 @@ pliny.namespace({
 });
 */
 
+import Clipboard from "./Clipboard";
 import Gamepad from "./Gamepad";
 import GamepadManager from "./GamepadManager";
 import InputProcessor from "./InputProcessor";
@@ -19,6 +20,7 @@ import Touch from "./Touch";
 import VR from "./VR";
 
 export {
+  Clipboard,
   Gamepad,
   GamepadManager,
   InputProcessor,
@@ -33,6 +35,7 @@ export {
 };
 
 export default {
+  Clipboard,
   Gamepad,
   GamepadManager,
   InputProcessor,
