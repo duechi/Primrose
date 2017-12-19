@@ -5,6 +5,7 @@ import { Audio3D, Music } from "./Audio";
 import { Ground, Sky, Fader } from "./Controls";
 import { iOSOrientationHack } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
+import { GamepadManager } from "./Input";
 import { Engine } from "./Physics";
 import { Teleporter } from "./Tools";
 import { Manager } from "./Network";
@@ -53,6 +54,10 @@ export default class BrowserEnvironment extends Environment {
     add(Teleporter);
 
     add(Engine, { gravity: options.gravity });
+
+    if(!options.disableGamepad && GamepadManager.isAvailable) {
+      add(GamepadManager);
+    }
 
     if(options.enableShadows) {
       add(Shadows, {

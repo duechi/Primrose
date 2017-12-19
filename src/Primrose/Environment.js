@@ -15,30 +15,47 @@ The `Environment` class provides a plethora of options for setting up new scenes
 
 import { isCardboard } from "../flags";
 
-import { box, hub } from "../live-api";
+import { hub } from "../live-api";
 
-import { FullScreen, PointerLock, identity, Angle, documentReady, coalesce } from "../util";
+import {
+  FullScreen,
+  PointerLock,
+  identity,
+  Angle,
+  documentReady,
+  coalesce
+} from "../util";
 
 import Pointer from "./Pointer";
 import Keys from "./Keys";
 
-import { updateAll, eyeBlankAll } from "./Controls/BaseTextured";
+import {
+  updateAll,
+  eyeBlankAll
+} from "./Controls/BaseTextured";
+
 import { updateAllEntities } from "./Controls/Entity";
+
 import Image from "./Controls/Image";
 
 import StandardMonitorVRDisplay from "./Displays/StandardMonitorVRDisplay";
 
-import cascadeElement from "./DOM/cascadeElement";
-import makeHidingContainer from "./DOM/makeHidingContainer";
+import {
+  cascadeElement,
+  makeHidingContainer
+} from "./DOM";
 
-import Keyboard from "./Input/Keyboard";
-import Mouse from "./Input/Mouse";
-import Gamepad from "./Input/Gamepad";
-import GamepadManager from "./Input/GamepadManager";
-import Touch from "./Input/Touch";
-import VR from "./Input/VR";
+import {
+  Keyboard,
+  Mouse,
+  Touch,
+  VR
+} from "./Input";
 
-import { Quality, PIXEL_SCALES } from "./constants";
+import {
+  Quality,
+  PIXEL_SCALES
+} from "./constants";
 
 import {
   EventDispatcher,
@@ -172,14 +189,9 @@ export default class Environment extends EventDispatcher {
           accumTime -= this.deltaTime;
 
           const hadGamepad = this.hasGamepad;
-          if(this.gamepadMgr) {
-            this.gamepadMgr.poll();
-          }
-
           for (let i = 0; i < this.managers.length; ++i) {
             this.managers[i].update(dt);
           }
-
           if (!hadGamepad && this.hasGamepad) {
             this.Mouse.inPhysicalUse = false;
           }
@@ -1032,103 +1044,6 @@ export default class Environment extends EventDispatcher {
         this.addInputManager(new VR(this.options));
 
         this.motionDevices.push(this.VR);
-
-        if(!this.options.disableGamepad && GamepadManager.isAvailable){
-          this.gamepadMgr = new GamepadManager();
-          this.gamepadMgr.addEventListener("gamepadconnected", (pad) => {
-            const padID = GamepadManager.ID(pad);
-            let mgr = null;
-
-            if (padID !== "Unknown" && padID !== "Rift") {
-              if (GamepadManager.isMotionController(pad)) {
-                let controllerNumber = 0;
-                for (let i = 0; i < this.managers.length; ++i) {
-                  mgr = this.managers[i];
-                  if (mgr.currentPad && mgr.currentPad.id === pad.id) {
-                    ++controllerNumber;
-                  }
-                }
-
-                mgr = new Gamepad(this.gamepadMgr, pad, controllerNumber, {
-                  buttons: {
-                    axes: ["BUTTONS"]
-                  },
-                  dButtons: {
-                    axes: ["BUTTONS"],
-                    delta: true
-                  },
-                  zero: {
-                    buttons: [Gamepad.VIVE_BUTTONS.GRIP_PRESSED],
-                    commandUp: this.emit.bind(this, "zero")
-                  }
-                });
-
-                this.addInputManager(mgr);
-                this.motionDevices.push(mgr);
-
-                const shift = (this.motionDevices.length - 2) * 8,
-                  color = 0x0000ff << shift,
-                  highlight = 0xff0000 >> shift,
-                  ptr = new Pointer(padID + "Pointer", color, 1, highlight, [mgr], null, this.options);
-
-                // a rough model to represent the motion controller
-                box(0.1, 0.025, 0.2)
-                  .colored(color, { emissive: highlight })
-                  .addTo(ptr);
-
-                ptr.route(Pointer.EVENTS, this.consumeEvent.bind(this));
-
-                this.pointers.push(ptr);
-                this.scene.add(ptr);
-
-                this.emit("motioncontrollerfound", mgr);
-              }
-              else {
-                mgr = new Gamepad(this.gamepadMgr, pad, 0, {
-                  buttons: {
-                    axes: ["BUTTONS"]
-                  },
-                  dButtons: {
-                    axes: ["BUTTONS"],
-                    delta: true
-                  },
-                  strafe: {
-                    axes: ["LSX"],
-                    deadzone: 0.2
-                  },
-                  drive: {
-                    axes: ["LSY"],
-                    deadzone: 0.2
-                  },
-                  heading: {
-                    axes: ["RSX"],
-                    scale: -1,
-                    deadzone: 0.2,
-                    integrate: true
-                  },
-                  dHeading: {
-                    commands: ["heading"],
-                    delta: true
-                  },
-                  pitch: {
-                    axes: ["RSY"],
-                    scale: -1,
-                    deadzone: 0.2,
-                    integrate: true
-                  },
-                  zero: {
-                    buttons: [Gamepad.XBOX_ONE_BUTTONS.BACK],
-                    commandUp: this.emit.bind(this, "zero")
-                  }
-                });
-                this.addInputManager(mgr);
-                this.mousePointer.addDevice(mgr, mgr);
-              }
-            }
-          });
-
-          this.gamepadMgr.addEventListener("gamepaddisconnected", this.removeInputManager.bind(this));
-        }
 
         this.stage = hub();
 

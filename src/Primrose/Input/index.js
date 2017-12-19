@@ -11,6 +11,7 @@ import GamepadManager from "./GamepadManager";
 import InputProcessor from "./InputProcessor";
 import Keyboard from "./Keyboard";
 import Location from "./Location";
+import MotionController from "./MotionController";
 import Mouse from "./Mouse";
 import PoseInputProcessor from "./PoseInputProcessor";
 import Speech from "./Speech";
@@ -19,9 +20,11 @@ import VR from "./VR";
 
 export {
   Gamepad,
+  GamepadManager,
   InputProcessor,
   Keyboard,
   Location,
+  MotionController,
   Mouse,
   PoseInputProcessor,
   Speech,
@@ -31,9 +34,11 @@ export {
 
 export default {
   Gamepad,
+  GamepadManager,
   InputProcessor,
   Keyboard,
   Location,
+  MotionController,
   Mouse,
   PoseInputProcessor,
   Speech,

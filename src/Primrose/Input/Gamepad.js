@@ -19,22 +19,16 @@ function playPattern(devices, pattern, pause){
   }
 }
 
-import GamepadManager from "./GamepadManager";
 import PoseInputProcessor from "./PoseInputProcessor";
 
 export default class Gamepad extends PoseInputProcessor {
 
-  constructor(mgr, pad, axisOffset, commands) {
-    var padID = GamepadManager.ID(pad);
+  constructor(padID, pad, axisOffset, hasOrientation, commands) {
     super(padID, commands, ["LSX", "LSY", "RSX", "RSY", "IDK1", "IDK2", "Z", "BUTTONS"]);
-    mgr.registerPad(padID, this)
 
     this.currentDevice = pad;
     this.axisOffset = axisOffset;
-  }
-
-  get hasOrientation() {
-    return GamepadManager.isMotionController(this.currentDevice);
+    this.hasOrientation = hasOrientation;
   }
 
   getPose() {
@@ -81,74 +75,3 @@ export default class Gamepad extends PoseInputProcessor {
     return this.currentDevice && this.currentDevice.haptics;
   }
 }
-
-/*
-pliny.enumeration({
-  parent: "Primrose.Input.Gamepad",
-  name: "XBOX_360_BUTTONS",
-  description: "Labeled names for each of the different control features of the Xbox 360 controller."
-});
-*/
-Gamepad.XBOX_360_BUTTONS = {
-  A: 1,
-  B: 2,
-  X: 3,
-  Y: 4,
-  LEFT_BUMPER: 5,
-  RIGHT_BUMPER: 6,
-  LEFT_TRIGGER: 7,
-  RIGHT_TRIGGER: 8,
-  BACK: 9,
-  START: 10,
-  LEFT_STICK: 11,
-  RIGHT_STICK: 12,
-  UP_DPAD: 13,
-  DOWN_DPAD: 14,
-  LEFT_DPAD: 15,
-  RIGHT_DPAD: 16
-};
-
-/*
-pliny.enumeration({
-  parent: "Primrose.Input.Gamepad",
-  name: "XBOX_ONE_BUTTONS",
-  description: "Labeled names for each of the different control features of the Xbox 360 controller."
-});
-*/
-Gamepad.XBOX_ONE_BUTTONS = {
-  A: 1,
-  B: 2,
-  X: 3,
-  Y: 4,
-  LEFT_BUMPER: 5,
-  RIGHT_BUMPER: 6,
-  LEFT_TRIGGER: 7,
-  RIGHT_TRIGGER: 8,
-  BACK: 9,
-  START: 10,
-  LEFT_STICK: 11,
-  RIGHT_STICK: 12,
-  UP_DPAD: 13,
-  DOWN_DPAD: 14,
-  LEFT_DPAD: 15,
-  RIGHT_DPAD: 16
-};
-
-/*
-pliny.enumeration({
-  parent: "Primrose.Input.Gamepad",
-  name: "VIVE_BUTTONS",
-  description: "Labeled names for each of the different control buttons of the HTC Vive Motion Controllers."
-});
-*/
-Gamepad.VIVE_BUTTONS = {
-  TOUCHPAD_PRESSED: 0,
-  TRIGGER_PRESSED: 1,
-  GRIP_PRESSED: 2,
-  MENU_PRESSED: 3,
-
-  TOUCHPAD_TOUCHED: 4,
-  //TRIGGER_TOUCHED: 5, // doesn't ever actually trigger in the current version of Chromium - STM 6/22/2016
-  GRIP_TOUCHED: 6,
-  MENU_TOUCHED: 7
-};
