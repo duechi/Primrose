@@ -13,6 +13,7 @@ import MagicWindowVRDisplay from "./MagicWindowVRDisplay";
 import MixedRealityVRDisplay from "./MixedRealityVRDisplay";
 import MockVRDisplay from "./MockVRDisplay";
 import PolyfilledVRFrameData from "./PolyfilledVRFrameData";
+import PresentationUI from "./PresentationUI";
 import StandardMonitorVRDisplay from "./StandardMonitorVRDisplay";
 
 export {
@@ -22,6 +23,7 @@ export {
   MagicWindowVRDisplay,
   MockVRDisplay,
   PolyfilledVRFrameData,
+  PresentationUI,
   StandardMonitorVRDisplay
 };
 
@@ -33,5 +35,6 @@ export default {
   MixedRealityVRDisplay,
   MockVRDisplay,
   PolyfilledVRFrameData,
+  PresentationUI,
   StandardMonitorVRDisplay
 };

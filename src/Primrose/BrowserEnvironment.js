@@ -1,11 +1,11 @@
 import { isCardboard } from "../flags";
 
-import { any, coalesce, FullScreen, PointerLock } from "../util";
+import { any, coalesce } from "../util";
 
 import Environment from "./Environment";
 import { Audio3D, Music } from "./Audio";
 import { Ground, Sky, Fader } from "./Controls";
-import { iOSOrientationHack } from "./Displays";
+import { iOSOrientationHack, PresentationUI } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
 import { Clipboard, GamepadManager } from "./Input";
 import { Engine } from "./Physics";
@@ -64,6 +64,11 @@ function normalizeOptions(options) {
 
   add(Engine, { gravity: options.gravity });
 
+  add(PresentationUI, {
+    buttonContainer: options.fullScreenButtonContainer,
+    disableAdvertising: options.disableAdvertising
+  });
+
   if(!options.disableKeyboard) {
     add(Clipboard);
   }
@@ -100,108 +105,7 @@ export default class BrowserEnvironment extends Environment {
   constructor(options) {
 
     super(normalizeOptions(options));
-
-    this.ready.then(() => {
-      if(this.options.fullScreenButtonContainer){
-        this.insertFullScreenButtons(this.options.fullScreenButtonContainer);
-      }
-
-      window.addEventListener("vrdisplaypresentchange", (evt) => {
-        const presenting = this.VR.isPresenting,
-          lockMouse = !presenting || this.VR.isStereo,
-          scale = presenting ? -1 : 1;
-        this.Mouse.enable("U", lockMouse);
-        this.Mouse.enable("V", lockMouse);
-        this.Mouse.setScale("heading", scale);
-        this.Mouse.setScale("pitch", scale);
-        if (!presenting) {
-          this.cancelVR();
-        }
-        this._modifyScreen();
-      }, false);
-
-      PointerLock.addChangeListener((evt) => {
-        if(PointerLock.isActive) {
-          this.Mouse.removeButton("dx", 0);
-          this.Mouse.removeButton("dy", 0);
-        }
-        else {
-          this.Mouse.addButton("dx", 0);
-          this.Mouse.addButton("dy", 0);
-          if (this.VR.isPresenting) {
-            this.cancelVR();
-          }
-        }
-      });
-    });
   }
-
-
-
-  /*
-  pliny.method({
-    parent: "Primrose.Environment",
-    name: "insertFullScreenButtons",
-    description: "Add the default UI for managing full screen state.",
-    returns: "Array of `HTMLButtonElement`s",
-    parameters: [{
-      name: "containerSpec",
-      type: "String",
-      description: "A query selector for the DOM element to which to add the buttons."
-    }]
-  });
-  */
-  insertFullScreenButtons(containerSpec){
-
-    const container = document.querySelector(containerSpec);
-    const newButton = (title, text, thunk) => {
-      const btn = document.createElement("button");
-      btn.type = "button";
-      btn.title = title;
-      btn.appendChild(document.createTextNode(text));
-      btn.addEventListener("click", thunk, false);
-      container.appendChild(btn);
-      return btn;
-    };
-
-    const buttons = this.displays
-      .map((display, i) => {
-        const enterVR = this.goFullScreen.bind(this, i),
-          btn = newButton(display.displayName, display.displayName, enterVR);
-        btn.className = "enterVRButton " + display.isStereo ? "stereo" : "mono";
-        return btn;
-      });
-
-    if(!/(www\.)?primrosevr.com/.test(document.location.hostname) && !this.options.disableAdvertising) {
-      const visitPrimroseButton = newButton("Primrose", "✿", () => open("https://www.primrosevr.com", "_blank"));
-      visitPrimroseButton.className = "visitPrimroseButton";
-      buttons.push(visitPrimroseButton);
-    }
-
-    const exitFullScreenButton = newButton("Exit Fullscreen", "🗙", () => {
-      FullScreen.exit();
-      PointerLock.exit();
-    });
-
-    exitFullScreenButton.className = "exitVRButton"
-    exitFullScreenButton.style.display = "none";
-
-    buttons.push(exitFullScreenButton);
-
-    FullScreen.addChangeListener(() => {
-      const enterVRStyle = FullScreen.isActive ? "none" : "",
-        exitVRStyle = FullScreen.isActive ? "" : "none";
-
-      buttons.forEach((btn) =>
-        btn.style.display = enterVRStyle);
-
-      exitFullScreenButton.style.display = exitVRStyle;
-    });
-
-    return buttons;
-  }
-
-
 
   /*
   pliny.method({
