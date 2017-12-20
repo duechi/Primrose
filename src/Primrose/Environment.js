@@ -671,6 +671,8 @@ export default class Environment extends EventDispatcher {
 
     this.teleporter = null;
 
+    this.fader = null;
+
 
     /*
     pliny.property({
@@ -1032,8 +1034,6 @@ export default class Environment extends EventDispatcher {
             }
           }, false);
         }));
-
-        this.fader = null;
 
         /*
         pliny.event({
