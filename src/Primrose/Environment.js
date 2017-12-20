@@ -566,7 +566,7 @@ export default class Environment extends EventDispatcher {
         this.currentControl.removeEventListener("blur", delesectControl);
         this.Keyboard.enabled = true;
         this.Mouse.enable("pitch", !this.VR.isPresenting);
-        this.Mouse.enable("headin", !this.VR.isPresenting);
+        this.Mouse.enable("heading", !this.VR.isPresenting);
         this.currentControl.blur();
         this.currentControl = null;
       }
