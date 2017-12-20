@@ -48,6 +48,7 @@ import Entity from "./Controls/Entity";
 const FORWARD = new Vector3(0, 0, -1),
   LASER_WIDTH = 0.01,
   LASER_LENGTH = 3 * LASER_WIDTH,
+  LASER_DISTANCE = -1.5,
   GAZE_RING_DISTANCE  = -1.25,
   GAZE_RING_INNER = 0.015,
   GAZE_RING_OUTER = 0.03,
@@ -85,7 +86,7 @@ export default class Pointer extends Entity {
       })
       .named(pointerName + "-pointer")
       .addTo(this)
-      .at(0, 0, -1.5);
+      .at(0, 0, LASER_DISTANCE);
 
     this.gazeInner = circle(GAZE_RING_INNER / 2, 10)
       .colored(0xc0c0c0, {
@@ -219,7 +220,8 @@ export default class Pointer extends Entity {
         };
 
       if(curHit){
-        this.gazeInner.position.z = 0.02 - curHit.distance;
+        this.mesh.position.z = Math.max(LASER_DISTANCE, LASER_LENGTH - curHit.distance);
+        this.gazeInner.position.z = Math.max(GAZE_RING_DISTANCE, 0.02 - curHit.distance);
         curHit.time = performance.now();
 
         this.mesh.material = material("", {
@@ -229,6 +231,7 @@ export default class Pointer extends Entity {
       }
       else{
         this.gazeInner.position.z = GAZE_RING_DISTANCE;
+        this.mesh.position.z = LASER_DISTANCE;
       }
 
       if(moved){
