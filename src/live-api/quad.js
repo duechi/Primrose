@@ -71,7 +71,7 @@ pliny.record({
 
 import { PlaneBufferGeometry } from "three";
 
-import { cache } from "../util";
+import { cache, coalesce } from "../util";
 
 import fixGeometry from "../Primrose/Graphics/fixGeometry";
 
@@ -86,7 +86,7 @@ export default function quad(width, height, options) {
     height = width;
   }
 
-  options = Object.assign({}, {
+  options = coalesce({
     s: 1,
     t: 1
   }, options);

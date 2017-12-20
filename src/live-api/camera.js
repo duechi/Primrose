@@ -32,6 +32,8 @@ pliny.record({
 });
 */
 
+import { coalesce } from "../util";
+
 import cameras from "./cameras";
 import hub from "./hub";
 
@@ -39,7 +41,7 @@ import Video from "../Primrose/Controls/Video";
 
 
 export default function camera(index, options) {
-  options = Object.assign({
+  options = coalesce({
       width: 1,
       height: 768/1280,
       unshaded: true,

@@ -29,6 +29,8 @@ pliny.class({
 */
 
 import { EventDispatcher } from "three";
+
+import { coalesce } from "../../util";
 import { isIE } from "../../flags";
 
 const PEERING_TIMEOUT_LENGTH = 30000;
@@ -44,7 +46,7 @@ let INSTANCE_COUNT = 0;
 class WebRTCSocketEvent extends Event {
   constructor(type, target, fromUserName, toUserName, item) {
     super(type, target);
-    Object.assign(this, {
+    coalesce(this, {
       fromUserName,
       toUserName,
       item

@@ -1,6 +1,8 @@
 import CANNON from "cannon";
 import { Vector3 } from "three";
 
+import { coalesce } from "../util";
+
 import Entity from "../Primrose/Controls/Entity";
 
 
@@ -39,7 +41,7 @@ pliny.record({
 });
 */
 export default function phys(obj, options) {
-  options = Object.assign({}, options);
+  options = coalesce({}, options);
 
   const ent = new Entity(obj.name, options);
   obj.name = "";

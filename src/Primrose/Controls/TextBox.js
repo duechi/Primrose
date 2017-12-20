@@ -16,15 +16,6 @@ pliny.class({
 });
 */
 
-import Surface from "./Surface";
-import Cursor from "../Text/Cursor";
-import Point from "../Text/Point";
-import Size from "../Text/Size";
-import Rectangle from "../Text/Rectangle";
-import TextEditor from "../Text/CommandPacks/TextEditor";
-import DefaultTheme from "../Text/Themes/Default";
-import JavaScript from "../Text/Grammars/JavaScript";
-
 import {
   isFirefox,
   isChrome,
@@ -33,6 +24,21 @@ import {
   isSafari,
   isMobile
 } from "../../flags";
+
+import { coalesce } from "../../util";
+
+import {
+  Cursor,
+  Point,
+  Size,
+  Rectangle
+} from "../Text";
+
+import { TextEditor } from "../Text/CommandPacks";
+import { Default as DefaultTheme } from "../Text/Themes";
+import { JavaScript } from "../Text/Grammars";
+
+import Surface from "./Surface";
 
 var SCROLL_SCALE = isFirefox ? 3 : 100,
   COUNTER = 0,
@@ -48,7 +54,7 @@ export default class TextBox extends Surface {
       };
     }
 
-    super(Object.assign({}, {
+    super(coalesce({
       id: "Primrose.Controls.TextBox[" + (COUNTER++) + "]"
     }, options));
 
@@ -255,7 +261,7 @@ export default class TextBox extends Surface {
   }
 
   set theme(t) {
-    this._theme = Object.assign({}, DefaultTheme, t);
+    this._theme = coalesce({}, DefaultTheme, t);
     this._theme.fontSize = this.fontSize;
     this._rowCache = {};
     this.render();

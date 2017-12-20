@@ -97,7 +97,7 @@ pliny.record({
 
 import { FrontSide, FlatShading, MeshStandardMaterial, MeshBasicMaterial } from "three";
 
-import { cache } from "../util";
+import { cache, coalesce } from "../util";
 
 
 export default function material(textureDescription, options){
@@ -105,7 +105,7 @@ export default function material(textureDescription, options){
     options = textureDescription;
     textureDescription = "none";
   }
-  options = Object.assign({}, {
+  options = coalesce({
     opacity: 1,
     roughness: 0.5,
     metalness: 0,
