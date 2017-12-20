@@ -43,7 +43,8 @@ export default class Entity extends Object3D {
     this.mesh = null;
     this.rigidBody = null;
     this.components = [];
-    entities.push(this);
+    this.ready.then(() =>
+      (entities.push(this), this));
   }
 
   get ready() {
