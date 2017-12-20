@@ -12,7 +12,7 @@ export default class PositionalSound {
     this.pnr = ctx.createPanner();
     this.gn.connect(this.pnr);
     this.pnr.connect(mainVolume);
-    this.gn.gain.value = 0;
+    this.gn.gain.setValueAtTime(0, 0);
     this.ctx = ctx;
   }
 

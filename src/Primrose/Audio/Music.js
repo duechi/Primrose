@@ -44,7 +44,7 @@ export default class Music extends BasePlugin {
       const ctx = this.audio.context;
       this.mainVolume = ctx.createGain();
       this.mainVolume.connect(this.audio.mainVolume);
-      this.mainVolume.gain.value = 1;
+      this.mainVolume.gain.setValueAtTime(1, 0);
       this.numNotes = this.options.numNotes;
       TYPES.forEach((type) => {
         const oscs = this.oscillators[type] = [];

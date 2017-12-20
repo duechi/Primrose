@@ -19,7 +19,7 @@ export default class Note extends PositionalSound {
     super(ctx, mainVolume);
     this.osc = ctx.createOscillator(),
     this.osc.type = type;
-    this.osc.frequency.value = 0;
+    this.osc.frequency.setValueAtTime(0, 0);
     this.osc.connect(this.gn);
     this.osc.start();
   }
