@@ -1142,7 +1142,7 @@ export default class Environment extends EventDispatcher {
                   console.warn("Couldn't find readWheel on %o", this.currentControl);
                 }
               }
-            };;
+            };
 
           window.addEventListener("keydown", keyDown, false);
 
@@ -1566,6 +1566,7 @@ Environment.DEFAULTS = {
   canvasElement: "frontBuffer",
   renderer: null,
   context: null,
+  plugins: [],
   scene: null,
   // This is an experimental feature for setting the height of a user's "neck" on orientation-only systems (such as Google Cardboard and Samsung Gear VR) to create a more realistic feel.
   nonstandardNeckLength: null,
