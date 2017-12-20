@@ -745,9 +745,11 @@ export default class Environment extends EventDispatcher {
           console.log("stopped");
         }
 
-        this.VR.currentDevice.stopAnimation();
         this.plugins.forEach((plugin) =>
           plugin.stop());
+
+        this.VR.displays.forEach((display) =>
+          display.stopAnimation());
       }
     };
 
