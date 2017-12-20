@@ -26,6 +26,18 @@ export default class PresentationUI extends BasePlugin {
   }
 
   _install(env) {
+    env.VR.ready.then((displays) => displays.forEach((display, i) => {
+      window.addEventListener("vrdisplayactivate", (evt) => {
+        if(evt.display === display) {
+          const exitVR = () => {
+            window.removeEventListener("vrdisplaydeactivate", exitVR);
+            env.cancelVR();
+          };
+          window.addEventListener("vrdisplaydeactivate", exitVR, false);
+          this.goFullScreen(env, i);
+        }
+      }, false);
+    }));
 
     window.addEventListener("vrdisplaypresentchange", (evt) => {
       const presenting = env.VR.isPresenting,
@@ -69,7 +81,7 @@ export default class PresentationUI extends BasePlugin {
 
       const buttons = env.displays
         .map((display, i) => {
-          const enterVR = env.goFullScreen.bind(env, i),
+          const enterVR = this.goFullScreen.bind(this, env, i),
             btn = newButton(display.displayName, display.displayName, enterVR);
           btn.className = "enterVRButton " + display.isStereo ? "stereo" : "mono";
           return btn;
@@ -100,6 +112,36 @@ export default class PresentationUI extends BasePlugin {
 
         exitFullScreenButton.style.display = exitVRStyle;
       });
+    }
+  }
+
+
+  /*
+  pliny.method({
+    parent: "Primrose.Environment",
+    name: "goFullScreen",
+    returns: "Promise",
+    description: "Enter full-screen mode on one of the available displays. NOTE: due to a defect in iOS, this feature is not available on iPhones or iPads."
+  });
+  */
+  goFullScreen(env, index, evt) {
+    if (evt !== "Gaze") {
+
+      env.VR.connect(index);
+
+      let elem = null;
+      if(evt === "force" || env.VR.canMirror || !env.VR.isPolyfilled) {
+        elem = env.renderer.domElement;
+      }
+      else{
+        elem = env.options.fullScreenElement;
+      }
+
+      return env.VR.requestPresent([{
+          source: elem
+        }])
+        .catch((exp) => console.error("whaaat", exp))
+        .then(() => elem.focus());
     }
   }
 }

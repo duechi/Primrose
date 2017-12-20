@@ -1005,19 +1005,6 @@ export default class Environment extends EventDispatcher {
         this.pointers.push(this.mousePointer);
         this.head.add(this.mousePointer);
 
-        this.VR.ready.then((displays) => displays.forEach((display, i) => {
-          window.addEventListener("vrdisplayactivate", (evt) => {
-            if(evt.display === display) {
-              const exitVR = () => {
-                window.removeEventListener("vrdisplaydeactivate", exitVR);
-                this.cancelVR();
-              };
-              window.addEventListener("vrdisplaydeactivate", exitVR, false);
-              this.goFullScreen(i);
-            }
-          }, false);
-        }));
-
         /*
         pliny.event({
           parent: "Primrose.Environment",

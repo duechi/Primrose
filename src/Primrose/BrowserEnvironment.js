@@ -106,35 +106,6 @@ export default class BrowserEnvironment extends Environment {
 
     super(normalizeOptions(options));
   }
-
-  /*
-  pliny.method({
-    parent: "Primrose.Environment",
-    name: "goFullScreen",
-    returns: "Promise",
-    description: "Enter full-screen mode on one of the available displays. NOTE: due to a defect in iOS, this feature is not available on iPhones or iPads."
-  });
-  */
-  goFullScreen(index, evt) {
-    if (evt !== "Gaze") {
-
-      this.VR.connect(index);
-
-      let elem = null;
-      if(evt === "force" || this.VR.canMirror || !this.VR.isPolyfilled) {
-        elem = this.renderer.domElement;
-      }
-      else{
-        elem = this.options.fullScreenElement;
-      }
-
-      return this.VR.requestPresent([{
-          source: elem
-        }])
-        .catch((exp) => console.error("whaaat", exp))
-        .then(() => elem.focus());
-    }
-  }
 };
 
 
