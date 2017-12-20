@@ -6,6 +6,10 @@ var SCRIPT_UPDATE_TIME = 1000,
   SAND = "../shared_assets/images/sand.png",
   WATER = "../shared_assets/images/water.png",
   DECK = "../shared_assets/images/deck.png",
+
+  editorSize = isMobile ? 512 : 1024,
+  fontSize = isMobile ? 10 : 20,
+
   env = new Primrose.BrowserEnvironment({
     skyTexture: "../shared_assets/images/bg2.jpg",
     groundTexture: GRASS,
@@ -13,8 +17,19 @@ var SCRIPT_UPDATE_TIME = 1000,
     useFog: false,
     fullScreenButtonContainer: "#fullScreenButtonContainer",
   }),
+
   subScene = hub(),
-  editor = null,
+  editor = new Primrose.Controls.TextBox({
+      id: "Editor",
+      width: editorSize,
+      height: editorSize,
+      geometry: quad(2, 1.5), //shell(1.5, 25, 25),
+      fontSize: fontSize,
+      tokenizer: Primrose.Text.Grammars.JavaScript,
+      value: getSourceCode(isInIFrame)
+    })
+    .addTo(env.scene)
+    .at(0, env.options.avatarHeight, 0),
 
   modA = isMacOS ? "metaKey" : "ctrlKey",
   modB = isMacOS ? "altKey" : "shiftKey",
@@ -22,27 +37,13 @@ var SCRIPT_UPDATE_TIME = 1000,
   cmdB = isMacOS ? "OPT" : "SHIFT",
   cmdPre = cmdA + "+" + cmdB,
 
-  scriptUpdateTimeout,
+  scriptUpdateTimeout = null,
   lastScript = null,
   scriptAnimate = null;
 
+env.scene.add(subScene);
+
 env.addEventListener("ready", function () {
-  env.scene.add(subScene);
-
-  var editorSize = isMobile ? 512 : 1024,
-    fontSize = isMobile ? 10 : 20;
-
-  editor = new Primrose.Controls.TextBox({
-      id: "Editor",
-      width: editorSize,
-      height: editorSize,
-      geometry: shell(1.5, 25, 25),
-      fontSize: fontSize,
-      tokenizer: Primrose.Text.Grammars.JavaScript,
-      value: getSourceCode(isInIFrame)
-    })
-    .addTo(env.scene)
-    .at(0, env.options.avatarHeight, 0);
 
   console.log("INSTRUCTIONS:");
   console.log(" - " + cmdPre + "+E to show/hide editor");
