@@ -378,7 +378,7 @@ export default class Environment extends EventDispatcher {
       this.VR.submitFrame();
     };
 
-    const modifyScreen = () => {
+    this._modifyScreen = () => {
       var near = this.options.nearPlane,
         far = near + this.options.drawDistance,
         p = this.VR && this.VR.getTransforms(near, far);
@@ -696,22 +696,6 @@ export default class Environment extends EventDispatcher {
       this.scene.remove(user.head);
     };
 
-    const fullScreenChange = (evt) => {
-      const presenting = this.VR.isPresenting,
-        lockMouse = !presenting || this.VR.isStereo,
-        scale = presenting ? -1 : 1;
-      this.Mouse.enable("U", lockMouse);
-      this.Mouse.enable("V", lockMouse);
-      this.Mouse.setScale("heading", scale);
-      this.Mouse.setScale("pitch", scale);
-      if (!presenting) {
-        this.cancelVR();
-      }
-      modifyScreen();
-    };
-
-
-
     let allowRestart = true;
 
     /*
@@ -769,8 +753,7 @@ export default class Environment extends EventDispatcher {
 
     this.pause = (evt) => this.stop(evt, true);
 
-    window.addEventListener("vrdisplaypresentchange", fullScreenChange, false);
-    window.addEventListener("resize", modifyScreen, false);
+    window.addEventListener("resize", this._modifyScreen, false);
     if(!options.disableAutoPause) {
       window.addEventListener("focus", this.start, false);
       window.addEventListener("blur", this.pause, false);
@@ -1194,7 +1177,7 @@ export default class Environment extends EventDispatcher {
             this.options.quality = v;
             resolutionScale = PIXEL_SCALES[v];
           }
-          this.ready.then(modifyScreen);
+          this.ready.then(this._modifyScreen);
         }
       }
     });

@@ -98,6 +98,20 @@ export default class BrowserEnvironment extends Environment {
         this.insertFullScreenButtons(options.fullScreenButtonContainer);
       }
 
+      window.addEventListener("vrdisplaypresentchange", (evt) => {
+        const presenting = this.VR.isPresenting,
+          lockMouse = !presenting || this.VR.isStereo,
+          scale = presenting ? -1 : 1;
+        this.Mouse.enable("U", lockMouse);
+        this.Mouse.enable("V", lockMouse);
+        this.Mouse.setScale("heading", scale);
+        this.Mouse.setScale("pitch", scale);
+        if (!presenting) {
+          this.cancelVR();
+        }
+        this._modifyScreen();
+      }, false);
+
       PointerLock.addChangeListener((evt) => {
         if(PointerLock.isActive) {
           this.Mouse.removeButton("dx", 0);
