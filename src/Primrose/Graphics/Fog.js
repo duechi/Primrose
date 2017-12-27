@@ -6,11 +6,11 @@ import BasePlugin from "../BasePlugin";
 pliny.class({
   parent: "Primrose.Graphics",
   baseClass: "Primrose.BasePlugin",
-  name: "Fog",
+  name: "FogPlugin",
   description: "Installs fog in the BrowserEnvironment"
 });
 */
-export default class Fog extends BasePlugin {
+export default class FogPlugin extends BasePlugin {
 
   constructor() {
     super("Fog");

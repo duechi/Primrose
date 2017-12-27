@@ -3,7 +3,7 @@ import { Vector3 } from "three";
 
 import { coalesce } from "../util";
 
-import Entity from "../Primrose/Controls/Entity";
+import { Entity } from "../Primrose/Controls";
 
 
 const TEMP = new Vector3();

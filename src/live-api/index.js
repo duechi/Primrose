@@ -27,7 +27,6 @@ import raycaster from "./raycaster";
 import ring from "./ring";
 import shell from "./shell";
 import sphere from "./sphere";
-import spring from "./spring";
 import textured from "./textured";
 import v2 from "./v2";
 import v3 from "./v3";
@@ -55,7 +54,6 @@ export {
   ring,
   shell,
   sphere,
-  spring,
   textured,
   v2,
   v3,
@@ -83,7 +81,6 @@ export default {
   ring,
   shell,
   sphere,
-  spring,
   textured,
   v2,
   v3,

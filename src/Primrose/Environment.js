@@ -741,15 +741,14 @@ export default class Environment extends EventDispatcher {
     this.stop = (evt, restartAllowed) => {
       if(allowRestart) {
         allowRestart = restartAllowed;
-        if(!allowRestart) {
-          console.log("stopped");
-        }
 
         this.plugins.forEach((plugin) =>
           plugin.stop());
 
         this.VR.displays.forEach((display) =>
           display.stopAnimation());
+        
+        console.log("stopped");
       }
     };
 
