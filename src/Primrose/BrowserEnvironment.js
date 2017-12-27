@@ -27,7 +27,7 @@ function normalizeOptions(options) {
     plugins: [],
     useFog: true,
     useGaze: isCardboard,
-    physicsWorker: "/Primrose/PrimrosePhysics.js"
+    physics: true // "/Primrose/PrimrosePhysics.js"
   }, options);
 
   if(!options.groundTexture && !options.groundModel) {
@@ -71,11 +71,13 @@ function normalizeOptions(options) {
     disableAdvertising: options.disableAdvertising
   });
 
-  if(options.physicsWorker === false) {
-    add(InRenderThreadServer);
-  }
-  else{
-    add(InWorkerThreadServer, { workerPath: options.physicsWorker });
+  if(options.physics) {
+    if(typeof options.physics === "string") {
+      add(InWorkerThreadServer, { workerPath: options.physics });
+    }
+    else{
+      add(InRenderThreadServer);
+    }
   }
 
 

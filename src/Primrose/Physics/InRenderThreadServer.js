@@ -8,7 +8,7 @@ export default class InRenderThreadServer extends BasePlugin {
     super("PhysicsServer");
 
     this._engine = new EngineServer((data) => {
-      this.dispatchEvent({ type: "data", data });
+      this.dispatchEvent({ type: "message", data });
     });
   }
 
@@ -21,7 +21,6 @@ export default class InRenderThreadServer extends BasePlugin {
   }
 
   postUpdate(env, dt) {
-    console.log(dt);
     this._engine.update(dt);
   }
 
