@@ -1,4 +1,5 @@
 import { DeckGrid, Helvetiker } from "../assets";
+
 import { isCardboard } from "../flags";
 
 import { any, coalesce } from "../util";
@@ -9,7 +10,7 @@ import { Ground, Sky, Fader } from "./Controls";
 import { iOSOrientationHack, PresentationUI } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
 import { Clipboard, GamepadManager } from "./Input";
-import { Engine } from "./Physics";
+import { EntityManager } from "./Physics";
 import { Teleporter } from "./Tools";
 import { Manager } from "./Network";
 
@@ -59,11 +60,11 @@ function normalizeOptions(options) {
     model: options.groundModel
   });
 
+  add(EntityManager, { gravity: options.gravity });
+
   add(Fader, { rate: options.fadeRate });
 
   add(Teleporter);
-
-  add(Engine, { gravity: options.gravity });
 
   add(PresentationUI, {
     buttonContainer: options.fullScreenButtonContainer,

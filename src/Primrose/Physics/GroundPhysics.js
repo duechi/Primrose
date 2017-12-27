@@ -15,11 +15,15 @@ export default class GroundPhysics extends BasePlugin {
   }
 
   get requirements() {
-    return ["ground.rigidBody", "physics"];
+    return ["ground.isInfinite"];
   }
 
   _install(env) {
-    env.physics.addBody(env.ground.rigidBody);
+    env.ground.ready.then(() =>
+      env.ground.phys({
+        mass: 0,
+        type: 4 // CANNON.Body.KINEMATIC
+      }));
   }
 
 };

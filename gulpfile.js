@@ -58,18 +58,20 @@ var gulp = require("gulp"),
     });
   }),
 
-  jsBuild = (fmt) => {
+  jsBuild = (name, entry, format) => {
     return marigold.js({
-      name: "Primrose",
-      advertise: true,
-      sourceMap: (debug) => debug && fmt === "umd",
-      extractDocumentation: (debug) => !debug,
-      format: fmt
+      name,
+      entry,
+      format,
+      advertise: name === "Primrose",
+      sourceMap: (debug) => debug && format === "umd",
+      extractDocumentation: (debug) => !debug
     });
   },
 
-  jsUMD = jsBuild("umd"),
-  jsESModules = jsBuild("es"),
+  jsUMD = jsBuild("Primrose", "src/index.js", "umd"),
+  jsESModules = jsBuild("Primrose", "src/index.js", "es"),
+  physics = jsBuild("PrimrosePhysics", "src/Primrose/physics/worker.js", "umd"),
 
   tidyFiles = [
     "preloader.min.js.map",
@@ -94,7 +96,7 @@ var gulp = require("gulp"),
   devServer = marigold.devServer(stopOnFiles, reloadOnFiles, {
     debounceDelay: 1500,
     keepOpenOnLastDisconnect: true,
-    url: "fx/demos/empty"
+    url: "Primrose/demos/physics1"
   }),
 
   copyQuickstart = marigold.move(["Primrose.min.js"], "quickstart"),
@@ -114,7 +116,8 @@ marigold.taskify([
   //images,
   preloader,
   jsUMD,
-  jsESModules
+  jsESModules,
+  physics
 ].concat(demos), {
   default: devServer,
   release() {

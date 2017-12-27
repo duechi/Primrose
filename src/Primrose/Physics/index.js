@@ -2,18 +2,31 @@
 pliny.namespace({
   parent: "Primrose",
   name: "Physics",
-  description: "A collection of components to use with the Cannon.js physics system."
+  description: "Code for simulating physics, on a server, in a worker, or in the render thread."
 });
 */
 
 import DirectedForceField from "./DirectedForceField";
-import Engine from "./Engine";
+import EngineServer from "./EngineServer";
+import EntityManager from "./EntityManager";
+import GroundPhysics from "./GroundPhysics";
+import InRenderThreadServer from "./InRenderThreadServer";
+import InWorkerThreadServer from "./InWorkerThreadServer";
 
 export {
   DirectedForceField,
-  Engine,
+  EngineServer,
+  EntityManager,
+  GroundPhysics,
+  InRenderThreadServer,
+  InWorkerThreadServer
 };
 
 export default {
   DirectedForceField,
+  EngineServer,
+  EntityManager,
+  GroundPhysics,
+  InRenderThreadServer,
+  InWorkerThreadServer
 };

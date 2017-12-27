@@ -88,8 +88,8 @@ export default class BaseTextured extends Entity {
     }
   }
 
-  get _ready() {
-    return super._ready
+  load() {
+    return super.load()
       .then(() => this._loadFiles(this._files, this.options.progress))
       .then(() => this._meshes.forEach((mesh) =>
         this.add(mesh)));

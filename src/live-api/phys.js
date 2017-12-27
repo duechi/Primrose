@@ -1,12 +1,16 @@
-import CANNON from "cannon";
-import { Vector3 } from "three";
+import { Vector3, Quaternion } from "three";
 
 import { coalesce } from "../util";
 
 import { Entity } from "../Primrose/Controls";
+import { EntityManager } from "../Primrose/Physics";
 
+const TEMP = new Vector3(),
+  Q = new Quaternion();
 
-const TEMP = new Vector3();
+Q.setFromUnitVectors(
+  new Vector3(0, 0, 1),
+  new Vector3(0, 1, 0));
 
 /*
 pliny.function({
@@ -31,42 +35,59 @@ pliny.record({
   type: "Object",
   description: "A record holding options for the `phys` function. Extends CANNON.Body's constructor options.",
   link: "http://schteppe.github.io/cannon.js/docs/classes/Body.html",
-  parameters: [{
-    name: "disableAutoShape",
-    type: "Boolean",
-    description: "Set to true to disable using the Mesh's geometry to estimate a bounding box or sphere.",
-    optional: true,
-    default: false
-  }]
+  parameters: []
 });
 */
 export default function phys(obj, options) {
+  
   options = coalesce({}, options);
 
-  const ent = new Entity(obj.name, options);
-  obj.name = "";
-  ent.mesh = obj;
-  ent.add(obj);
-  ent.rigidBody = new CANNON.Body(options);
-  ent.rigidBody.position.copy(obj.position);
-  ent.rigidBody.quaternion.copy(obj.quaternion);
-  obj.position.set(0, 0, 0);
-  obj.quaternion.set(0, 0, 0, 1);
+  let ent = null;
+  if(obj.isEntity) {
+    ent = obj;
+  }
+  else {
+    ent = new Entity(obj.name, options);
+    obj.name = "";
+    ent.mesh = obj;
+    ent.add(obj);
+    ent.position.copy(obj.position);
+    ent.quaternion.copy(obj.quaternion);
+    obj.position.set(0, 0, 0);
+    obj.quaternion.set(0, 0, 0, 1);
+  }
 
-  if(!options.disableAutoShape && obj.geometry){
-    const g = obj.geometry;
-    g.computeBoundingSphere();
-    g.computeBoundingBox();
-    g.boundingBox.getSize(TEMP);
-    const volSphere = g.boundingSphere.radius * g.boundingSphere.radius * Math.PI,
-      volBox = TEMP.x * TEMP.y * TEMP.z;
 
-    if(volSphere < volBox){
-      ent.rigidBody.addShape(new CANNON.Sphere(g.boundingSphere.radius));
+  if(!ent.physMapped) {
+    let head = ent;
+    while(head && !head.geometry && head.children.length > 0) {
+      head = head.children[0];
     }
-    else {
-      TEMP.multiplyScalar(0.5);
-      ent.rigidBody.addShape(new CANNON.Box(new CANNON.Vec3().copy(TEMP)));
+
+    if(head.geometry){
+
+      ent.newBody(options);
+
+      const g = head.geometry;
+      g.computeBoundingSphere();
+      g.computeBoundingBox();
+      g.boundingBox.getSize(TEMP);
+      
+      const { x, y, z } = TEMP,
+        r = g.boundingSphere.radius,
+        volSphere = Math.PI * r * r,
+        volBox = x * y * z;
+    
+      if(volSphere < volBox) {
+        ent.addSphere(r);
+      }
+      else if(volBox === 0) {
+        ent.addPlane();
+        ent.quat(Q.x, Q.y, Q.z, Q.w);
+      }
+      else {
+        ent.addBox(0.5 * x, 0.5 * y, 0.5 * z);
+      }
     }
   }
 

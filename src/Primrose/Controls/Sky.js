@@ -1,3 +1,5 @@
+import { Object3D } from "three";
+
 import { box, quad, sphere } from "../../live-api";
 import { isMobile } from "../../flags";
 import BasePlugin from "../BasePlugin";
@@ -83,23 +85,32 @@ class Sky extends Entity {
   replace(files){
     this.options.texture = files;
     this.children.splice(0);
-    return this._ready;
+    return this.load();
   }
 
-  get _ready() {
-    const type = typeof  this.options.texture;
-    if(type === "string") {
-      this.options.side = BackSide;
-      this._image = sphere(0.95 * this.options.skyRadius, 46, 24)
-        .textured(this.options.texture, this.options)
-        .addTo(this);
-    }
-    else if(this.options.texture instanceof Array && this.options.texture.length === 6 && typeof this.options.texture[0] === "string") {
-      this._image = new Image(this.options.texture, this.options);
-      this.add(this._image);
-    }
-
-    return this._image && this._image.ready || super._ready;
+  load() {
+    return super.load()
+      .then(() => {
+        const type = typeof  this.options.texture;
+        if(type === "string") {
+          this.options.side = BackSide;
+          return sphere(0.95 * this.options.skyRadius, 46, 24)
+            .textured(this.options.texture, this.options);
+        }
+        else if(this.options.texture instanceof Array && this.options.texture.length === 6 && typeof this.options.texture[0] === "string") {
+          return new Image(this.options.texture, this.options);;
+        }
+        else if(type === "number") {
+          // we don't have to do anything, the renderer's clear color will take care of it.
+          return new Object3D();
+        }
+        else {
+          throw new Error("Couldn't figure out what to do with the Sky", this.options);
+        }
+      })
+      .then((sky) => {
+        this._image = sky.addTo(this);
+      });
   }
 
 

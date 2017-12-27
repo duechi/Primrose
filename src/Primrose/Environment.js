@@ -30,8 +30,6 @@ import {
   eyeBlankAll
 } from "./Controls/BaseTextured";
 
-import { updateAllEntities } from "./Controls/Entity";
-
 import Image from "./Controls/Image";
 
 import StandardMonitorVRDisplay from "./Displays/StandardMonitorVRDisplay";
@@ -97,6 +95,8 @@ export default class Environment extends EventDispatcher {
     });
     */
     this.plugins = this.options.plugins;
+
+    this.physics = null;
 
     /*
     pliny.property({
@@ -308,8 +308,6 @@ export default class Environment extends EventDispatcher {
         for(let i = 0; i < this.plugins.length; ++i) {
           this.plugins[i].postUpdate(this, dt);
         }
-
-        updateAllEntities();
       }
     };
 
@@ -616,16 +614,6 @@ export default class Environment extends EventDispatcher {
 
       this.dispatchEvent(evt);
     };
-
-    /*
-    pliny.property({
-      parent: "Primrose.Environment",
-      name: "physics",
-      type: "CANNON.World",
-      description: "The physics subsystem."
-    });
-    */
-    this.physics = null;
 
 
     /*

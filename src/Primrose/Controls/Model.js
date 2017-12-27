@@ -24,14 +24,15 @@ export default class Model extends Entity {
     this._model = null;
   }
 
-  get _ready() {
-    return super._ready.then(() => cache(this._file, () =>
-      ModelFactory.loadModel(this._file, this.options.type, this.options.progress))
-    .then((factory) => {
-      this._model = factory.clone();
-      this.add(this._model);
-      return this;
-    }))
+  load() {
+    return super.load()
+      .then(() => cache(this._file, () =>
+        ModelFactory.loadModel(this._file, this.options.type, this.options.progress))
+      .then((factory) => {
+        this._model = factory.clone();
+        this.add(this._model);
+        return this;
+      }));
   }
 
 };

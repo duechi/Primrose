@@ -39,18 +39,14 @@ pliny.class({
 */
 
 import CANNON from "cannon";
-const { Vec3 } = CANNON;
 
 import { coalesce } from "../../util";
-import Component from "../Controls/Component";
 
 
-const TEMP = new Vec3();
+const TEMP = new CANNON.Vec3();
 
-export default class DirectedForceField extends Component {
+export default class DirectedForceField {
   constructor(bodyStart, bodyEnd, options) {
-    super();
-
     this.bodyStart = bodyStart;
     this.bodyEnd = bodyEnd;
 
@@ -91,28 +87,21 @@ export default class DirectedForceField extends Component {
     this.falloff = options.falloff;
   }
 
-  preStep() {
-    super.preStep();
-
-    const a = this.bodyEnd.rigidBody,
-      b = this.bodyStart.rigidBody;
-
-    if(a && b) {
-      b.position.vsub(a.position, TEMP);
-      let d = TEMP.length(),
-        f = this.force;
-      if(this.gravitational) {
-        f *= a.mass * b.mass;
-      }
-      if(this.gravitational || this.falloff) {
-        // the distance is cubed so it both normalizes the displacement vector
-        // `TEMP` at the same time as computes the distance-squared fall-off.
-        d *= d * d;
-      }
-      TEMP.mult(f / d, TEMP);
-      b.force.vadd(TEMP, b.force);
-      TEMP.negate(TEMP);
-      a.force.vadd(TEMP, a.force);
+  applyForce() {
+    this.bodyStart.position.vsub(this.bodyEnd.position, TEMP);
+    let d = TEMP.length(),
+      f = this.force;
+    if(this.gravitational) {
+      f *= this.bodyEnd.mass * this.bodyStart.mass;
     }
+    if(this.gravitational || this.falloff) {
+      // the distance is cubed so it both normalizes the displacement vector
+      // `TEMP` at the same time as computes the distance-squared fall-off.
+      d *= d * d;
+    }
+    TEMP.mult(f / d, TEMP);
+    this.bodyStart.force.vadd(TEMP, this.bodyStart.force);
+    TEMP.negate(TEMP);
+    this.bodyEnd.force.vadd(TEMP, this.bodyEnd.force);
   }
 }

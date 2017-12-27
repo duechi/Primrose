@@ -8,9 +8,6 @@ import ModelFactory from "../Graphics/ModelFactory";
 
 import { Raycaster, Vector3, Object3D } from "three";
 
-import CANNON from "cannon";
-
-
 const heightTester = new Raycaster();
 
 heightTester.ray.direction.set(0, -1, 0);
@@ -69,78 +66,52 @@ class Ground extends Entity {
     this.isInfinite = null;
   }
 
-  get _ready() {
-    const dim = this.options.dim,
-      type = typeof  this.options.texture;
+  load() {
+    return super.load()
+      .then(() => {
+        const dim = this.options.dim,
+          type = typeof  this.options.texture;
 
-    let promise = null;
-
-    if(this.options.model) {
-      promise = ModelFactory.loadObject(this.options.model)
-        .then((model) => {
-          this.model = model;
+        if(this.options.model) {
           this.isInfinite = false;
-        });
-    }
-    else if(type === "number") {
-      this.isInfinite = true;
-      this.model = quad(dim, dim)
-        .colored(this.options.texture, this.options);
-      promise = Promise.resolve();
-    }
-    else if(type === "string") {
-      this.isInfinite = true;
-      this.model = new Image(this.options.texture, {
-        width: dim,
-        height: dim,
-        txtRepeatX: dim,
-        txtRepeatY: dim,
-        anisotropy: 8
-      });
-
-      promise = this.model.ready;
-    }
-    else {
-      this.model = new Object3D();
-      promise = Promise.resolve();
-    }
-
-    promise = promise.then(() => {
-      if(this.isInfinite != null) {
-        this.model
-          .named(this.name + "-" + (this.options.model || this.options.texture))
-          .addTo(this);
-
-        this.watch(this.model, Pointer.EVENTS);
-
-        this.rigidBody = new CANNON.Body({
-          mass: 0,
-          type: CANNON.Body.KINEMATIC
-        });
-
-        if(this.isInfinite) {
-          const groundShape = new CANNON.Plane();
-          this.rigidBody.addShape(groundShape);
-          this.rigidBody.quaternion.setFromVectors(
-            CANNON.Vec3.UNIT_Z,
-            CANNON.Vec3.UNIT_Y);
+          return ModelFactory.loadObject(this.options.model);
         }
-      }
-    });
+        else if(type === "number") {
+          this.isInfinite = true;
+          return quad(dim, dim)
+            .colored(this.options.texture, this.options);
+        }
+        else if(type === "string") {
+          this.isInfinite = true;
+          return new Image(this.options.texture, {
+            width: dim,
+            height: dim,
+            txtRepeatX: dim,
+            txtRepeatY: dim,
+            anisotropy: 8
+          }).ready;
+        }
+        else {
+          return new Object3D();
+        }
+      }).then((model) => {
+        this.model = model;
+        if(this.isInfinite !== null) {
+          this.model
+            .named(this.name + "-" + (this.options.model || this.options.texture))
+            .addTo(this);
 
-    return promise;
+          this.watch(this.model, Pointer.EVENTS);
+        }
+      });
   }
 
   moveTo(pos) {
     if(this.isInfinite) {
       const x = Math.floor(pos.x),
         z = Math.floor(pos.z);
-      if(this.rigidBody) {
-        this.rigidBody.position.set(x, 0, z);
-      }
-      else {
-        this.position.set(x, 0, z);
-      }
+
+      this.position.set(x, 0, z);
     }
   }
 

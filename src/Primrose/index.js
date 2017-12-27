@@ -19,8 +19,8 @@ import HTTP from "./HTTP";
 import Input from "./Input";
 import Keys from "./Keys";
 import Network from "./Network";
-import Pointer from "./Pointer";
 import Physics from "./Physics";
+import Pointer from "./Pointer";
 import Random from "./Random";
 import Replay from "./Replay";
 import Text from "./Text";
@@ -39,8 +39,8 @@ export {
   Input,
   Keys,
   Network,
-  Pointer,
   Physics,
+  Pointer,
   Random,
   Replay,
   Text,
@@ -60,8 +60,8 @@ export default {
   Input,
   Keys,
   Network,
-  Pointer,
   Physics,
+  Pointer,
   Random,
   Replay,
   Text,
