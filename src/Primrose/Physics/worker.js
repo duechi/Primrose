@@ -1,22 +1,18 @@
+import { dynamicInvoke } from "../../util";
+
 import EngineServer from "./EngineServer";
+const T = Engineengine.DT * 1000,
+  engine = new Engineengine(),
+  data = [];
 
 let lastTime = null,
   timer = null;
-
-const T = EngineServer.DT * 1000,
-  server = new EngineServer((arr) =>
-    postMessage(arr));
 
 onmessage = (evt) => {
   if(evt.data === "start") {
     if(timer === null) {
       lastTime = performance.now();
-      timer = setInterval(() => {
-        const t = performance.now(),
-          dt = 0.001 * (t - lastTime);
-        lastTime = t;
-        server.update(dt);
-      }, T);
+      timer = setInterval(ontick, T);
       console.log("worker timer started", T);
     }
   }
@@ -28,6 +24,49 @@ onmessage = (evt) => {
     }
   }
   else {
-    server.recv(evt.data);
+    const arr = evt.data;
+    while(arr.length > 0) {
+      const end = arr.indexOf("END");
+      if(end > 0) {
+        const args = arr.splice(0, end);
+        dynamicInvoke(engine, args);
+      }
+      else {
+        arr.shift();
+      }
+    }
   }
 };
+
+
+function ontick() {
+  const t = performance.now(),
+    dt = 0.001 * (t - lastTime);
+  lastTime = t;
+  engine.update(dt);
+
+  let i = 0;
+  for(let n = 0; n < engine.bodyIDs.length; ++n) {
+    const id = engine.bodyIDs[n],
+      body = engine.bodyDB[id];
+    if(body.sleepState !== CANNON.Body.SLEEPING) {
+      data[i + 0] = id;
+      data[i + 1] = body.position.x;
+      data[i + 2] = body.position.y;
+      data[i + 3] = body.position.z;
+      data[i + 4] = body.quaternion.x;
+      data[i + 5] = body.quaternion.y;
+      data[i + 6] = body.quaternion.z;
+      data[i + 7] = body.quaternion.w;
+      data[i + 8] = body.velocity.x;
+      data[i + 9] = body.velocity.y;
+      data[i + 10] = body.velocity.z;
+      data[i + 11] = body.angularVelocity.x;
+      data[i + 12] = body.angularVelocity.y;
+      data[i + 13] = body.angularVelocity.z;
+      i += 14;
+    }
+  }
+
+  postMessage(data);
+}

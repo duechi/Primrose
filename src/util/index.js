@@ -14,6 +14,7 @@ import cache from "./cache";
 import coalesce from "./coalesce";
 import deleteSetting from "./deleteSetting";
 import documentReady from "./documentReady";
+import dynamicInvoke from "./dynamicInvoke";
 import findProperty from "./findProperty";
 import FullScreen from "./FullScreen";
 import getSetting from "./getSetting";
@@ -42,6 +43,7 @@ export {
   coalesce,
   deleteSetting,
   documentReady,
+  dynamicInvoke,
   findProperty,
   FullScreen,
   getSetting,
@@ -70,6 +72,7 @@ export default {
   coalesce,
   deleteSetting,
   documentReady,
+  dynamicInvoke,
   findProperty,
   FullScreen,
   getSetting,

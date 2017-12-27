@@ -42572,6 +42572,14 @@ const documentReady = new Promise((resolve, reject) => {
   }
 });
 
+function dynamicInvoke(obj, args) {
+  const name = args.shift(),
+    handler = obj[name];
+  if(handler) {
+    handler.apply(obj, args);
+  }
+}
+
 /*
 pliny.class({
   parent: "Util",
@@ -43395,6 +43403,7 @@ var index$4 = {
   coalesce,
   deleteSetting,
   documentReady,
+  dynamicInvoke,
   findProperty,
   FullScreen,
   getSetting,
@@ -43424,6 +43433,7 @@ var util = Object.freeze({
 	coalesce: coalesce,
 	deleteSetting: deleteSetting,
 	documentReady: documentReady,
+	dynamicInvoke: dynamicInvoke,
 	findProperty: findProperty,
 	FullScreen: FullScreen,
 	getSetting: getSetting,
@@ -58343,31 +58353,6 @@ class EngineServer {
 
   update(dt){
     this.physics.step(EngineServer.DT, dt);
-
-    let i = 0;
-    for(let n = 0; n < this.bodyIDs.length; ++n) {
-      const id = this.bodyIDs[n],
-        body = this.bodyDB[id];
-      if(body.sleepState !== cannon.Body.SLEEPING) {
-        this.output[i + 0] = id;
-        this.output[i + 1] = body.position.x;
-        this.output[i + 2] = body.position.y;
-        this.output[i + 3] = body.position.z;
-        this.output[i + 4] = body.quaternion.x;
-        this.output[i + 5] = body.quaternion.y;
-        this.output[i + 6] = body.quaternion.z;
-        this.output[i + 7] = body.quaternion.w;
-        this.output[i + 8] = body.velocity.x;
-        this.output[i + 9] = body.velocity.y;
-        this.output[i + 10] = body.velocity.z;
-        this.output[i + 11] = body.angularVelocity.x;
-        this.output[i + 12] = body.angularVelocity.y;
-        this.output[i + 13] = body.angularVelocity.z;
-        i += 14;
-      }
-    }
-
-    this.send(this.output);
   }
 
   gravity(g) {
@@ -58757,14 +58742,15 @@ class EntityManager extends BasePlugin {
 EntityManager.entities = [];
 EntityManager.entityDB = {};
 
+const data = [];
+const evt = { type: "message", data };
+
 class InRenderThreadServer extends BasePlugin {
 
   constructor() {
     super("PhysicsServer");
 
-    this._engine = new EngineServer((data) => {
-      this.dispatchEvent({ type: "message", data });
-    });
+    this._engine = new EngineServer();
   }
 
   get requirements() {
@@ -58776,8 +58762,31 @@ class InRenderThreadServer extends BasePlugin {
   }
 
   postUpdate(env, dt) {
-    console.log(dt);
     this._engine.update(dt);
+    let i = 0;
+    for(let n = 0; n < this._engine.bodyIDs.length; ++n) {
+      const id = this._engine.bodyIDs[n],
+        body = this._engine.bodyDB[id];
+      if(body.sleepState !== cannon.Body.SLEEPING) {
+        data[i + 0] = id;
+        data[i + 1] = body.position.x;
+        data[i + 2] = body.position.y;
+        data[i + 3] = body.position.z;
+        data[i + 4] = body.quaternion.x;
+        data[i + 5] = body.quaternion.y;
+        data[i + 6] = body.quaternion.z;
+        data[i + 7] = body.quaternion.w;
+        data[i + 8] = body.velocity.x;
+        data[i + 9] = body.velocity.y;
+        data[i + 10] = body.velocity.z;
+        data[i + 11] = body.angularVelocity.x;
+        data[i + 12] = body.angularVelocity.y;
+        data[i + 13] = body.angularVelocity.z;
+        i += 14;
+      }
+    }
+
+    this.dispatchEvent(evt);
   }
 
   send(arr) {

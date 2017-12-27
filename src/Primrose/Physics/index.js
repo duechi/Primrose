@@ -6,6 +6,7 @@ pliny.namespace({
 });
 */
 
+import BaseServerPlugin from "./BaseServerPlugin";
 import DirectedForceField from "./DirectedForceField";
 import EngineServer from "./EngineServer";
 import EntityManager from "./EntityManager";
@@ -14,6 +15,7 @@ import InRenderThreadServer from "./InRenderThreadServer";
 import InWorkerThreadServer from "./InWorkerThreadServer";
 
 export {
+  BaseServerPlugin,
   DirectedForceField,
   EngineServer,
   EntityManager,
@@ -23,6 +25,7 @@ export {
 };
 
 export default {
+  BaseServerPlugin,
   DirectedForceField,
   EngineServer,
   EntityManager,

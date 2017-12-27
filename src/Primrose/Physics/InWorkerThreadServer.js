@@ -1,19 +1,11 @@
-import BasePlugin from "../BasePlugin";
+import BaseServerPlugin from "../BaseServerPlugin";
 
-export default class InWorkerThreadServer extends BasePlugin {
+export default class InWorkerThreadServer extends BaseServerPlugin {
   constructor(options) {
-    super("PhysicsServer", options);
+    super(options);
 
     this._worker = new Worker(this.options.workerPath);
     this._worker.onmessage = this.dispatchEvent.bind(this);
-  }
-
-  get requirements() {
-    return [];
-  }
-
-  _install(env) {
-    env.physics = this;
   }
 
   start() {
