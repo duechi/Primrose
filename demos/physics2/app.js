@@ -21,8 +21,8 @@ for(var i = 0; i < 50; ++i){
       Primrose.Random.number(-1, 1),
       Primrose.Random.number(-1, 1),
       Primrose.Random.number(-1, 1))
-    .linearDamping(0.5)
-    .angularDamping(0.75)
+    .drag(0.5)
+    .angularDrag(0.75)
     .on("enter", function() {
       this.velocity.y = Primrose.Random.number(5, 10);
     });
@@ -30,6 +30,6 @@ for(var i = 0; i < 50; ++i){
   spring(center, a, {
     restLength: 1,
     stiffness: 500,
-    damping: 5
+    drag: 5
   });
 }

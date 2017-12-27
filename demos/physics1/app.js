@@ -10,8 +10,8 @@ for(var i = 0; i < 50; ++i){
       Primrose.Random.number(-0.5, 0.5),
       Primrose.Random.number(1, 2),
       Primrose.Random.number(-1.5, -2.5))
-    .linearDamping(0.5)
-    .angularDamping(0.75)
+    .drag(0.5)
+    .angularDrag(0.75)
     .on("enter", function() {
       this.velocity.y = Primrose.Random.number(5, 10);
     })

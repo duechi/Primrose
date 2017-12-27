@@ -2,9 +2,6 @@ import BasePlugin from "../BasePlugin";
 
 import GroundPhysics from "./GroundPhysics";
 
-import InWorkerThreadServer from "./InWorkerThreadServer";
-import InRenderThreadServer from "./InRenderThreadServer";
-
 const rpcQueue = [];
 
 function pq() {
@@ -18,9 +15,29 @@ export default class EntityManager extends BasePlugin {
       gravity: -9.8
     });
 
-    this._server = new InRenderThreadServer("/Primrose/PrimrosePhysics.js");
+    this._gravity = null;
+    this.gravity = this.options.gravity;
 
-    this._server.addEventListener("data", (evt) => {
+    this._server = null;
+  }
+
+  get gravity() {
+    return this._gravity;
+  }
+
+  set gravity(v) {
+    this._gravity = v;
+    pq("gravity", v);
+  }
+
+  get requirements() {
+    return ["physics"];
+  }
+
+  _install(env, dt) {
+    this._server = env.physics;
+
+    this._server.addEventListener("message", (evt) => {
       const arr = evt.data;
       let i = 0;
       while(i < arr.length) {
@@ -35,35 +52,10 @@ export default class EntityManager extends BasePlugin {
         }
       }
     });
-    
-    this._gravity = null;
-    this.gravity = this.options.gravity;
-  }
 
-  get gravity() {
-    return this._gravity;
-  }
 
-  set gravity(v) {
-    this._gravity = v;
-    this.cmd("gravity", v);
-  }
-
-  get requirements() {
-    return ["scene"];
-  }
-
-  _install(env, dt) {
-    env.physics = this;
+    env.entities = this;
     return [new GroundPhysics()];
-  }
-
-  start() {
-    this.cmd("start");
-  }
-
-  stop() {
-    this.cmd("stop");
   }
 
   preUpdate(env, dt) {
@@ -71,7 +63,10 @@ export default class EntityManager extends BasePlugin {
       this.check(EntityManager.entities[i]);
     }
 
-    this.flush();
+    if(rpcQueue.length > 0) {
+      this._server.send(rpcQueue);
+      rpcQueue.length = 0;
+    }
   }
 
   check(ent) {
@@ -102,7 +97,7 @@ export default class EntityManager extends BasePlugin {
       }
 
       if(ent.linearDamping !== ent._lastLinearDamping) {
-        pq("linearDamping", ent.uuid, ent.linearDamping); 
+        pq("linearDamping", ent.uuid, ent.linearDamping);
         ent._lastLinearDamping = ent.linearDamping;
       }
 
@@ -116,18 +111,6 @@ export default class EntityManager extends BasePlugin {
   postUpdate(env, dt) {
     for(let i = 0; i < EntityManager.entities.length; ++i) {
       EntityManager.entities[i].update();
-    }
-  }
-
-  cmd() {
-    pq.apply(this, arguments);
-    this.flush();
-  }
-
-  flush() {
-    if(rpcQueue.length > 0) {
-      this._server.send(rpcQueue);
-      rpcQueue.length = 0;
     }
   }
 }

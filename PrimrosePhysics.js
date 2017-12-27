@@ -13691,9 +13691,6 @@ World.prototype.clearForces = function(){
 });
 });
 
-const T =  10;
-const DT = 0.001 * T;
-
 class EngineServer {
   constructor(send) {
     this.send = send;
@@ -13702,8 +13699,6 @@ class EngineServer {
     this.bodyDB = {};
     this.springs = [];
     this.output = [];
-    this.lastTime = null;
-    this.timer = null;
 
     this.physics.broadphase = new cannon.NaiveBroadphase();
     this.physics.solver.iterations = 10;
@@ -13714,8 +13709,6 @@ class EngineServer {
         this.springs[i].applyForce();
       }
     });
-
-    this._ontick = this.ontick.bind(this);
   }
 
   recv(arr) {
@@ -13735,26 +13728,8 @@ class EngineServer {
     }
   }
 
-  start() {
-    if(this.timer === null) {
-      this.lastTime = performance.now();
-      this.timer = setInterval(this._ontick, T);
-    }
-  }
-
-  stop() {
-    if(this.timer !== null) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-  }
-
-  ontick(){
-    const t = performance.now(),
-      dt = 0.001 * (t - this.lastTime);
-    this.lastTime = t;
-    
-    this.physics.step(DT, dt);
+  update(dt){
+    this.physics.step(EngineServer.DT, dt);
 
     let i = 0;
     for(let n = 0; n < this.bodyIDs.length; ++n) {
@@ -13876,8 +13851,39 @@ class EngineServer {
   }
 }
 
-const server = new EngineServer(postMessage);
-onmessage = (evt) => server.recv(evt.data);
+EngineServer.DT = 0.01;
+
+let lastTime = null;
+let timer = null;
+
+const T = EngineServer.DT * 1000;
+const server = new EngineServer((arr) =>
+    postMessage(arr));
+
+onmessage = (evt) => {
+  if(evt.data === "start") {
+    if(timer === null) {
+      lastTime = performance.now();
+      timer = setInterval(() => {
+        const t = performance.now(),
+          dt = 0.001 * (t - lastTime);
+        lastTime = t;
+        server.update(dt);
+      }, T);
+      console.log("worker timer started", T);
+    }
+  }
+  else if(evt.data === "stop") {
+    if(timer !== null) {
+      clearInterval(timer);
+      timer = null;
+      console.log("worker timer stopped");
+    }
+  }
+  else {
+    server.recv(evt.data);
+  }
+};
 
 })));
 //# sourceMappingURL=PrimrosePhysics.js.map

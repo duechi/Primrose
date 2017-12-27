@@ -10,7 +10,7 @@ import { Ground, Sky, Fader } from "./Controls";
 import { iOSOrientationHack, PresentationUI } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
 import { Clipboard, GamepadManager } from "./Input";
-import { EntityManager } from "./Physics";
+import { EntityManager, InRenderThreadServer, InWorkerThreadServer } from "./Physics";
 import { Teleporter } from "./Tools";
 import { Manager } from "./Network";
 
@@ -26,7 +26,8 @@ function normalizeOptions(options) {
     nonstandardNeckDepth: 0.075,
     plugins: [],
     useFog: true,
-    useGaze: isCardboard
+    useGaze: isCardboard,
+    physicsWorker: "/Primrose/PrimrosePhysics.js"
   }, options);
 
   if(!options.groundTexture && !options.groundModel) {
@@ -59,7 +60,6 @@ function normalizeOptions(options) {
     texture: options.groundTexture,
     model: options.groundModel
   });
-
   add(EntityManager, { gravity: options.gravity });
 
   add(Fader, { rate: options.fadeRate });
@@ -70,6 +70,14 @@ function normalizeOptions(options) {
     buttonContainer: options.fullScreenButtonContainer,
     disableAdvertising: options.disableAdvertising
   });
+
+  if(options.physicsWorker === false) {
+    add(InRenderThreadServer);
+  }
+  else{
+    add(InWorkerThreadServer, { workerPath: options.physicsWorker });
+  }
+
 
   if(!options.disableKeyboard) {
     add(Clipboard);

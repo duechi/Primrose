@@ -1,8 +1,5 @@
 import CANNON from "cannon";
 
-const T =  10,
-  DT = 0.001 * T;
-
 export default class EngineServer {
   constructor(send) {
     this.send = send;
@@ -11,8 +8,6 @@ export default class EngineServer {
     this.bodyDB = {};
     this.springs = [];
     this.output = [];
-    this.lastTime = null;
-    this.timer = null;
 
     this.physics.broadphase = new CANNON.NaiveBroadphase();
     this.physics.solver.iterations = 10;
@@ -23,8 +18,6 @@ export default class EngineServer {
         this.springs[i].applyForce();
       }
     });
-
-    this._ontick = this.ontick.bind(this);
   }
 
   recv(arr) {
@@ -44,26 +37,8 @@ export default class EngineServer {
     }
   }
 
-  start() {
-    if(this.timer === null) {
-      this.lastTime = performance.now();
-      this.timer = setInterval(this._ontick, T);
-    }
-  }
-
-  stop() {
-    if(this.timer !== null) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-  }
-
-  ontick(){
-    const t = performance.now(),
-      dt = 0.001 * (t - this.lastTime);
-    this.lastTime = t;
-    
-    this.physics.step(DT, dt);
+  update(dt){
+    this.physics.step(EngineServer.DT, dt);
 
     let i = 0;
     for(let n = 0; n < this.bodyIDs.length; ++n) {
@@ -184,3 +159,5 @@ export default class EngineServer {
     }));
   }
 }
+
+EngineServer.DT = 0.01;
