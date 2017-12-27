@@ -11,39 +11,25 @@ const data = [],
 export default class InRenderThreadServer extends BaseServerPlugin {
 
   constructor() {
-    super();
+    super((name) => this._engine[name].bind(this._engine));
     this._engine = new EngineServer();
   }
 
-  postUpdate(env, dt) {
+  preUpdate(env, dt) {
+    super.preUpdate(env, dt);
     this._engine.update(dt);
-    let i = 0;
     for(let n = 0; n < this._engine.bodyIDs.length; ++n) {
       const id = this._engine.bodyIDs[n],
-        body = this._engine.bodyDB[id];
-      if(body.sleepState !== CANNON.Body.SLEEPING) {
-        data[i + 0] = id;
-        data[i + 1] = body.position.x;
-        data[i + 2] = body.position.y;
-        data[i + 3] = body.position.z;
-        data[i + 4] = body.quaternion.x;
-        data[i + 5] = body.quaternion.y;
-        data[i + 6] = body.quaternion.z;
-        data[i + 7] = body.quaternion.w;
-        data[i + 8] = body.velocity.x;
-        data[i + 9] = body.velocity.y;
-        data[i + 10] = body.velocity.z;
-        data[i + 11] = body.angularVelocity.x;
-        data[i + 12] = body.angularVelocity.y;
-        data[i + 13] = body.angularVelocity.z;
-        i += 14;
+        body = this._engine.bodyDB[id],
+        ent = EntityManager.entityDB[id];
+      if(body && ent && body.sleepState !== CANNON.Body.SLEEPING) {
+        ent.position.copy(body.position);
+        ent.quaternion.copy(body.quaternion);
+        ent.velocity.copy(body.velocity);
+        ent.angularVelocity.copy(body.angularVelocity);
+        ent.updateMatrix();
+        ent.commit();
       }
     }
-
-    this.dispatchEvent(evt);
-  }
-
-  send(arr) {
-    this._engine.recv(arr);
   }
 }

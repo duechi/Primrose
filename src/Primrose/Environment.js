@@ -97,6 +97,7 @@ export default class Environment extends EventDispatcher {
     this.plugins = this.options.plugins;
 
     this.physics = null;
+    this.entities = null;
 
     /*
     pliny.property({
@@ -701,6 +702,7 @@ export default class Environment extends EventDispatcher {
             plugin.start());
           this.VR.currentDevice.startAnimation(animate);
           lt = performance.now() * MILLISECONDS_TO_SECONDS;
+          this.renderer.domElement.style.cursor = "none";
         });
       }
     };
@@ -735,7 +737,8 @@ export default class Environment extends EventDispatcher {
 
         this.VR.displays.forEach((display) =>
           display.stopAnimation());
-        
+
+        this.renderer.domElement.style.cursor = "";
         console.log("stopped");
       }
     };
@@ -1118,8 +1121,6 @@ export default class Environment extends EventDispatcher {
       })
       .then(() => installPlugins(this.plugins.slice()))
       .then(() => {
-        this.renderer.domElement.style.cursor = "none";
-
         this.VR.displays
           .filter((display) => "DOMElement" in display)
           .forEach((display) => display.DOMElement = this.renderer.domElement);

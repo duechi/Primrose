@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+import "promise-polyfill/promise";
 import * as assets from "./assets";
 import * as flags from "./flags";
 import * as liveAPI from "./live-api";
@@ -21,5 +22,4 @@ import * as util from "./util";
 util.coalesce(window, assets, flags, liveAPI, util);
 // Do this just for side effects, we are monkey-patching Three.js classes with our own utilities.
 import "./THREE";
-import "promise-polyfill/promise";
 export { default } from "./Primrose";

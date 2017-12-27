@@ -27,7 +27,7 @@ function normalizeOptions(options) {
     plugins: [],
     useFog: true,
     useGaze: isCardboard,
-    physics: true // "/Primrose/PrimrosePhysics.js"
+    physics: "/Primrose/PrimrosePhysics.js"
   }, options);
 
   if(!options.groundTexture && !options.groundModel) {
@@ -60,7 +60,8 @@ function normalizeOptions(options) {
     texture: options.groundTexture,
     model: options.groundModel
   });
-  add(EntityManager, { gravity: options.gravity });
+
+  add(EntityManager);
 
   add(Fader, { rate: options.fadeRate });
 
@@ -73,10 +74,13 @@ function normalizeOptions(options) {
 
   if(options.physics) {
     if(typeof options.physics === "string") {
-      add(InWorkerThreadServer, { workerPath: options.physics });
+      add(InWorkerThreadServer, {
+        gravity: options.gravity,
+        workerPath: options.physics
+      });
     }
     else{
-      add(InRenderThreadServer);
+      add(InRenderThreadServer, { gravity: options.gravity });
     }
   }
 

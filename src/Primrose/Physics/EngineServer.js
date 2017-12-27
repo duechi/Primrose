@@ -11,7 +11,6 @@ export default class EngineServer {
 
     this.physics.broadphase = new CANNON.NaiveBroadphase();
     this.physics.solver.iterations = 10;
-    this.physics.allowSleep = true;
 
     this.physics.addEventListener("postStep", (evt) => {
       for(let i = 0; i < this.springs.length; ++i) {
@@ -20,47 +19,20 @@ export default class EngineServer {
     });
   }
 
-  recv(arr) {
-    while(arr.length > 0) {
-      const end = arr.indexOf("END");
-      if(end > 0) {
-        const args = arr.splice(0, end),
-          name = args.shift(),
-          handler = this[name];
-        if(handler) {
-          handler.apply(this, args);
-        }
-      }
-      else {
-        arr.shift();
-      }
-    }
-  }
-
   update(dt){
     this.physics.step(EngineServer.DT, dt);
   }
 
-  gravity(g) {
+  setAllowSleep(v) {
+    this.physics.allowSleep = v;
+  }
+
+  setGravity(g) {
     this.physics.gravity.set(0, g, 0);
   }
 
   sleepBody(evt) {
-    console.log(this, evt);
-  }
-
-  newBody(id, mass, type) {
-    const body = new CANNON.Body({
-      mass,
-      type,
-      allowSleep: true,
-      sleepSpeedLimit: 0.1,
-      sleepTimeLimit: 1
-    });
-    body.addEventListener("sleep", this.sleepBody);
-    this.bodyIDs.push(id);
-    this.bodyDB[id] = body;
-    this.physics.addBody(body);
+    //console.log(this, evt.target);
   }
 
   getBody(id) {
@@ -74,6 +46,20 @@ export default class EngineServer {
       }
       return body;
     }
+  }
+
+  newBody(id, mass, type) {
+    const body = new CANNON.Body({
+      mass,
+      type,
+      allowSleep: true,
+      sleepSpeedLimit: 0.1,
+      sleepTimeLimit: 1
+    });
+    body.addEventListener("sleep", this.sleepBody.bind(this));
+    this.bodyIDs.push(id);
+    this.bodyDB[id] = body;
+    this.physics.addBody(body);
   }
 
   addSphere(id, radius) {
@@ -93,37 +79,37 @@ export default class EngineServer {
     body.addShape(new CANNON.Plane());
   }
 
-  position(id, x, y, z) {
+  setPosition(id, x, y, z) {
     const body = this.getBody(id);
     body.position.set(x, y, z);
   }
 
-  quaternion(id, x, y, z, w) {
+  setQuaternion(id, x, y, z, w) {
     const body = this.getBody(id);
     body.quaternion.set(x, y, z, w);
   }
 
-  velocity(id, x, y, z) {
+  setVelocity(id, x, y, z) {
     const body = this.getBody(id);
     body.velocity.set(x, y, z);
   }
 
-  angularVelocity(id, x, y, z) {
+  setAngularVelocity(id, x, y, z) {
     const body = this.getBody(id);
     body.angularVelocity.set(x, y, z);
   }
 
-  linearDamping(id, v) {
+  setLinearDamping(id, v) {
     const body = this.getBody(id);
     body.linearDamping = v;
   }
 
-  angularDamping(id, v) {
+  setAngularDamping(id, v) {
     const body = this.getBody(id);
     body.angularDamping = v;
   }
 
-  spring(id1, id2, restLength, stiffness, damping) {
+  addSpring(id1, id2, restLength, stiffness, damping) {
     const body1 = this.getBody(id1),
       body2 = this.getBody(id2);
     this.springs.push(new CANNON.Spring(bodyA, bodyB, {

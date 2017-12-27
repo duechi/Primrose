@@ -1,8 +1,11 @@
-import { dynamicInvoke } from "../../util";
+import CANNON from "cannon";
+
+import dynamicInvoke from "../../util/dynamicInvoke";
 
 import EngineServer from "./EngineServer";
-const T = Engineengine.DT * 1000,
-  engine = new Engineengine(),
+
+const T = EngineServer.DT * 1000,
+  engine = new EngineServer(),
   data = [];
 
 let lastTime = null,

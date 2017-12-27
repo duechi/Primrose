@@ -2,7 +2,7 @@ var env = new Primrose.BrowserEnvironment({
   fullScreenButtonContainer: "#fullScreenButtonContainer"
 });
 
-for(var i = 0; i < 50; ++i){
+for(var i = 0; i < 10; ++i){
   box(Primrose.Random.number(0.1, 0.2))
     .colored(Primrose.Random.color())
     .phys({ mass: 1 })

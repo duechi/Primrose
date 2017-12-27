@@ -32,10 +32,10 @@ pliny.class({
 });
 */
 
-import { 
-  Object3D, 
-  Euler, 
-  Quaternion, 
+import {
+  Object3D,
+  Euler,
+  Quaternion,
   Vector3
 } from "three";
 
@@ -49,23 +49,23 @@ export default class Entity extends Object3D {
   constructor(name, options) {
     super();
     this.isEntity = true;
-    
+
     this.name = name;
-    
+
     this.options = options || {};
-    
+
     this.disabled = false;
-    
+
     this.mesh = null;
-    
+
     this.physMapped = false;
-    
+
     this.velocity = new Vector3();
     this.angularVelocity = new Vector3();
     this.linearDamping = 0;
     this.angularDamping = 0;
     this.commands = [];
-    
+
     this._lastPosition = new Vector3();
     this._lastQuaternion = new Quaternion();
     this._lastVelocity = new Vector3();
@@ -80,18 +80,23 @@ export default class Entity extends Object3D {
     });
   }
 
-  recv(arr, i) {
-    this.position.fromArray(arr, i + 1);
-    this.quaternion.fromArray(arr, i + 4);
-    this.velocity.fromArray(arr, i + 8);
-    this.angularVelocity.fromArray(arr, i + 11);
-    this.updateMatrix();
-
+  commit() {
     this._lastPosition.copy(this.position);
     this._lastQuaternion.copy(this.quaternion);
     this._lastVelocity.copy(this.velocity);
     this._lastAngularVelocity.copy(this.angularVelocity);
-    return i + 14;
+    this._lastLinearDamping = this.linearDamping;
+    this._lastAngularDamping = this.angularDamping;
+  }
+
+  revert() {
+    this.position.copy(this._lastPosition);
+    this.quaternion.copy(this._lastQuaternion);
+    this.velocity.copy(this._lastVelocity);
+    this.angularVelocity.copy(this._lastAngularVelocity);
+    this.linearDamping = this._lastLinearDamping;
+    this.angularDamping = this._lastAngularDamping;
+    this.updateMatrix();
   }
 
   load() {
@@ -157,7 +162,7 @@ export default class Entity extends Object3D {
 
   spring(b, options) {
     if(this.physMapped && b.physMapped) {
-      this.commands.push(["spring", 
+      this.commands.push(["spring",
         this.uuid,
         b.uuid,
         options.restLength,

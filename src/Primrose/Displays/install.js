@@ -61,7 +61,7 @@ function polyfillWebVR(options){
   }
 
   if(!("VRFrameData" in window)) {
-    console.log("upgrade 1.0 to 1.1");
+    console.log("upgrade WebVR 1.0 to 1.1");
     // Provide the VRFrameData object.
     window.VRFrameData = PolyfilledVRFrameData;
   }
