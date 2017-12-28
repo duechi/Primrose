@@ -23,8 +23,12 @@ export default class EngineServer {
     this.physics.step(EngineServer.DT, dt);
   }
 
-  setAllowSleep(v) {
-    this.physics.allowSleep = v;
+  enableAllowSleep() {
+    this.physics.allowSleep = true;
+  }
+
+  disableAllowSleep(v) {
+    this.physics.allowSleep = false;
   }
 
   setGravity(g) {

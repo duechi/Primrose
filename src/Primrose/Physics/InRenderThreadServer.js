@@ -37,8 +37,12 @@ export default class InRenderThreadServer extends BaseServerPlugin {
     this._engine.setGravity(v);
   }
 
-  setAllowSleep(v) {
-    this._engine.setAllowSleep(v);
+  enableAllowSleep() {
+    this._engine.enableAllowSleep();
+  }
+
+  disableAllowSleep() {
+    this._engine.disableAllowSleep();
   }
 
   newBody(id, mass, type) {
@@ -79,5 +83,9 @@ export default class InRenderThreadServer extends BaseServerPlugin {
 
   setAngularDamping(id, v) {
     this._engine.setAngularDamping(id, v);
+  }
+
+  addSpring(id1, id2, restLength, stiffness, damping) {
+    this._engine.addSpring(id1, id2, restLength, stiffness, damping);
   }
 }

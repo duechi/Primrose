@@ -74,7 +74,12 @@ export default class BaseServerPlugin extends BasePlugin {
 
   set allowSleep(v) {
     this._allowSleep = v;
-    this.setAllowSleep(v);
+    if(v) {
+      this.enableAllowSleep();
+    }
+    else{
+      this.disableAllowSleep();
+    }
   }
 
   get gravity() {
@@ -90,8 +95,12 @@ export default class BaseServerPlugin extends BasePlugin {
     throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setGravity(v)");
   }
 
-  setAllowSleep(v) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setAllowSleep(v)");
+  enableAllowSleep() {
+    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::enableAllowSleep()");
+  }
+
+  disableAllowSleep() {
+    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::disableAllowSleep()");
   }
 
   newBody(id, mass, type) {

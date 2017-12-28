@@ -8,9 +8,9 @@ for(var i = 0; i < 1000; ++i){
     .named("Block" + i)
     .phys({ mass: 1 })
     .at(
-      Primrose.Random.number(-0.5, 0.5),
-      Primrose.Random.number(1, 2),
-      Primrose.Random.number(-1.5, -2.5))
+      Primrose.Random.number(-0.25, 0.25),
+      Primrose.Random.number(1, 100),
+      Primrose.Random.number(-1.75, -2.25))
     .drag(0.5)
     .angularDrag(0.75)
     .addTo(env.scene)

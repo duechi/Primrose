@@ -7,7 +7,8 @@ import EngineServer from "./EngineServer";
 const T = EngineServer.DT * 1000,
   engine = new EngineServer(),
   data = [],
-  wasSleeping = {};
+  wasSleeping = {},
+  params = [];
 
 let lastTime = null,
   timer = null;
@@ -29,14 +30,17 @@ onmessage = (evt) => {
   }
   else {
     const arr = evt.data;
-    while(arr.length > 0) {
-      const end = arr.indexOf("END");
-      if(end > 0) {
-        const args = arr.splice(0, end);
-        dynamicInvoke(engine, args);
-      }
-      else {
-        arr.shift();
+    let i = 0;
+    while(i < arr.length) {
+      const name = arr[i++],
+        handler = engine[name];
+      if(handler) {
+        const len = handler.length;
+        params.length = len;
+        for(let j = 0; j < len; ++j) {
+          params[j] = arr[i++];
+        }
+        handler.apply(engine, params);
       }
     }
   }

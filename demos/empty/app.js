@@ -1985,10 +1985,7 @@ Object.assign( WebGLRenderTarget.prototype, EventDispatcher.prototype, {
 } );
 
 /**
- * @author mikael emtinger / http://gomo.se/
- * @author alteredq / http://alteredqualia.com/
- * @author WestLangley / http://github.com/WestLangley
- * @author bhouston / http://clara.io
+ * @author alteredq / http://alteredqualia.com
  */
 
 function Quaternion( x, y, z, w ) {
@@ -12049,6 +12046,8 @@ Object.assign( BufferAttribute.prototype, {
 
 } );
 
+//
+
 function Uint16BufferAttribute( array, itemSize ) {
 
 	BufferAttribute.call( this, new Uint16Array( array ), itemSize );
@@ -12078,10 +12077,6 @@ function Float32BufferAttribute( array, itemSize ) {
 Float32BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
 Float32BufferAttribute.prototype.constructor = Float32BufferAttribute;
 
-
-/**
- * @author mrdoob / http://mrdoob.com/
- */
 
 function DirectGeometry() {
 
@@ -24029,7 +24024,7 @@ Group.prototype = Object.assign( Object.create( Object3D.prototype ), {
 } );
 
 /**
- * @author alteredq / http://alteredqualia.com/
+ * @author mrdoob / http://mrdoob.com/
  */
 
 function CompressedTexture( mipmaps, width, height, format, type, mapping, wrapS, wrapT, magFilter, minFilter, anisotropy, encoding ) {
@@ -24058,7 +24053,6 @@ CompressedTexture.prototype.isCompressedTexture = true;
 
 /**
  * @author mrdoob / http://mrdoob.com/
- * @author Mugen87 / https://github.com/Mugen87
  */
 
 function WireframeGeometry( geometry ) {
@@ -35728,7 +35722,10 @@ Object.assign( StereoCamera.prototype, {
 } );
 
 /**
- * @author mrdoob / http://mrdoob.com/
+ * Camera for rendering cube maps
+ *	- renders scene into axis-aligned cube
+ *
+ * @author alteredq / http://alteredqualia.com/
  */
 
 function ArrayCamera( array ) {
@@ -39681,9 +39678,8 @@ Object.assign( Cylindrical.prototype, {
 } );
 
 /**
- * @author mrdoob / http://mrdoob.com/
- * @author WestLangley / http://github.com/WestLangley
-*/
+ * @author alteredq / http://alteredqualia.com/
+ */
 
 function VertexNormalsHelper( object, size, hex, linewidth ) {
 
@@ -39825,12 +39821,10 @@ VertexNormalsHelper.prototype.update = ( function () {
 }() );
 
 /**
- * @author Sean Griffin / http://twitter.com/sgrif
- * @author Michael Guerrero / http://realitymeltdown.com
+ * @author alteredq / http://alteredqualia.com/
  * @author mrdoob / http://mrdoob.com/
- * @author ikerr / http://verold.com
- * @author Mugen87 / https://github.com/Mugen87
- */
+ * @author WestLangley / http://github.com/WestLangley
+*/
 
 function SkeletonHelper( object ) {
 
@@ -39942,7 +39936,6 @@ SkeletonHelper.prototype.update = function () {
 /**
  * @author alteredq / http://alteredqualia.com/
  * @author mrdoob / http://mrdoob.com/
- * @author Mugen87 / https://github.com/Mugen87
  */
 
 function HemisphereLightHelper( light, size ) {
@@ -40015,8 +40008,7 @@ HemisphereLightHelper.prototype.update = function () {
 
 /**
  * @author mrdoob / http://mrdoob.com/
- * @author WestLangley / http://github.com/WestLangley
-*/
+ */
 
 function FaceNormalsHelper( object, size, hex, linewidth ) {
 
@@ -40124,12 +40116,8 @@ FaceNormalsHelper.prototype.update = ( function () {
 
 /**
  * @author alteredq / http://alteredqualia.com/
- * @author Mugen87 / https://github.com/Mugen87
- *
- *	- shows frustum, line of sight and up of the camera
- *	- suitable for fast updates
- * 	- based on frustum visualization in lightgl.js shadowmap example
- *		http://evanw.github.com/lightgl.js/tests/shadowmap.html
+ * @author mrdoob / http://mrdoob.com/
+ * @author WestLangley / http://github.com/WestLangley
  */
 
 function CameraHelper( camera ) {
@@ -40322,26 +40310,9 @@ CameraHelper.prototype.update = function () {
 }();
 
 /**
- * @author zz85 https://github.com/zz85
- *
- * Centripetal CatmullRom Curve - which is useful for avoiding
- * cusps and self-intersections in non-uniform catmull rom curves.
- * http://www.cemyuksel.com/research/catmullrom_param/catmullrom.pdf
- *
- * curve.type accepts centripetal(default), chordal and catmullrom
- * curve.tension is used for catmullrom which defaults to 0.5
+ * @author mrdoob / http://mrdoob.com/
+ * @author Mugen87 / http://github.com/Mugen87
  */
-
-
-/*
-Based on an optimized c++ solution in
- - http://stackoverflow.com/questions/9489736/catmull-rom-curve-with-no-cusps-and-no-self-intersections/
- - http://ideone.com/NoEbVM
-
-This CubicPoly class could be used for reusing some variables and calculations,
-but for three.js curve use, it could be possible inlined and flatten into a single function call
-which can be placed in CurveUtils.
-*/
 
 function CubicPoly() {
 
@@ -40514,8 +40485,6 @@ function MultiMaterial( materials ) {
 
 }
 
-//
-
 Curve.create = function ( construct, getPoint ) {
 
 	console.log( 'THREE.Curve.create() has been deprecated' );
@@ -40562,7 +40531,6 @@ Object.assign( Spline.prototype, {
 } );
 
 //
-
 Object.assign( Box2.prototype, {
 
 	center: function ( optionalTarget ) {
@@ -41611,6 +41579,8 @@ AudioAnalyser.prototype.getData = function () {
 
 };
 
+//
+
 /*
 pliny.function({
   parent: "Live API",
@@ -42517,26 +42487,6 @@ function hax(target, name, thunk) {
   }
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "haxClass",
-  description: "Intercept a class (a function that can be invoked with `new`) that is stored in a target object and inject our own code to run before the object is instantiated.",
-  parameters: [{
-    name: "target",
-    type: "Object",
-    description: "The object in which the class is stored. Probably `window`."
-  }, {
-    name: "name",
-    type: "String",
-    description: "The name of the class, in the object store."
-  }, {
-    name: "thunk",
-    type: "Function",
-    description: "The function to invoke before instantiating the class. It receives the parameters that will be passed to the class constructor."
-  }]
-});
-*/
 function haxClass(target, name, thunk) {
   hax(target, name, (original, args) => {
     thunk(args);
@@ -42548,26 +42498,6 @@ function haxClass(target, name, thunk) {
   });
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "haxFunction",
-  description: "Intercept a function that is stored in a target object and inject our own code to run before the function is called.",
-  parameters: [{
-    name: "target",
-    type: "Object",
-    description: "The object in which the function is stored. Probably `window`."
-  }, {
-    name: "name",
-    type: "String",
-    description: "The name of the function, in the object store."
-  }, {
-    name: "thunk",
-    type: "Function",
-    description: "The function to invoke before calling the target function. It receives the parameters that will be passed to the target function."
-  }]
-});
-*/
 function haxFunction(target, name, thunk) {
   hax(target, name, (original, args) => {
     thunk(args);
@@ -42827,6 +42757,24 @@ Promise.prototype.log = function(args){
 /*
 pliny.function({
   parent: "Util",
+  name: "promisify",
+  description: "Helps convert old Node-style callback-based asynchronous functions to the new Promise-based style that is nicer to work with and will also work better with async/await whenever it perpetuates out into the cosmos."
+  parameters: [{
+    name: "thunk",
+    type: "Function",
+    description: "The function in need of promisifying."
+  }, {
+    name: "defaultResults",
+    type: "Object",
+    optional: true,
+    description: "The value to return if the callback doesn't return a value."
+  }]
+});
+*/
+
+/*
+pliny.function({
+  parent: "Util",
   name: "setSetting",
   parameters: [{
     name: "settingName",
@@ -42988,13 +42936,6 @@ When including Primrose as a \`script\` tag, the Flags namespace is imported dir
 });
 */
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "standardUnlockBehavior",
-  description: "On iOS, does nothing. On Android, removes the screen orientation lock. On desktop PCs, removes the moue pointer lock."
-});
-*/
 function standardUnlockBehavior() {
   if (isMobile) {
     if(!isiOS) {
@@ -43008,31 +42949,12 @@ function standardUnlockBehavior() {
   }
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "standardExitFullScreenBehavior",
-  description: "Performs the standardUnlockBehavior before exiting Full Screen mode."
-});
-*/
 function standardExitFullScreenBehavior() {
   return standardUnlockBehavior()
     .then(() => FullScreen.exit())
     .catch((exp) => console.warn("FullScreen failed", exp));
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "standardLockBehavior",
-  description: "On iOS devices, this function does nothing. On Android mobile devices, it locks the screen orientation. On desktop devices, it locks the mouse pointer to the view.",
-  parameters: [{
-    name: "elem",
-    type: "Element",
-    description: "The DOM element to which to perform the lock operations."
-  }]
-});
-*/
 function standardLockBehavior(elem) {
   if(isiOS) {
     return Promise.resolve(elem);
@@ -43047,13 +42969,6 @@ function standardLockBehavior(elem) {
   }
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "standardFullScreenBehavior",
-  description: "Requests Full Screen mode, and whether it succeeds or fails, executes the standardLockBehavior."
-});
-*/
 function standardFullScreenBehavior(elem) {
   return FullScreen.request(elem)
     .catch((exp) => console.warn("FullScreen failed", exp))
@@ -44547,7 +44462,6 @@ pliny.class({
 });
 */
 
-// Videos don't auto-play on mobile devices, so let's make them all play whenever we tap the screen.
 const processedVideos = [];
 function findAndFixVideo(evt){
   const vids = document.querySelectorAll("video");
@@ -44984,31 +44898,6 @@ pliny.class({
 });
 */
 
-/*
-pliny.class({
-  parent: "Primrose.Plugin",
-  name: "BasePlugin",
-  baseClass: "THREE.EventDispatcher",
-  description: "A common base class for all plugins.",
-  parameters: [{
-    name: "name",
-    type: "String",
-    description: "A friendly name for the plugin."
-  }, {
-    name: "options",
-    type: "Object",
-    description: "A hash object for optional parameters",
-    optional: true,
-    default: null
-  }, {
-    name: "defaults",
-    type: "Object",
-    description: "A hash object containing the default values for all optional parameters",
-    optional: true,
-    default: null
-  }]
-});
-*/
 class BasePlugin extends EventDispatcher {
 
   constructor(name, options, defaults) {
@@ -45820,39 +45709,6 @@ CubeTextureLoader.prototype.load = function(urls, onLoad, onProgress, onError) {
   return texture;
 };
 
-/*
-pliny.method({
-  parent: "THREE.Object3D",
-  name: "emit",
-  description: "Creates a new Event object to fire through `dispatchEvent`.",
-  parameters: [{
-    name: "evt",
-    type: "String",
-    description: "The type of the event to fire."
-  }, {
-    name: "obj",
-    type: "Object",
-    description: "Additional information to include in the event.",
-    optional: true
-  }]
-});
-
-pliny.method({
-  parent: "THREE.EventDispatcher",
-  name: "emit",
-  description: "Creates a new Event object to fire through `dispatchEvent`.",
-  parameters: [{
-    name: "evt",
-    type: "String",
-    description: "The type of the event to fire."
-  }, {
-    name: "obj",
-    type: "Object",
-    description: "Additional information to include in the event.",
-    optional: true
-  }]
-});
-*/
 Object3D.prototype.emit = EventDispatcher.prototype.emit = function(evt, obj) {
   if(!obj) {
     obj = {};
@@ -46049,21 +45905,6 @@ Object3D.prototype.on = EventDispatcher.prototype.on = function(event, listener)
   return this;
 };
 
-/*
-pliny.method({
-  parent: "THREE.Matrix4",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the matrix.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per matrix element.",
-    optional: true,
-    default: 10
-  }]
-});
-*/
 Matrix4.prototype.toString = function(digits) {
   if(digits === undefined){
     digits = 10;
@@ -46691,14 +46532,6 @@ Object.assign( MTLLoader, {
   CASTS_SHADOWS_ONTO_INVISIBLE_SURFACES: 10
 });
 
-/*
-pliny.property({
-  parent: "THREE.Object3D",
-  name: "pickable",
-  type: "Boolean",
-  description: "Returns true if the current object has any event listeners attached to it that represent picking operations."
-});
-*/
 Object.defineProperty(Object3D.prototype, "pickable", {
   get: function() {
     const l = this._listeners;
@@ -47654,27 +47487,6 @@ class OBJ {
 	}
 }
 
-/*
-pliny.method({
-  parent: "THREE.Geometry",
-  name: "offset",
-  returns: "THREE.Geometry",
-  descriptions: "Modifies the geometry, adding a constant offset to each vertex. Returns itself to enable method chaining.",
-  parameters: [{
-    name: "x",
-    type: "Number",
-    description: "The offset in the X-axis by which to move the vertices."
-  }, {
-    name: "y",
-    type: "Number",
-    description: "The offset in the Y-axis by which to move the vertices."
-  }, {
-    name: "z",
-    type: "Number",
-    description: "The offset in the Z-axis by which to move the vertices."
-  }]
-})
-*/
 Geometry.prototype.offset = function(x, y, z){
   const arr = this.vertices;
   for(let i = 0; i < arr.length; ++i) {
@@ -47719,19 +47531,6 @@ BufferGeometry.prototype.offset = function(x, y, z){
   return this;
 };
 
-/*
-pliny.method({
-  parent: "THREE.Object3D",
-  name: "phys",
-  description: "Make a 3D object react to physics updates. Calls `Live API.phys` under the hood.",
-  returns: "Primrose.Controls.Entity",
-  parameters: [{
-    name: "options",
-    type: "Live API.phys.optionsHash",
-    description: "Optional settings for creating the physics settings."
-  }]
-});
-*/
 Object3D.prototype.phys = Mesh.prototype.phys = function(options) {
   return phys(this, options);
 };
@@ -47794,77 +47593,6 @@ Mesh.prototype.textured =
     return textured(this, texture, options);
   };
 
-/*
-pliny.method({
-  parent: "THREE.Euler",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the Euler rotation.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-
-pliny.method({
-  parent: "THREE.Quaternion",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the Quaternion rotation.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-
-pliny.method({
-  parent: "THREE.Vector2",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the vector.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-
-pliny.method({
-  parent: "THREE.Vector3",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the vector.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-
-pliny.method({
-  parent: "THREE.Vector4",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the vector.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-*/
 Euler.prototype.toString =
 Quaternion.prototype.toString =
 Vector2.prototype.toString =
@@ -48135,8 +47863,6 @@ pliny.class({
 });
 */
 
-// The JSON format object loader is not always included in the Three.js distribution,
-// so we have to first check for it.
 var loaders = null;
 var PATH_PATTERN = /((?:https?:\/\/)?(?:[^/]+\/)+)(\w+)(\.(?:\w+))$/;
 var EXTENSION_PATTERN = /(\.(?:\w+))+$/;
@@ -66290,7 +66016,6 @@ function calcFoV(aFoV, aDim, bDim){
 
 let defaultFieldOfView = 100;
 
-// Start at a higher number to reduce chance of conflict.
 let nextDisplayId = 1000;
 
 class PolyfilledVRDisplay extends BaseVRDisplay {
@@ -67995,16 +67720,6 @@ pliny.class({
 });
 */
 
-/**
- * An implementation of a simple complementary filter, which fuses gyroscope and accelerometer data from the 'devicemotion' event.
- *
- * Accelerometer data is very noisy, but stable over the long term. Gyroscope data is smooth, but tends to drift over the long term.
- *
- * This fusion is relatively simple:
- * 1. Get orientation estimates from accelerometer by applying a low-pass filter on that data.
- * 2. Get orientation estimates from gyroscope by integrating over time.
- * 3. Combine the two estimates, weighing (1) in the long term, but (2) for the short term.
- */
 class ComplementaryFilter {
   constructor(kFilter) {
     this.kFilter = kFilter;
@@ -68638,9 +68353,6 @@ pliny.class({
 });
 */
 
-/*
-  A collection of all the recorded state values at a single point in time.
-*/
 class Frame {
 
   static parse(timestamp, obj, root) {
@@ -71105,15 +70817,6 @@ Environment.DEFAULTS = {
   disableAdvertising: false
 };
 
-/*
-pliny.class({
-  parent: "Primrose.Controls",
-  baseClass: "Primrose.BasePlugin",
-  name: "iOSOrientationHack",
-  description: "Makes up for iOS not firing the `resize` event on the window when the user changes orientation of their device."
-});
-*/
-
 class iOSOrientationHack extends BasePlugin {
   constructor() {
     super("iOSOrientationHack");
@@ -71138,19 +70841,6 @@ class iOSOrientationHack extends BasePlugin {
   }
 }
 
-/*
-  pliny.method({
-    parent: "Primrose.Environment",
-    name: "insertFullScreenButtons",
-    description: "Add the default UI for managing full screen state.",
-    returns: "Array of `HTMLButtonElement`s",
-    parameters: [{
-      name: "containerSpec",
-      type: "String",
-      description: "A query selector for the DOM element to which to add the buttons."
-    }]
-  });
-  */
 class PresentationUI extends BasePlugin {
   constructor(options) {
     super("PresentationUI", options);
@@ -71281,14 +70971,6 @@ class PresentationUI extends BasePlugin {
   }
 }
 
-/*
-pliny.class({
-  parent: "Primrose.Graphics",
-  baseClass: "Primrose.BasePlugin",
-  name: "FogPlugin",
-  description: "Installs fog in the BrowserEnvironment"
-});
-*/
 class FogPlugin extends BasePlugin {
 
   constructor() {

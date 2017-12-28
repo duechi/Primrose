@@ -4,7 +4,6 @@ const rpcQueue = [];
 
 function pq() {
   rpcQueue.push.apply(rpcQueue, arguments);
-  rpcQueue.push("END");
 }
 
 function recv(ent, arr, i) {
@@ -56,8 +55,12 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
     pq("setGravity", v);
   }
 
-  setAllowSleep(v) {
-    pq("setAllowSleep", v);
+  enableAllowSleep() {
+    pq("enableAllowSleep");
+  }
+
+  disableAllowSleep() {
+    pq("disableAllowSleep");
   }
 
   newBody(id, mass, type) {
