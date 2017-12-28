@@ -2424,7 +2424,10 @@ Object.assign( WebGLRenderTarget.prototype, EventDispatcher.prototype, {
 } );
 
 /**
- * @author alteredq / http://alteredqualia.com
+ * @author mikael emtinger / http://gomo.se/
+ * @author alteredq / http://alteredqualia.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author bhouston / http://clara.io
  */
 
 function Quaternion( x, y, z, w ) {
@@ -12485,8 +12488,6 @@ Object.assign( BufferAttribute.prototype, {
 
 } );
 
-//
-
 function Uint16BufferAttribute( array, itemSize ) {
 
 	BufferAttribute.call( this, new Uint16Array( array ), itemSize );
@@ -12516,6 +12517,10 @@ function Float32BufferAttribute( array, itemSize ) {
 Float32BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
 Float32BufferAttribute.prototype.constructor = Float32BufferAttribute;
 
+
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
 
 function DirectGeometry() {
 
@@ -24463,7 +24468,7 @@ Group.prototype = Object.assign( Object.create( Object3D.prototype ), {
 } );
 
 /**
- * @author mrdoob / http://mrdoob.com/
+ * @author alteredq / http://alteredqualia.com/
  */
 
 function CompressedTexture( mipmaps, width, height, format, type, mapping, wrapS, wrapT, magFilter, minFilter, anisotropy, encoding ) {
@@ -24492,6 +24497,7 @@ CompressedTexture.prototype.isCompressedTexture = true;
 
 /**
  * @author mrdoob / http://mrdoob.com/
+ * @author Mugen87 / https://github.com/Mugen87
  */
 
 function WireframeGeometry( geometry ) {
@@ -36161,10 +36167,7 @@ Object.assign( StereoCamera.prototype, {
 } );
 
 /**
- * Camera for rendering cube maps
- *	- renders scene into axis-aligned cube
- *
- * @author alteredq / http://alteredqualia.com/
+ * @author mrdoob / http://mrdoob.com/
  */
 
 function ArrayCamera( array ) {
@@ -40117,8 +40120,9 @@ Object.assign( Cylindrical.prototype, {
 } );
 
 /**
- * @author alteredq / http://alteredqualia.com/
- */
+ * @author mrdoob / http://mrdoob.com/
+ * @author WestLangley / http://github.com/WestLangley
+*/
 
 function VertexNormalsHelper( object, size, hex, linewidth ) {
 
@@ -40260,10 +40264,12 @@ VertexNormalsHelper.prototype.update = ( function () {
 }() );
 
 /**
- * @author alteredq / http://alteredqualia.com/
+ * @author Sean Griffin / http://twitter.com/sgrif
+ * @author Michael Guerrero / http://realitymeltdown.com
  * @author mrdoob / http://mrdoob.com/
- * @author WestLangley / http://github.com/WestLangley
-*/
+ * @author ikerr / http://verold.com
+ * @author Mugen87 / https://github.com/Mugen87
+ */
 
 function SkeletonHelper( object ) {
 
@@ -40375,6 +40381,7 @@ SkeletonHelper.prototype.update = function () {
 /**
  * @author alteredq / http://alteredqualia.com/
  * @author mrdoob / http://mrdoob.com/
+ * @author Mugen87 / https://github.com/Mugen87
  */
 
 function HemisphereLightHelper( light, size ) {
@@ -40447,7 +40454,8 @@ HemisphereLightHelper.prototype.update = function () {
 
 /**
  * @author mrdoob / http://mrdoob.com/
- */
+ * @author WestLangley / http://github.com/WestLangley
+*/
 
 function FaceNormalsHelper( object, size, hex, linewidth ) {
 
@@ -40555,8 +40563,12 @@ FaceNormalsHelper.prototype.update = ( function () {
 
 /**
  * @author alteredq / http://alteredqualia.com/
- * @author mrdoob / http://mrdoob.com/
- * @author WestLangley / http://github.com/WestLangley
+ * @author Mugen87 / https://github.com/Mugen87
+ *
+ *	- shows frustum, line of sight and up of the camera
+ *	- suitable for fast updates
+ * 	- based on frustum visualization in lightgl.js shadowmap example
+ *		http://evanw.github.com/lightgl.js/tests/shadowmap.html
  */
 
 function CameraHelper( camera ) {
@@ -40749,9 +40761,26 @@ CameraHelper.prototype.update = function () {
 }();
 
 /**
- * @author mrdoob / http://mrdoob.com/
- * @author Mugen87 / http://github.com/Mugen87
+ * @author zz85 https://github.com/zz85
+ *
+ * Centripetal CatmullRom Curve - which is useful for avoiding
+ * cusps and self-intersections in non-uniform catmull rom curves.
+ * http://www.cemyuksel.com/research/catmullrom_param/catmullrom.pdf
+ *
+ * curve.type accepts centripetal(default), chordal and catmullrom
+ * curve.tension is used for catmullrom which defaults to 0.5
  */
+
+
+/*
+Based on an optimized c++ solution in
+ - http://stackoverflow.com/questions/9489736/catmull-rom-curve-with-no-cusps-and-no-self-intersections/
+ - http://ideone.com/NoEbVM
+
+This CubicPoly class could be used for reusing some variables and calculations,
+but for three.js curve use, it could be possible inlined and flatten into a single function call
+which can be placed in CurveUtils.
+*/
 
 function CubicPoly() {
 
@@ -40924,6 +40953,8 @@ function MultiMaterial( materials ) {
 
 }
 
+//
+
 Curve.create = function ( construct, getPoint ) {
 
 	console.log( 'THREE.Curve.create() has been deprecated' );
@@ -40970,6 +41001,7 @@ Object.assign( Spline.prototype, {
 } );
 
 //
+
 Object.assign( Box2.prototype, {
 
 	center: function ( optionalTarget ) {
@@ -42018,8 +42050,6 @@ AudioAnalyser.prototype.getData = function () {
 
 };
 
-//
-
 /*
 pliny.function({
   parent: "Live API",
@@ -42970,6 +43000,26 @@ function hax(target, name, thunk) {
   }
 }
 
+/*
+pliny.function({
+  parent: "Util",
+  name: "haxClass",
+  description: "Intercept a class (a function that can be invoked with `new`) that is stored in a target object and inject our own code to run before the object is instantiated.",
+  parameters: [{
+    name: "target",
+    type: "Object",
+    description: "The object in which the class is stored. Probably `window`."
+  }, {
+    name: "name",
+    type: "String",
+    description: "The name of the class, in the object store."
+  }, {
+    name: "thunk",
+    type: "Function",
+    description: "The function to invoke before instantiating the class. It receives the parameters that will be passed to the class constructor."
+  }]
+});
+*/
 function haxClass(target, name, thunk) {
   hax(target, name, (original, args) => {
     thunk(args);
@@ -42981,6 +43031,26 @@ function haxClass(target, name, thunk) {
   });
 }
 
+/*
+pliny.function({
+  parent: "Util",
+  name: "haxFunction",
+  description: "Intercept a function that is stored in a target object and inject our own code to run before the function is called.",
+  parameters: [{
+    name: "target",
+    type: "Object",
+    description: "The object in which the function is stored. Probably `window`."
+  }, {
+    name: "name",
+    type: "String",
+    description: "The name of the function, in the object store."
+  }, {
+    name: "thunk",
+    type: "Function",
+    description: "The function to invoke before calling the target function. It receives the parameters that will be passed to the target function."
+  }]
+});
+*/
 function haxFunction(target, name, thunk) {
   hax(target, name, (original, args) => {
     thunk(args);
@@ -43311,6 +43381,13 @@ function setSetting(settingName, val) {
   }
 }
 
+/*
+pliny.function({
+  parent: "Util",
+  name: "standardUnlockBehavior",
+  description: "On iOS, does nothing. On Android, removes the screen orientation lock. On desktop PCs, removes the moue pointer lock."
+});
+*/
 function standardUnlockBehavior() {
   if (isMobile) {
     if(!isiOS) {
@@ -43324,12 +43401,31 @@ function standardUnlockBehavior() {
   }
 }
 
+/*
+pliny.function({
+  parent: "Util",
+  name: "standardExitFullScreenBehavior",
+  description: "Performs the standardUnlockBehavior before exiting Full Screen mode."
+});
+*/
 function standardExitFullScreenBehavior() {
   return standardUnlockBehavior()
     .then(() => FullScreen.exit())
     .catch((exp) => console.warn("FullScreen failed", exp));
 }
 
+/*
+pliny.function({
+  parent: "Util",
+  name: "standardLockBehavior",
+  description: "On iOS devices, this function does nothing. On Android mobile devices, it locks the screen orientation. On desktop devices, it locks the mouse pointer to the view.",
+  parameters: [{
+    name: "elem",
+    type: "Element",
+    description: "The DOM element to which to perform the lock operations."
+  }]
+});
+*/
 function standardLockBehavior(elem) {
   if(isiOS) {
     return Promise.resolve(elem);
@@ -43344,6 +43440,13 @@ function standardLockBehavior(elem) {
   }
 }
 
+/*
+pliny.function({
+  parent: "Util",
+  name: "standardFullScreenBehavior",
+  description: "Requests Full Screen mode, and whether it succeeds or fails, executes the standardLockBehavior."
+});
+*/
 function standardFullScreenBehavior(elem) {
   return FullScreen.request(elem)
     .catch((exp) => console.warn("FullScreen failed", exp))
@@ -44955,7 +45058,7 @@ class Entity extends Object3D {
 
   spring(b, options) {
     if(this.physMapped && b.physMapped) {
-      this.commands.push(["spring",
+      this.commands.push(["addSpring",
         this.uuid,
         b.uuid,
         options.restLength,
@@ -46941,6 +47044,31 @@ Button3D.DEFAULTS = {
   toggle: true
 };
 
+/*
+pliny.class({
+  parent: "Primrose.Plugin",
+  name: "BasePlugin",
+  baseClass: "THREE.EventDispatcher",
+  description: "A common base class for all plugins.",
+  parameters: [{
+    name: "name",
+    type: "String",
+    description: "A friendly name for the plugin."
+  }, {
+    name: "options",
+    type: "Object",
+    description: "A hash object for optional parameters",
+    optional: true,
+    default: null
+  }, {
+    name: "defaults",
+    type: "Object",
+    description: "A hash object containing the default values for all optional parameters",
+    optional: true,
+    default: null
+  }]
+});
+*/
 class BasePlugin extends EventDispatcher {
 
   constructor(name, options, defaults) {
@@ -47752,6 +47880,39 @@ CubeTextureLoader.prototype.load = function(urls, onLoad, onProgress, onError) {
   return texture;
 };
 
+/*
+pliny.method({
+  parent: "THREE.Object3D",
+  name: "emit",
+  description: "Creates a new Event object to fire through `dispatchEvent`.",
+  parameters: [{
+    name: "evt",
+    type: "String",
+    description: "The type of the event to fire."
+  }, {
+    name: "obj",
+    type: "Object",
+    description: "Additional information to include in the event.",
+    optional: true
+  }]
+});
+
+pliny.method({
+  parent: "THREE.EventDispatcher",
+  name: "emit",
+  description: "Creates a new Event object to fire through `dispatchEvent`.",
+  parameters: [{
+    name: "evt",
+    type: "String",
+    description: "The type of the event to fire."
+  }, {
+    name: "obj",
+    type: "Object",
+    description: "Additional information to include in the event.",
+    optional: true
+  }]
+});
+*/
 Object3D.prototype.emit = EventDispatcher.prototype.emit = function(evt, obj) {
   if(!obj) {
     obj = {};
@@ -47948,6 +48109,21 @@ Object3D.prototype.on = EventDispatcher.prototype.on = function(event, listener)
   return this;
 };
 
+/*
+pliny.method({
+  parent: "THREE.Matrix4",
+  name: "toString",
+  returns: "String",
+  description: "Prints a debugging log of the matrix.",
+  parameters: [{
+    name: "digits",
+    type: "Number",
+    description: "The number of significant digits to print per matrix element.",
+    optional: true,
+    default: 10
+  }]
+});
+*/
 Matrix4.prototype.toString = function(digits) {
   if(digits === undefined){
     digits = 10;
@@ -48575,6 +48751,14 @@ Object.assign( MTLLoader, {
   CASTS_SHADOWS_ONTO_INVISIBLE_SURFACES: 10
 });
 
+/*
+pliny.property({
+  parent: "THREE.Object3D",
+  name: "pickable",
+  type: "Boolean",
+  description: "Returns true if the current object has any event listeners attached to it that represent picking operations."
+});
+*/
 Object.defineProperty(Object3D.prototype, "pickable", {
   get: function() {
     const l = this._listeners;
@@ -49530,6 +49714,27 @@ class OBJ {
 	}
 }
 
+/*
+pliny.method({
+  parent: "THREE.Geometry",
+  name: "offset",
+  returns: "THREE.Geometry",
+  descriptions: "Modifies the geometry, adding a constant offset to each vertex. Returns itself to enable method chaining.",
+  parameters: [{
+    name: "x",
+    type: "Number",
+    description: "The offset in the X-axis by which to move the vertices."
+  }, {
+    name: "y",
+    type: "Number",
+    description: "The offset in the Y-axis by which to move the vertices."
+  }, {
+    name: "z",
+    type: "Number",
+    description: "The offset in the Z-axis by which to move the vertices."
+  }]
+})
+*/
 Geometry.prototype.offset = function(x, y, z){
   const arr = this.vertices;
   for(let i = 0; i < arr.length; ++i) {
@@ -49574,6 +49779,19 @@ BufferGeometry.prototype.offset = function(x, y, z){
   return this;
 };
 
+/*
+pliny.method({
+  parent: "THREE.Object3D",
+  name: "phys",
+  description: "Make a 3D object react to physics updates. Calls `Live API.phys` under the hood.",
+  returns: "Primrose.Controls.Entity",
+  parameters: [{
+    name: "options",
+    type: "Live API.phys.optionsHash",
+    description: "Optional settings for creating the physics settings."
+  }]
+});
+*/
 Object3D.prototype.phys = Mesh.prototype.phys = function(options) {
   return phys(this, options);
 };
@@ -49636,6 +49854,77 @@ Mesh.prototype.textured =
     return textured(this, texture, options);
   };
 
+/*
+pliny.method({
+  parent: "THREE.Euler",
+  name: "toString",
+  returns: "String",
+  description: "Prints a debugging log of the Euler rotation.",
+  parameters: [{
+    name: "digits",
+    type: "Number",
+    description: "The number of significant digits to print per element.",
+    optional: true,
+    default: 10
+  }]
+});
+
+pliny.method({
+  parent: "THREE.Quaternion",
+  name: "toString",
+  returns: "String",
+  description: "Prints a debugging log of the Quaternion rotation.",
+  parameters: [{
+    name: "digits",
+    type: "Number",
+    description: "The number of significant digits to print per element.",
+    optional: true,
+    default: 10
+  }]
+});
+
+pliny.method({
+  parent: "THREE.Vector2",
+  name: "toString",
+  returns: "String",
+  description: "Prints a debugging log of the vector.",
+  parameters: [{
+    name: "digits",
+    type: "Number",
+    description: "The number of significant digits to print per element.",
+    optional: true,
+    default: 10
+  }]
+});
+
+pliny.method({
+  parent: "THREE.Vector3",
+  name: "toString",
+  returns: "String",
+  description: "Prints a debugging log of the vector.",
+  parameters: [{
+    name: "digits",
+    type: "Number",
+    description: "The number of significant digits to print per element.",
+    optional: true,
+    default: 10
+  }]
+});
+
+pliny.method({
+  parent: "THREE.Vector4",
+  name: "toString",
+  returns: "String",
+  description: "Prints a debugging log of the vector.",
+  parameters: [{
+    name: "digits",
+    type: "Number",
+    description: "The number of significant digits to print per element.",
+    optional: true,
+    default: 10
+  }]
+});
+*/
 Euler.prototype.toString =
 Quaternion.prototype.toString =
 Vector2.prototype.toString =
@@ -49906,6 +50195,8 @@ pliny.class({
 });
 */
 
+// The JSON format object loader is not always included in the Three.js distribution,
+// so we have to first check for it.
 var loaders = null;
 var PATH_PATTERN = /((?:https?:\/\/)?(?:[^/]+\/)+)(\w+)(\.(?:\w+))$/;
 var EXTENSION_PATTERN = /(\.(?:\w+))+$/;
@@ -50596,6 +50887,12 @@ class Progress {
   }
 }
 
+/*, {
+    name: "texture",
+    type: "String or Array of String",
+    optional: true,
+    description: "The texture(s) to use for the sky."
+  }*/
 class SkyPlugin extends BasePlugin {
   constructor(options) {
     super("Sky", options);
@@ -54557,6 +54854,14 @@ var Controls = {
   Video
 };
 
+/*
+pliny.class({
+  parent: "Primrose.Plugin",
+  baseClass: "Primrose.Plugin.BasePlugin",
+  name: "GroundPhysics",
+  description: "Adds the ground to the physics system."
+});
+*/
 class GroundPhysics extends BasePlugin {
 
   constructor() {
@@ -68860,6 +69165,10 @@ class InWorkerThreadServer extends BaseServerPlugin {
   setAngularDamping(id, v) {
     pq("setAngularDamping", id, v);
   }
+
+  addSpring(id1, id2, restLength, stiffness, damping) {
+    pq("addSpring", id1, id2, restLength, stiffness, damping);
+  }
 }
 
 /*
@@ -68914,7 +69223,7 @@ pliny.record({
 });
 */
 function phys(obj, options) {
-  
+
   options = coalesce({}, options);
 
   let ent = null;
@@ -68934,6 +69243,9 @@ function phys(obj, options) {
 
 
   if(!ent.physMapped) {
+
+    ent.newBody(options);
+
     let head = ent;
     while(head && !head.geometry && head.children.length > 0) {
       head = head.children[0];
@@ -68941,18 +69253,16 @@ function phys(obj, options) {
 
     if(head.geometry){
 
-      ent.newBody(options);
-
       const g = head.geometry;
       g.computeBoundingSphere();
       g.computeBoundingBox();
       g.boundingBox.getSize(TEMP);
-      
+
       const { x, y, z } = TEMP,
         r = g.boundingSphere.radius,
         volSphere = Math.PI * r * r,
         volBox = x * y * z;
-    
+
       if(volSphere < volBox) {
         ent.addSphere(r);
       }
@@ -70469,6 +70779,14 @@ class Note extends PositionalSound {
   }
 }
 
+/*
+pliny.class({
+  parent: "Primrose.Audio",
+  name: "Music",
+  description: "A synthesizer that you can program to play notes."
+});
+*/
+
 var MAX_NOTE_COUNT = (navigator.maxTouchPoints || 10) + 1;
 var TYPES = ["sine",
     "square",
@@ -70605,6 +70923,14 @@ class Sound extends PositionalSound {
   }
 }
 
+/*
+pliny.class({
+  parent: "Primrose.Audio",
+  baseClass: "Primrose.BasePlugin",
+  name: "Speech",
+  description: "Installs a text-2-speech engine in the BrowserEnvironment"
+});
+*/
 class Speech extends BasePlugin {
   constructor (options) {
     super("Text2Speech", options, {
@@ -71082,6 +71408,7 @@ function calcFoV(aFoV, aDim, bDim){
 
 let defaultFieldOfView = 100;
 
+// Start at a higher number to reduce chance of conflict.
 let nextDisplayId$1 = 1000;
 
 class PolyfilledVRDisplay extends BaseVRDisplay {
@@ -72947,6 +73274,16 @@ pliny.class({
 });
 */
 
+/**
+ * An implementation of a simple complementary filter, which fuses gyroscope and accelerometer data from the 'devicemotion' event.
+ *
+ * Accelerometer data is very noisy, but stable over the long term. Gyroscope data is smooth, but tends to drift over the long term.
+ *
+ * This fusion is relatively simple:
+ * 1. Get orientation estimates from accelerometer by applying a low-pass filter on that data.
+ * 2. Get orientation estimates from gyroscope by integrating over time.
+ * 3. Combine the two estimates, weighing (1) in the long term, but (2) for the short term.
+ */
 class ComplementaryFilter {
   constructor(kFilter) {
     this.kFilter = kFilter;
@@ -73580,6 +73917,9 @@ pliny.class({
 });
 */
 
+/*
+  A collection of all the recorded state values at a single point in time.
+*/
 class Frame {
 
   static parse(timestamp, obj, root) {
@@ -76134,6 +76474,15 @@ Environment.DEFAULTS = {
   disableAdvertising: false
 };
 
+/*
+pliny.class({
+  parent: "Primrose.Controls",
+  baseClass: "Primrose.BasePlugin",
+  name: "iOSOrientationHack",
+  description: "Makes up for iOS not firing the `resize` event on the window when the user changes orientation of their device."
+});
+*/
+
 class iOSOrientationHack extends BasePlugin {
   constructor() {
     super("iOSOrientationHack");
@@ -76227,6 +76576,19 @@ class MixedRealityVRDisplay extends PolyfilledVRDisplay {
   }
 }
 
+/*
+  pliny.method({
+    parent: "Primrose.Environment",
+    name: "insertFullScreenButtons",
+    description: "Add the default UI for managing full screen state.",
+    returns: "Array of `HTMLButtonElement`s",
+    parameters: [{
+      name: "containerSpec",
+      type: "String",
+      description: "A query selector for the DOM element to which to add the buttons."
+    }]
+  });
+  */
 class PresentationUI extends BasePlugin {
   constructor(options) {
     super("PresentationUI", options);
@@ -76377,6 +76739,14 @@ var Displays = {
   StandardMonitorVRDisplay
 };
 
+/*
+pliny.class({
+  parent: "Primrose.Graphics",
+  baseClass: "Primrose.BasePlugin",
+  name: "FogPlugin",
+  description: "Installs fog in the BrowserEnvironment"
+});
+*/
 class FogPlugin extends BasePlugin {
 
   constructor() {
@@ -76410,6 +76780,14 @@ class ModelFactoryPlugin extends BasePlugin {
   }
 }
 
+/*
+pliny.class({
+  parent: "Primrose.Graphics.Shadows",
+  baseClass: "Primrose.BasePlugin",
+  name: "EnableShadows",
+  description: "Installs shadow mapping on the renderer in the BrowserEnvironment"
+});
+*/
 class EnableShadows extends BasePlugin {
 
   constructor() {
@@ -76427,6 +76805,14 @@ class EnableShadows extends BasePlugin {
 
 }
 
+/*
+pliny.class({
+  parent: "Primrose.Graphics.Shadows",
+  baseClass: "Primrose.BasePlugin",
+  name: "GroundShadows",
+  description: "Installs shadow mapping on the ground in the BrowserEnvironment"
+});
+*/
 class GroundShadows extends BasePlugin {
 
   constructor(options) {
@@ -76450,6 +76836,43 @@ class GroundShadows extends BasePlugin {
 
 }
 
+/*
+pliny.class({
+  parent: "Primrose.Graphics.Shadows",
+  baseClass: "Primrose.BasePlugin",
+  name: "SunShadows",
+  description: "Installs shadow mapping from the Sun in the BrowserEnvironment",
+  parameters: [{
+    name: "options",
+    type: "Primrose.Graphics.Shadows.SunShadows.optionsHash",
+    description: "Options for creating the shadow map"
+  }]
+});
+
+pliny.record({
+  parent: "Primrose.Graphics.Shadows.SunShadows",
+  name: "optionsHash",
+  parameters: [{
+    name: "mapSize",
+    type: "Number",
+    optional: true,
+    default: 2048,
+    description: "The size to use for the width and height of the shadow map that will be generated."
+  }, {
+    name: "radius",
+    type: "Number",
+    optional: true,
+    default: 1,
+    description: "The number of pixels of blurring to perform at the edge of the shadows."
+  }, {
+    name: "cameraSize",
+    type: "Number",
+    optional: true,
+    default: 15,
+    description: "The radius of the frustum of the shadow projecting camera."
+  }]
+});
+*/
 class SunShadows extends BasePlugin {
 
   constructor(options) {
@@ -76477,6 +76900,43 @@ class SunShadows extends BasePlugin {
 
 }
 
+/*
+pliny.class({
+  parent: "Primrose.Graphics",
+  baseClass: "Primrose.BasePlugin",
+  name: "Shadows",
+  description: "Installs shadow mapping in the BrowserEnvironment",
+  parameters: [{
+    name: "options",
+    type: "Primrose.Plugin.Shadows.optionsHash",
+    description: "Options for creating the shadow map"
+  }]
+});
+
+pliny.record({
+  parent: "Primrose.Graphics.Shadows",
+  name: "optionsHash",
+  parameters: [{
+    name: "mapSize",
+    type: "Number",
+    optional: true,
+    default: 2048,
+    description: "The size to use for the width and height of the shadow map that will be generated."
+  }, {
+    name: "radius",
+    type: "Number",
+    optional: true,
+    default: 1,
+    description: "The number of pixels of blurring to perform at the edge of the shadows."
+  }, {
+    name: "cameraSize",
+    type: "Number",
+    optional: true,
+    default: 15,
+    description: "The radius of the frustum of the shadow projecting camera."
+  }]
+});
+*/
 class Shadows extends BasePlugin {
 
   constructor(options) {
@@ -76706,6 +77166,11 @@ pliny.class({
 */
 
 const PEERING_TIMEOUT_LENGTH = 30000;
+// some useful information:
+// - https://www.webrtc-experiment.com/docs/STUN-or-TURN.html
+// - http://www.html5rocks.com/en/tutorials/webrtc/infrastructure/#after-signaling-using-ice-to-cope-with-nats-and-firewalls
+// - https://github.com/coturn/rfc5766-turn-server/
+
 let INSTANCE_COUNT = 0;
 
 class WebRTCSocketEvent extends Event {

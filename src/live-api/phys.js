@@ -39,7 +39,7 @@ pliny.record({
 });
 */
 export default function phys(obj, options) {
-  
+
   options = coalesce({}, options);
 
   let ent = null;
@@ -59,6 +59,9 @@ export default function phys(obj, options) {
 
 
   if(!ent.physMapped) {
+
+    ent.newBody(options);
+
     let head = ent;
     while(head && !head.geometry && head.children.length > 0) {
       head = head.children[0];
@@ -66,18 +69,16 @@ export default function phys(obj, options) {
 
     if(head.geometry){
 
-      ent.newBody(options);
-
       const g = head.geometry;
       g.computeBoundingSphere();
       g.computeBoundingBox();
       g.boundingBox.getSize(TEMP);
-      
+
       const { x, y, z } = TEMP,
         r = g.boundingSphere.radius,
         volSphere = Math.PI * r * r,
         volBox = x * y * z;
-    
+
       if(volSphere < volBox) {
         ent.addSphere(r);
       }

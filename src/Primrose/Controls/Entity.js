@@ -191,7 +191,7 @@ export default class Entity extends Object3D {
 
   spring(b, options) {
     if(this.physMapped && b.physMapped) {
-      this.commands.push(["spring",
+      this.commands.push(["addSpring",
         this.uuid,
         b.uuid,
         options.restLength,

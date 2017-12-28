@@ -142,4 +142,8 @@ export default class BaseServerPlugin extends BasePlugin {
   setAngularDamping(id, v) {
     throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setAngularDamping(id, v)");
   }
+
+  addSpring(id1, id2, restLength, stiffness, damping) {
+    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addSpring(id1, id2, restLength, stiffness, damping)");
+  }
 }

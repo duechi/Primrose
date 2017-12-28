@@ -102,4 +102,8 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
   setAngularDamping(id, v) {
     pq("setAngularDamping", id, v);
   }
+
+  addSpring(id1, id2, restLength, stiffness, damping) {
+    pq("addSpring", id1, id2, restLength, stiffness, damping);
+  }
 }

@@ -116,7 +116,7 @@ export default class EngineServer {
   addSpring(id1, id2, restLength, stiffness, damping) {
     const body1 = this.getBody(id1),
       body2 = this.getBody(id2);
-    this.springs.push(new CANNON.Spring(bodyA, bodyB, {
+    this.springs.push(new CANNON.Spring(body1, body2, {
       restLength,
       stiffness,
       damping
