@@ -2,7 +2,6 @@ import CANNON from "cannon";
 
 import BaseServerPlugin from "./BaseServerPlugin";
 
-import EntityManager from "./EntityManager";
 import EngineServer from "./EngineServer";
 
 const data = [],
@@ -11,7 +10,7 @@ const data = [],
 export default class InRenderThreadServer extends BaseServerPlugin {
 
   constructor() {
-    super((name) => this._engine[name].bind(this._engine));
+    super();
     this._engine = new EngineServer();
   }
 
@@ -21,7 +20,8 @@ export default class InRenderThreadServer extends BaseServerPlugin {
     for(let n = 0; n < this._engine.bodyIDs.length; ++n) {
       const id = this._engine.bodyIDs[n],
         body = this._engine.bodyDB[id],
-        ent = EntityManager.entityDB[id];
+        ent = env.entities.get(id);
+
       if(body && ent && body.sleepState !== CANNON.Body.SLEEPING) {
         ent.position.copy(body.position);
         ent.quaternion.copy(body.quaternion);
@@ -31,5 +31,53 @@ export default class InRenderThreadServer extends BaseServerPlugin {
         ent.commit();
       }
     }
+  }
+
+  setGravity(v) {
+    this._engine.setGravity(v);
+  }
+
+  setAllowSleep(v) {
+    this._engine.setAllowSleep(v);
+  }
+
+  newBody(id, mass, type) {
+    this._engine.newBody(id, mass, type);
+  }
+
+  addSphere(id, radius) {
+    this._engine.addSphere(id, radius);
+  }
+
+  addBox(id, width, height, depth) {
+    this._engine.addBox(id, width, height, depth);
+  }
+
+  addPlane(id) {
+    this._engine.addPlane(id);
+  }
+
+  setPosition(id, x, y, z) {
+    this._engine.setPosition(id, x, y, z);
+  }
+
+  setQuaternion(id, x, y, z, w) {
+    this._engine.setQuaternion(id, x, y, z, w);
+  }
+
+  setVelocity(id, x, y, z) {
+    this._engine.setVelocity(id, x, y, z);
+  }
+
+  setAngularVelocity(id, x, y, z) {
+    this._engine.setAngularVelocity(id, x, y, z);
+  };
+
+  setLinearDamping(id, v) {
+    this._engine.setLinearDamping(id, v);
+  }
+
+  setAngularDamping(id, v) {
+    this._engine.setAngularDamping(id, v);
   }
 }

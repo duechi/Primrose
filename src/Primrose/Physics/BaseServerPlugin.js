@@ -2,36 +2,17 @@ import { coalesce, dynamicInvoke } from "../../util";
 
 import BasePlugin from "../BasePlugin";
 
-import EntityManager from "./EntityManager";
 import GroundPhysics from "./GroundPhysics";
 
-const COMMANDS = [
-  "setAllowSleep",
-  "setGravity",
-  "newBody",
-  "addSphere",
-  "addBox",
-  "addPlane",
-  "setPosition",
-  "setQuaternion",
-  "setVelocity",
-  "setAngularVelocity",
-  "setLinearDamping",
-  "setAngularDamping"];
 
 export default class BaseServerPlugin extends BasePlugin {
 
-  constructor(setup, options, defaults) {
+  constructor(options, defaults) {
     super("PhysicsServer", options, coalesce({
       allowSleep: true,
       gravity: -9.8
     }, defaults));
 
-
-    COMMANDS.forEach((name) =>
-        this[name] = null);
-
-    this._setup = setup;
     this._gravity = null;
     this._allowSleep = null;
   }
@@ -43,9 +24,6 @@ export default class BaseServerPlugin extends BasePlugin {
   _install(env) {
     env.physics = this;
 
-    COMMANDS.forEach((name) =>
-      this[name] = this._setup(name));
-
     this.gravity = this.options.gravity;
     this.allowSleep = this.options.allowSleep;
 
@@ -53,36 +31,35 @@ export default class BaseServerPlugin extends BasePlugin {
   }
 
   preUpdate(env, dt) {
-    for(let i = 0; i < EntityManager.entities.length; ++i) {
-      const ent = EntityManager.entities[i];
-
+    for(let i = 0; i < env.entities.count; ++i) {
+      const ent = env.entities.get(i);
       if(ent.physMapped) {
         for(let i = 0; i < ent.commands.length; ++i) {
           dynamicInvoke(this, ent.commands[i]);
         }
         ent.commands.length = 0;
 
-        if(!ent.position.equals(ent._lastPosition)) {
+        if(ent.positionChanged) {
           this.setPosition(ent.uuid, ent.position.x, ent.position.y, ent.position.z);
         }
 
-        if(!ent.quaternion.equals(ent._lastQuaternion)) {
+        if(ent.quaternionChanged) {
           this.setQuaternion(ent.uuid, ent.quaternion.x, ent.quaternion.y, ent.quaternion.z, ent.quaternion.w);
         }
 
-        if(!ent.velocity.equals(ent._lastVelocity)) {
+        if(ent.velocityChanged) {
           this.setVelocity(ent.uuid, ent.velocity.x, ent.velocity.y, ent.velocity.z);
         }
 
-        if(!ent.angularVelocity.equals(ent._lastAngularVelocity)) {
+        if(ent.angularVelocityChanged) {
           this.setAngularVelocity(ent.uuid, ent.angularVelocity.x, ent.angularVelocity.y, ent.angularVelocity.z);
         }
 
-        if(ent.linearDamping !== ent._lastLinearDamping) {
+        if(ent.linearDampingChanged) {
           this.setLinearDamping(ent.uuid, ent.linearDamping);
         }
 
-        if(ent.angularDamping !== ent._lastAngularDamping) {
+        if(ent.angularDampingChanged) {
           this.setAngularDamping(ent.uuid, ent.angularDamping);
         }
 
@@ -111,6 +88,10 @@ export default class BaseServerPlugin extends BasePlugin {
 
   setGravity(v) {
     throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setGravity(v)");
+  }
+
+  setAllowSleep(v) {
+    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setAllowSleep(v)");
   }
 
   newBody(id, mass, type) {

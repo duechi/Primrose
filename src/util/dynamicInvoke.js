@@ -4,4 +4,7 @@ export default function dynamicInvoke(obj, args) {
   if(handler) {
     handler.apply(obj, args);
   }
+  else {
+    console.error("no", name, "in", obj);
+  }
 };

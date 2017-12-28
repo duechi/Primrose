@@ -13697,6 +13697,9 @@ function dynamicInvoke(obj, args) {
   if(handler) {
     handler.apply(obj, args);
   }
+  else {
+    console.error("no", name, "in", obj);
+  }
 }
 
 class EngineServer {
@@ -13824,6 +13827,7 @@ EngineServer.DT = 0.01;
 const T = EngineServer.DT * 1000;
 const engine = new EngineServer();
 const data = [];
+const wasSleeping = {};
 
 let lastTime = null;
 let timer = null;
@@ -13868,8 +13872,10 @@ function ontick() {
   let i = 0;
   for(let n = 0; n < engine.bodyIDs.length; ++n) {
     const id = engine.bodyIDs[n],
-      body = engine.bodyDB[id];
-    if(body.sleepState !== cannon.Body.SLEEPING) {
+      body = engine.bodyDB[id],
+      sleeping = body.sleepState === cannon.Body.SLEEPING;
+
+    if(!sleeping || !wasSleeping[id]) {
       data[i + 0] = id;
       data[i + 1] = body.position.x;
       data[i + 2] = body.position.y;
@@ -13886,6 +13892,8 @@ function ontick() {
       data[i + 13] = body.angularVelocity.z;
       i += 14;
     }
+
+    wasSleeping[id] = sleeping;
   }
 
   postMessage(data);

@@ -27,7 +27,7 @@ function normalizeOptions(options) {
     plugins: [],
     useFog: true,
     useGaze: isCardboard,
-    physics: "/Primrose/PrimrosePhysics.js"
+    physics: "../../PrimrosePhysics.js"
   }, options);
 
   if(!options.groundTexture && !options.groundModel) {

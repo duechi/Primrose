@@ -39,8 +39,6 @@ import {
   Vector3
 } from "three";
 
-import { EntityManager } from "../Physics";
-
 const TEMP_EULER = new Euler(),
   TEMP_QUAT = new Quaternion();
 
@@ -73,30 +71,61 @@ export default class Entity extends Object3D {
     this._lastLinearDamping = 0;
     this._lastAngularDamping = 0;
 
-    this.ready = this.load().then(() => {
-      EntityManager.entities.push(this);
-      EntityManager.entityDB[this.uuid] = this;
-      return this;
-    });
+    this.ready = this.load().then(() => this);
+  }
+
+  get changed() {
+    return this.positionChanged
+      || this.quaternionChanged
+      || this.velocityChanged
+      || this.angularVelocityChanged
+      || this.linearDampingChanged
+      || this.angularDampingChanged;
+  }
+
+  get positionChanged() {
+    return !this._lastPosition.equals(this.position);
+  }
+
+  get quaternionChanged() {
+    return !this._lastQuaternion.equals(this.quaternion);
+  }
+
+  get velocityChanged() {
+    return !this._lastVelocity.equals(this.velocity);
+  }
+
+  get angularVelocityChanged() {
+    return !this._lastAngularVelocity.equals(this.angularVelocity);
+  }
+
+  get linearDampingChanged() {
+    return this._lastLinearDamping !== this.linearDamping;
+  }
+
+  get angularDampingChanged() {
+    return this._lastAngularDamping !== this.angularDamping;
   }
 
   commit() {
-    this._lastPosition.copy(this.position);
-    this._lastQuaternion.copy(this.quaternion);
-    this._lastVelocity.copy(this.velocity);
-    this._lastAngularVelocity.copy(this.angularVelocity);
-    this._lastLinearDamping = this.linearDamping;
-    this._lastAngularDamping = this.angularDamping;
-  }
-
-  revert() {
-    this.position.copy(this._lastPosition);
-    this.quaternion.copy(this._lastQuaternion);
-    this.velocity.copy(this._lastVelocity);
-    this.angularVelocity.copy(this._lastAngularVelocity);
-    this.linearDamping = this._lastLinearDamping;
-    this.angularDamping = this._lastAngularDamping;
-    this.updateMatrix();
+    if(this.positionChanged) {
+      this._lastPosition.copy(this.position);
+    }
+    if(this.quaternionChanged) {
+      this._lastQuaternion.copy(this.quaternion);
+    }
+    if(this.velocityChanged) {
+      this._lastVelocity.copy(this.velocity);
+    }
+    if(this.angularVelocityChanged) {
+      this._lastAngularVelocity.copy(this.angularVelocity);
+    }
+    if(this.linearDampingChanged) {
+      this._lastLinearDamping = this.linearDamping;
+    }
+    if(this.angularDampingChanged) {
+      this._lastAngularDamping = this.angularDamping;
+    }
   }
 
   load() {
