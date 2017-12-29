@@ -2,6 +2,7 @@ import CANNON from "cannon";
 
 import dynamicInvoke from "../../util/dynamicInvoke";
 
+import { Commands } from "./Commands";
 import EngineServer from "./EngineServer";
 
 const T = EngineServer.DT * 1000,
@@ -32,7 +33,8 @@ onmessage = (evt) => {
     const arr = evt.data;
     let i = 0;
     while(i < arr.length) {
-      const name = arr[i++],
+      const commandID = arr[i++],
+        name = Commands[commandID],
         handler = engine[name];
       if(handler) {
         const len = handler.length;

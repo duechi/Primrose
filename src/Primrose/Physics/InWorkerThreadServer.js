@@ -64,58 +64,58 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
   }
 
   setGravity(v) {
-    pq("setGravity", v);
+    pq(CommandIDs["setGravity"], v);
   }
 
   enableAllowSleep() {
-    pq("enableAllowSleep");
+    pq(CommandIDs["enableAllowSleep"]);
   }
 
   disableAllowSleep() {
-    pq("disableAllowSleep");
+    pq(CommandIDs["disableAllowSleep"]);
   }
 
   newBody(id, mass, type) {
-    pq("newBody", id, mass, type);
+    pq(CommandIDs["newBody"], id, mass, type);
   }
 
   addSphere(id, radius) {
-    pq("addSphere", id, radius);
+    pq(CommandIDs["addSphere"], id, radius);
   }
 
   addBox(id, width, height, depth) {
-    pq("addBox", id, width, height, depth);
+    pq(CommandIDs["addBox"], id, width, height, depth);
   }
 
   addPlane(id) {
-    pq("addPlane", id);
+    pq(CommandIDs["addPlane"], id);
   }
 
   setPosition(id, x, y, z) {
-    pq("setPosition", id, x, y, z);
+    pq(CommandIDs["setPosition"], id, x, y, z);
   }
 
   setQuaternion(id, x, y, z, w) {
-    pq("setQuaternion", id, x, y, z, w);
+    pq(CommandIDs["setQuaternion"], id, x, y, z, w);
   }
 
   setVelocity(id, x, y, z) {
-    pq("setVelocity", id, x, y, z);
+    pq(CommandIDs["setVelocity"], id, x, y, z);
   }
 
   setAngularVelocity(id, x, y, z) {
-    pq("setAngularVelocity", id, x, y, z);
+    pq(CommandIDs["setAngularVelocity"], id, x, y, z);
   }
 
   setLinearDamping(id, v) {
-    pq("setLinearDamping", id, v);
+    pq(CommandIDs["setLinearDamping"], id, v);
   }
 
   setAngularDamping(id, v) {
-    pq("setAngularDamping", id, v);
+    pq(CommandIDs["setAngularDamping"], id, v);
   }
 
   addSpring(id1, id2, restLength, stiffness, damping) {
-    pq("addSpring", id1, id2, restLength, stiffness, damping);
+    pq(CommandIDs["addSpring"], id1, id2, restLength, stiffness, damping);
   }
 }
