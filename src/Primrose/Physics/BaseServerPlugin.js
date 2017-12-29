@@ -2,6 +2,7 @@ import { coalesce, dynamicInvoke } from "../../util";
 
 import BasePlugin from "../BasePlugin";
 
+import { Commands, checkCommands } from "./Commands";
 import GroundPhysics from "./GroundPhysics";
 
 
@@ -18,7 +19,8 @@ export default class BaseServerPlugin extends BasePlugin {
   }
 
   get requirements() {
-    return ["scene", "entities"];
+    const reqs = ["scene", "entities"];
+    return checkCommands(this, reqs);
   }
 
   _install(env) {
@@ -89,61 +91,5 @@ export default class BaseServerPlugin extends BasePlugin {
   set gravity(v) {
     this._gravity = v;
     this.setGravity(v);
-  }
-
-  setGravity(v) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setGravity(v)");
-  }
-
-  enableAllowSleep() {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::enableAllowSleep()");
-  }
-
-  disableAllowSleep() {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::disableAllowSleep()");
-  }
-
-  newBody(id, mass, type) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::newBody(id, mass, type)");
-  }
-
-  addSphere(id, radius) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addSphere(id, radius)");
-  }
-
-  addBox(id, width, height, depth) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addBox(id, width, height, depth)");
-  }
-
-  addPlane(id) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addPlane(id)");
-  }
-
-  setPosition(id, x, y, z) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setPosition(id, x, y, z)");
-  }
-
-  setQuaternion(id, x, y, z, w) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setQuaternion(id, x, y, z, w)");
-  }
-
-  setVelocity(id, x, y, z) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setVelocity(id, x, y, z)");
-  }
-
-  setAngularVelocity(id, x, y, z) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setAngularVelocity(id, x, y, z)");
-  }
-
-  setLinearDamping(id, v) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setLinearDamping(id, v)");
-  }
-
-  setAngularDamping(id, v) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setAngularDamping(id, v)");
-  }
-
-  addSpring(id1, id2, restLength, stiffness, damping) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addSpring(id1, id2, restLength, stiffness, damping)");
   }
 }

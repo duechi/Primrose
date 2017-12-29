@@ -1,4 +1,5 @@
 import BaseServerPlugin from "./BaseServerPlugin";
+import { CommandIDs } from "./Commands";
 
 const rpcQueue = [];
 

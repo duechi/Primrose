@@ -1,7 +1,15 @@
 import CANNON from "cannon";
 
+import { Commands, checkCommands } from "./Commands";
+
 export default class EngineServer {
   constructor() {
+
+    const reqs = checkCommands(this);
+    if(reqs.length > 0) {
+      throw new Error(reqs.join("/n"));
+    }
+
     this.physics = new CANNON.World();
     this.bodyIDs = [];
     this.bodyDB = {};
