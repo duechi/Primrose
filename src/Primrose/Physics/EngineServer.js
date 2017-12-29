@@ -30,33 +30,51 @@ export default class EngineServer {
     this.physics.step(EngineServer.DT, dt);
   }
 
-  enableAllowSleep() {
-    this.physics.allowSleep = true;
-  }
-
-  disableAllowSleep(v) {
-    this.physics.allowSleep = false;
-  }
-
-  setGravity(g) {
-    this.physics.gravity.set(0, g, 0);
-  }
-
   sleepBody(evt) {
     //console.log(this, evt.target);
   }
 
   getBody(id) {
     const body = this.bodyDB[id];
-    if(!body)  {
-      console.error("Don't recognize body", id);
+    if(body.sleepState === CANNON.Body.SLEEPING) {
+      body.wakeUp();
     }
-    else {
-      if(body.sleepState === CANNON.Body.SLEEPING) {
-        body.wakeUp();
-      }
-      return body;
-    }
+    return body;
+  }
+
+  addBox(id, width, height, depth) {
+    const body = this.getBody(id);
+    body.addShape(
+      new CANNON.Box(
+        new CANNON.Vec3(width, height, depth)));
+  }
+
+  addSphere(id, radius) {
+    const body = this.getBody(id);
+    body.addShape(new CANNON.Sphere(radius));
+  }
+
+  addPlane(id) {
+    const body = this.getBody(id);
+    body.addShape(new CANNON.Plane());
+  }
+
+  addSpring(id1, id2, restLength, stiffness, damping) {
+    const body1 = this.getBody(id1),
+      body2 = this.getBody(id2);
+    this.springs.push(new CANNON.Spring(body1, body2, {
+      restLength,
+      stiffness,
+      damping
+    }));
+  }
+
+  disableAllowSleep() {
+    this.physics.allowSleep = false;
+  }
+
+  enableAllowSleep() {
+    this.physics.allowSleep = true;
   }
 
   newBody(id, mass, type) {
@@ -73,21 +91,23 @@ export default class EngineServer {
     this.physics.addBody(body);
   }
 
-  addSphere(id, radius) {
+  setAngularDamping(id, v) {
     const body = this.getBody(id);
-    body.addShape(new CANNON.Sphere(radius));
+    body.angularDamping = v;
   }
 
-  addBox(id, width, height, depth) {
+  setAngularVelocity(id, x, y, z) {
     const body = this.getBody(id);
-    body.addShape(
-      new CANNON.Box(
-        new CANNON.Vec3(width, height, depth)));
+    body.angularVelocity.set(x, y, z);
   }
 
-  addPlane(id) {
+  setGravity(g) {
+    this.physics.gravity.set(0, g, 0);
+  }
+
+  setLinearDamping(id, v) {
     const body = this.getBody(id);
-    body.addShape(new CANNON.Plane());
+    body.linearDamping = v;
   }
 
   setPosition(id, x, y, z) {
@@ -103,31 +123,6 @@ export default class EngineServer {
   setVelocity(id, x, y, z) {
     const body = this.getBody(id);
     body.velocity.set(x, y, z);
-  }
-
-  setAngularVelocity(id, x, y, z) {
-    const body = this.getBody(id);
-    body.angularVelocity.set(x, y, z);
-  }
-
-  setLinearDamping(id, v) {
-    const body = this.getBody(id);
-    body.linearDamping = v;
-  }
-
-  setAngularDamping(id, v) {
-    const body = this.getBody(id);
-    body.angularDamping = v;
-  }
-
-  addSpring(id1, id2, restLength, stiffness, damping) {
-    const body1 = this.getBody(id1),
-      body2 = this.getBody(id2);
-    this.springs.push(new CANNON.Spring(body1, body2, {
-      restLength,
-      stiffness,
-      damping
-    }));
   }
 }
 
