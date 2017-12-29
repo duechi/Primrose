@@ -26,12 +26,12 @@ export default class EntityManager extends BasePlugin {
 
   preUpdate(env, dt) {
     env.scene.traverse(this._find);
+    for(let i = 0; i < this.entities.length; ++i) {
+      this.entities[i].update(dt);
+    }
   }
 
   postUpdate(env, dt) {
-    for(let i = 0; i < this.entities.length; ++i) {
-      this.entities[i].update();
-    }
   }
 
   get count() {
