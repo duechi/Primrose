@@ -4,13 +4,12 @@ export default class EntityManager extends BasePlugin {
   constructor() {
     super("EntityManager");
     this.entities = [];
-    this.entityDB = {};
     this._find =  (child) => {
       if(child.isEntity) {
         const i = this.entities.indexOf(child);
         if(i === -1) {
+          child._index = this.entities.length;
           this.entities.push(child);
-          this.entityDB[child.uuid] = child;
         }
       }
     };
@@ -39,12 +38,6 @@ export default class EntityManager extends BasePlugin {
   }
 
   get(id) {
-    const t = typeof id;
-    if(t === "number") {
-      return this.entities[id];
-    }
-    else if(t === "string") {
-      return this.entityDB[id];
-    }
+    return this.entities[id];
   }
 };

@@ -57,6 +57,7 @@ export default class Entity extends Object3D {
     this.mesh = null;
 
     this.physMapped = false;
+    this._index = null;
 
     this.velocity = new Vector3();
     this.angularVelocity = new Vector3();
@@ -174,29 +175,30 @@ export default class Entity extends Object3D {
 
   newBody(options) {
     this.physMapped = true;
-    this.commands.push(["newBody", this.uuid, options.mass, options.type]);
+    this.commands.push(["newBody", options.mass, options.type]);
   }
 
   addSphere(r) {
-    this.commands.push(["addSphere", this.uuid, r]);
+    this.commands.push(["addSphere", r]);
   }
 
   addPlane() {
-    this.commands.push(["addPlane", this.uuid]);
+    this.commands.push(["addPlane"]);
   }
 
   addBox(w, h, d) {
-    this.commands.push(["addBox", this.uuid, w, h, d]);
+    this.commands.push(["addBox", w, h, d]);
   }
 
   spring(b, options) {
     if(this.physMapped && b.physMapped) {
-      this.commands.push(["addSpring",
-        this.uuid,
-        b.uuid,
+      this.commands.push([
+        "addSpring",
+        b._index,
         options.restLength,
         options.stiffness,
-        options.damping]);
+        options.damping
+      ]);
     }
     else {
       console.warn("Missing physics objects [A, B]: ", this.physMapped, b.physMapped);

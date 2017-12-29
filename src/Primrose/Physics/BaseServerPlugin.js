@@ -2,7 +2,7 @@ import { coalesce, dynamicInvoke } from "../../util";
 
 import BasePlugin from "../BasePlugin";
 
-import { Commands, checkCommands } from "./Commands";
+import { checkCommands } from "./Commands";
 import GroundPhysics from "./GroundPhysics";
 
 
@@ -36,33 +36,35 @@ export default class BaseServerPlugin extends BasePlugin {
     for(let i = 0; i < env.entities.count; ++i) {
       const ent = env.entities.get(i);
       if(ent.physMapped) {
-        for(let i = 0; i < ent.commands.length; ++i) {
-          dynamicInvoke(this, ent.commands[i]);
+        for(let j = 0; j < ent.commands.length; ++j) {
+          const args = ent.commands[j];
+          args.splice(1, 0, i);
+          dynamicInvoke(this, args);
         }
         ent.commands.length = 0;
 
         if(ent.positionChanged) {
-          this.setPosition(ent.uuid, ent.position.x, ent.position.y, ent.position.z);
+          this.setPosition(i, ent.position.x, ent.position.y, ent.position.z);
         }
 
         if(ent.quaternionChanged) {
-          this.setQuaternion(ent.uuid, ent.quaternion.x, ent.quaternion.y, ent.quaternion.z, ent.quaternion.w);
+          this.setQuaternion(i, ent.quaternion.x, ent.quaternion.y, ent.quaternion.z, ent.quaternion.w);
         }
 
         if(ent.velocityChanged) {
-          this.setVelocity(ent.uuid, ent.velocity.x, ent.velocity.y, ent.velocity.z);
+          this.setVelocity(i, ent.velocity.x, ent.velocity.y, ent.velocity.z);
         }
 
         if(ent.angularVelocityChanged) {
-          this.setAngularVelocity(ent.uuid, ent.angularVelocity.x, ent.angularVelocity.y, ent.angularVelocity.z);
+          this.setAngularVelocity(i, ent.angularVelocity.x, ent.angularVelocity.y, ent.angularVelocity.z);
         }
 
         if(ent.linearDampingChanged) {
-          this.setLinearDamping(ent.uuid, ent.linearDamping);
+          this.setLinearDamping(i, ent.linearDamping);
         }
 
         if(ent.angularDampingChanged) {
-          this.setAngularDamping(ent.uuid, ent.angularDamping);
+          this.setAngularDamping(i, ent.angularDamping);
         }
 
         ent.commit();
