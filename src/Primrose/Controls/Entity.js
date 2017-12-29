@@ -175,7 +175,7 @@ export default class Entity extends Object3D {
 
   newBody(options) {
     this.physMapped = true;
-    this.commands.push(["newBody", options.mass, options.type]);
+    this.commands.push(["newBody", options.mass, options.type || 1]);
   }
 
   addSphere(r) {
