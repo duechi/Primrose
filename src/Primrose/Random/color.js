@@ -33,9 +33,22 @@ pliny.function({
 import randInt from "./int";
 
 
-export default function color() {
-  var r = randInt(0, 256),
-    g = randInt(0, 256),
-    b = randInt(0, 256);
-  return r << 16 | g << 8 | b;
+export default function color(n = 256, monochromatic = false) {
+  if(n < 2) {
+    return 0xffffff;
+  }
+  else {
+    const f = 255 / (n - 1),
+      r = f * randInt(0, n);
+
+    let g = r,
+      b = r;
+
+    if(!monochromatic) {
+      g = f * randInt(0, n);
+      b = f * randInt(0, n);
+    }
+
+    return Math.floor(r) << 16 | Math.floor(g) << 8 | Math.floor(b);
+  }
 };
