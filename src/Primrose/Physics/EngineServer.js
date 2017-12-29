@@ -9,7 +9,7 @@ export default class EngineServer {
     this.springs = [];
     this.output = [];
 
-    this.physics.broadphase = new CANNON.NaiveBroadphase();
+    this.physics.broadphase = new CANNON.SAPBroadphase(this.physics);
     this.physics.solver.iterations = 10;
 
     this.physics.addEventListener("postStep", (evt) => {
