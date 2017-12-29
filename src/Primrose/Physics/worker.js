@@ -4,47 +4,52 @@ import dynamicInvoke from "../../util/dynamicInvoke";
 
 import { Commands } from "./Commands";
 import EngineServer from "./EngineServer";
+import RPCBuffer from "./RPCBuffer";
 
 const T = EngineServer.DT * 1000,
   engine = new EngineServer(),
-  data = [],
   wasSleeping = {},
   params = [];
 
 let lastTime = null,
-  timer = null;
+  timer = null,
+  rpc = null;
 
 onmessage = (evt) => {
   if(evt.data === "start") {
     if(timer === null) {
       lastTime = performance.now();
       timer = setInterval(ontick, T);
-      console.log("worker timer started", T);
     }
   }
   else if(evt.data === "stop") {
     if(timer !== null) {
       clearInterval(timer);
       timer = null;
-      console.log("worker timer stopped");
     }
   }
   else {
-    const arr = evt.data;
-    let i = 0;
-    while(i < arr.length) {
-      const commandID = arr[i++],
-        name = Commands[commandID],
-        handler = engine[name];
+    if(rpc === null) {
+      rpc = new RPCBuffer(evt.data);
+    }
+    else {
+      rpc.buffer = evt.data;
+    }
+
+    while(rpc.available) {
+      const cmdID = rpc.remove(),
+        cmd = Commands[cmdID],
+        handler = engine[cmd.name];
       if(handler) {
-        const len = handler.length;
-        params.length = len;
-        for(let j = 0; j < len; ++j) {
-          params[j] = arr[i++];
+        params.length = cmd.params.length;
+        for(let j = 0; j < cmd.params.length; ++j) {
+          params[j] = rpc.remove();
         }
         handler.apply(engine, params);
       }
     }
+
+    rpc.rewind();
   }
 };
 
@@ -55,32 +60,34 @@ function ontick() {
   lastTime = t;
   engine.update(dt);
 
-  let i = 0;
-  for(let n = 0; n < engine.bodyIDs.length; ++n) {
-    const id = engine.bodyIDs[n],
-      body = engine.bodyDB[id],
-      sleeping = body.sleepState === CANNON.Body.SLEEPING;
+  if(rpc && rpc.ready) {
+    for(let n = 0; n < engine.bodyIDs.length; ++n) {
+      const id = engine.bodyIDs[n],
+        body = engine.bodyDB[id],
+        sleeping = body.sleepState === CANNON.Body.SLEEPING;
 
-    if(!sleeping || !wasSleeping[id]) {
-      data[i + 0] = id;
-      data[i + 1] = body.position.x;
-      data[i + 2] = body.position.y;
-      data[i + 3] = body.position.z;
-      data[i + 4] = body.quaternion.x;
-      data[i + 5] = body.quaternion.y;
-      data[i + 6] = body.quaternion.z;
-      data[i + 7] = body.quaternion.w;
-      data[i + 8] = body.velocity.x;
-      data[i + 9] = body.velocity.y;
-      data[i + 10] = body.velocity.z;
-      data[i + 11] = body.angularVelocity.x;
-      data[i + 12] = body.angularVelocity.y;
-      data[i + 13] = body.angularVelocity.z;
-      i += 14;
+      if(!sleeping || !wasSleeping[id]) {
+        rpc.add(id);
+        rpc.add(body.position.x);
+        rpc.add(body.position.y);
+        rpc.add(body.position.z);
+        rpc.add(body.quaternion.x);
+        rpc.add(body.quaternion.y);
+        rpc.add(body.quaternion.z);
+        rpc.add(body.quaternion.w);
+        rpc.add(body.velocity.x);
+        rpc.add(body.velocity.y);
+        rpc.add(body.velocity.z);
+        rpc.add(body.angularVelocity.x);
+        rpc.add(body.angularVelocity.y);
+        rpc.add(body.angularVelocity.z);
+      }
+
+      wasSleeping[id] = sleeping;
     }
 
-    wasSleeping[id] = sleeping;
+    postMessage(rpc.buffer, [rpc.buffer]);
   }
-
-  postMessage(data);
 }
+
+postMessage("ready");

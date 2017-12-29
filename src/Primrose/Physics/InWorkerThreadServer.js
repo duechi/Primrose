@@ -1,47 +1,63 @@
 import BaseServerPlugin from "./BaseServerPlugin";
-import { CommandIDs } from "./Commands";
+import { Commands, CommandIDs } from "./Commands";
+import RPCBuffer from "./RPCBuffer";
 
-const rpcQueue = [];
+const rpc = new RPCBuffer();
 
 function pq() {
-  rpcQueue.push.apply(rpcQueue, arguments);
-}
-
-function recv(ent, arr, i) {
-  if(!ent.changed) {
-    ent.position.fromArray(arr, i + 1);
-    ent.quaternion.fromArray(arr, i + 4);
-    ent.velocity.fromArray(arr, i + 8);
-    ent.angularVelocity.fromArray(arr, i + 11);
-    ent.updateMatrix();
-    ent.commit();
+  for(let i = 0; i < arguments.length; ++i) {
+    rpc.add(arguments[i]);
   }
-  return i + 14;
 }
 
 export default class InWorkerThreadServer extends BaseServerPlugin {
   constructor(options) {
     super(options);
 
+    this.rpc = rpc;
+
     this._workerReady = false;
     this._worker = new Worker(this.options.workerPath);
     this._worker.onmessage = (evt) => {
-      let i = 0;
-      while(i < evt.data.length) {
-        const id = evt.data[i],
-          ent = env.entities.get(id);
-        if(ent) {
-          i = recv(ent, evt.data, i);
-        }
+      if(evt.data === "ready") {
+        this._workerReady = true;
       }
-      this._workerReady = true;
-    };
-  }
+      else {
+        rpc.buffer = evt.data;
 
-  _install(env) {
-    const childDependencies = super._install(env);
-    this._workerReady = true;
-    return childDependencies;
+        while(rpc.available) {
+          const id = rpc.remove(),
+            ent = env.entities.get(id);
+          if(ent && !ent.changed) {
+            ent.position.set(
+              rpc.remove(),
+              rpc.remove(),
+              rpc.remove());
+
+            ent.quaternion.set(
+              rpc.remove(),
+              rpc.remove(),
+              rpc.remove(),
+              rpc.remove());
+
+            ent.velocity.set(
+              rpc.remove(),
+              rpc.remove(),
+              rpc.remove());
+
+            ent.angularVelocity.set(
+              rpc.remove(),
+              rpc.remove(),
+              rpc.remove());
+
+            ent.updateMatrix();
+            ent.commit();
+          }
+        }
+
+        rpc.rewind();
+      }
+    };
   }
 
   start() {
@@ -53,13 +69,9 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
   }
 
   preUpdate(env, dt) {
-    if(this._workerReady) {
+    if(this._workerReady && rpc.ready) {
       super.preUpdate(env, dt);
-      if(rpcQueue.length > 0) {
-        this._workerReady = false;
-        this._worker.postMessage(rpcQueue);
-        rpcQueue.length = 0;
-      }
+      this._worker.postMessage(rpc.buffer, [rpc.buffer]);
     }
   }
 

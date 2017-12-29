@@ -13,6 +13,7 @@ import EntityManager from "./EntityManager";
 import GroundPhysics from "./GroundPhysics";
 import InRenderThreadServer from "./InRenderThreadServer";
 import InWorkerThreadServer from "./InWorkerThreadServer";
+import RPCBuffer from "./RPCBuffer";
 
 export {
   BaseServerPlugin,
@@ -21,7 +22,8 @@ export {
   EntityManager,
   GroundPhysics,
   InRenderThreadServer,
-  InWorkerThreadServer
+  InWorkerThreadServer,
+  RPCBuffer
 };
 
 export default {
@@ -31,5 +33,6 @@ export default {
   EntityManager,
   GroundPhysics,
   InRenderThreadServer,
-  InWorkerThreadServer
+  InWorkerThreadServer,
+  RPCBuffer
 };
