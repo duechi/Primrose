@@ -1,8 +1,7 @@
 import CANNON from "cannon";
 
 export default class EngineServer {
-  constructor(send) {
-    this.send = send;
+  constructor() {
     this.physics = new CANNON.World();
     this.bodyIDs = [];
     this.bodyDB = {};
