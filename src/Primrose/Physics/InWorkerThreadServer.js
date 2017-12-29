@@ -16,6 +16,7 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
 
     this.rpc = rpc;
 
+    this.entities = null;
     this._workerReady = false;
     this._worker = new Worker(this.options.workerPath);
     this._worker.onmessage = (evt) => {
@@ -27,7 +28,7 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
 
         while(rpc.available) {
           const id = rpc.remove(),
-            ent = env.entities.get(id);
+            ent = this.entities.get(id);
           if(ent && !ent.changed) {
             ent.position.set(
               rpc.remove(),
@@ -58,6 +59,11 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
         rpc.rewind();
       }
     };
+  }
+
+  _install(env) {
+    this.entities = env.entities;
+    return super._install(env);
   }
 
   start() {
