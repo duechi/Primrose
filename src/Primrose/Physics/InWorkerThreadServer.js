@@ -22,6 +22,7 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
   constructor(options) {
     super(options);
 
+    this._workerReady = false;
     this._worker = new Worker(this.options.workerPath);
     this._worker.onmessage = (evt) => {
       let i = 0;
@@ -32,7 +33,14 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
           i = recv(ent, evt.data, i);
         }
       }
+      this._workerReady = true;
     };
+  }
+
+  _install(env) {
+    const childDependencies = super._install(env);
+    this._workerReady = true;
+    return childDependencies;
   }
 
   start() {
@@ -44,10 +52,13 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
   }
 
   preUpdate(env, dt) {
-    super.preUpdate(env, dt);
-    if(rpcQueue.length > 0) {
-      this._worker.postMessage(rpcQueue);
-      rpcQueue.length = 0;
+    if(this._workerReady) {
+      super.preUpdate(env, dt);
+      if(rpcQueue.length > 0) {
+        this._workerReady = false;
+        this._worker.postMessage(rpcQueue);
+        rpcQueue.length = 0;
+      }
     }
   }
 
