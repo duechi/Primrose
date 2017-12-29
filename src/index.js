@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 - 2016 Sean T. McBeth <sean@seanmcbeth.com>
+ * Copyright (C) 2014 - 2018 Sean T. McBeth <sean@seanmcbeth.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,14 @@ import * as assets from "./assets";
 import * as flags from "./flags";
 import * as liveAPI from "./live-api";
 import * as util from "./util";
-util.coalesce(window, assets, flags, liveAPI, util);
+import * as THREE from "three";
+import CANNON from "cannon";
+
+util.coalesce(window, assets, flags, liveAPI, util, {
+  THREE,
+  CANNON
+});
+
 // Do this just for side effects, we are monkey-patching Three.js classes with our own utilities.
 import "./THREE";
 export { default } from "./Primrose";
