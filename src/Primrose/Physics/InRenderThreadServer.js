@@ -49,6 +49,10 @@ export default class InRenderThreadServer extends BaseServerPlugin {
     this._engine.newBody(id, mass, type);
   }
 
+  removeBody(id) {
+    this._engine.removeBody(id);
+  }
+
   addSphere(id, radius) {
     this._engine.addSphere(id, radius);
   }

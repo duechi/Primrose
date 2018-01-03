@@ -12,6 +12,7 @@ const Commands = [
   cmd("disableAllowSleep"),
   cmd("enableAllowSleep"),
   cmd("newBody", "Int32", "Float64", "Int32"),
+  cmd("removeBody", "Int32"),
   cmd("setAngularDamping", "Int32", "Float64"),
   cmd("setAngularVelocity", "Int32", "Float64", "Float64", "Float64"),
   cmd("setGravity", "Float64"),

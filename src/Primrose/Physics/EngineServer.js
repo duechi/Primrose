@@ -91,6 +91,29 @@ export default class EngineServer {
     this.physics.addBody(body);
   }
 
+  removeBody(oldID) {
+    const oldBodyDB = this.bodyDB,
+      oldBodyIDs = this.bodyIDs;
+
+    this.bodyDB = {};
+    this.bodyIDs = [];
+    
+    for(let i = 0; i < oldBodyIDs.length; ++i) {
+      const curID = oldBodyIDs[i];
+      if(curID < oldID) {
+        this.bodyDB[curID] = oldBodyDB[curID];
+        this.bodyIDs.push(curID);
+      }
+      else if(curID > oldID) {
+        this.bodyDB[curID - 1] = oldBodyDB[curID];
+        this.bodyIDs.push(curID - 1);
+      }
+      else {
+        this.physics.removeBody(oldBodyDB[curID]);
+      }
+    }
+  }
+
   setAngularDamping(id, v) {
     const body = this.getBody(id);
     body.angularDamping = v;

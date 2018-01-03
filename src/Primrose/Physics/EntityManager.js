@@ -7,7 +7,7 @@ export default class EntityManager extends BasePlugin {
     this._find =  (child) => {
       if(child.isEntity) {
         const i = this.entities.indexOf(child);
-        if(i === -1) {
+        if(child.parent !== null && i === -1) {
           child._index = this.entities.length;
           this.entities.push(child);
         }
@@ -26,7 +26,10 @@ export default class EntityManager extends BasePlugin {
   preUpdate(env, dt) {
     env.scene.traverse(this._find);
     for(let i = 0; i < this.entities.length; ++i) {
-      this.entities[i].update(dt);
+      const child = this.entities[i];
+      if(child.parent !== null) {
+        child.update(dt);  
+      }
     }
   }
 
@@ -39,5 +42,9 @@ export default class EntityManager extends BasePlugin {
 
   get(id) {
     return this.entities[id];
+  }
+
+  remove(id) {
+    return this.entities.splice(id, 1);
   }
 };

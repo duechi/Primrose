@@ -97,6 +97,10 @@ export default class InWorkerThreadServer extends BaseServerPlugin {
     pq(CommandIDs["newBody"], id, mass, type);
   }
 
+  removeBody(id) {
+    pq(CommandIDs["removeBody"], id);
+  }
+
   addSphere(id, radius) {
     pq(CommandIDs["addSphere"], id, radius);
   }
