@@ -119,67 +119,90 @@ Then we can create and use an automatically workerized version of it as follows.
 
 import { EventDispatcher } from "three";
 
+
+function stringify(val) {
+  const type = typeof val;
+  if(type === "function") {
+    return val.toString();
+  }
+  else {
+    let serialized = JSON.stringify(val);
+    if(val instanceof Date) {
+      serialized = `new Date(${serialized})`;
+    }
+    return serialized;
+  }
+}
+
 export default class Workerize extends EventDispatcher {
 
-  static createWorker(script, stripFunc) {
-
-    /*
-    pliny.function({
-      parent: "Util.Workerize",
-      name: "createWorker",
-      description: "A static function that loads Plain Ol' JavaScript Functions into a WebWorker.",
-      parameters: [{
-        name: "script",
-        type: "(String|Function)",
-        description: "A String defining a script, or a Function that can be toString()'d to get it's script."
-      }, {
-        name: "stripFunc",
-        type: "Boolean",
-        description: "Set to true if you want the function to strip the surround function block scope from the script."
-      }],
-      returns: "The WebWorker object."
-    });
-    */
-
-    if (typeof script === "function") {
-      script = script.toString();
-    }
-
-    if (stripFunc) {
-      script = script.trim();
-      var start = script.indexOf('{');
+  /*
+  pliny.function({
+    parent: "Util.Workerize",
+    name: "createWorker",
+    description: "A static function that loads Plain Ol' JavaScript Functions into a WebWorker.",
+    parameters: [{
+      name: "script",
+      type: "(String|Function)",
+      description: "A String defining a script, or a Function that can be toString()'d to get it's script."
+    }, {
+      name: "keepFunctionHeader",
+      type: "Boolean",
+      description: "Set to true if you don't want the function to strip the surround function block scope from the script. Ignored if the script begins with a class."
+    }],
+    returns: "The WebWorker object."
+  });
+  */
+  static createWorker(func, dependencies, keepHeader) {
+    let script = func.toString().trim();
+    
+    if(script.indexOf("function") === 0 && !keepHeader) {
+      const start = script.indexOf('{');
       script = script.substring(start + 1, script.length - 1);
     }
-
-    var blob = new Blob([script], {
-        type: "text/javascript"
-      }),
-      dataURI = URL.createObjectURL(blob);
-
-    return new Worker(dataURI);
+      
+    if(dependencies) {
+      script = dependencies
+        .map((d) => d.toString() + "\n\n")
+        .join("")
+        + script;
+    }
+    
+    const blob = new Blob([script], { type: "text/javascript" }),
+      dataURI = URL.createObjectURL(blob),
+      worker = new Worker(dataURI);
+    
+    return worker;
   }
 
-  constructor(func) {
+  constructor(func, dependencies) {
     super();
-    // First, rebuild the script that defines the class. Since we're dealing
-    // with pre-ES6 browsers, we have to use ES5 syntax in the script, or invoke
-    // a conversion at a point post-script reconstruction, pre-workerization.
 
-    // start with the constructor function
-    var script = func.toString(),
-      // strip out the name in a way that Internet Explorer also understands
-      // (IE doesn't have the Function.name property supported by Chrome and
-      // Firefox)
-      matches = script.match(/function\s+(\w+)\s*\(/),
-      name = matches[1],
-      k;
+    // First, rebuild the script that defines the class.
 
-    // then rebuild the member methods
-    for (k in func.prototype) {
-      // We preserve some formatting so it's easy to read the code in the debug
-      // view. Yes, you'll be able to see the generated code in your browser's
-      // debugger.
-      script += "\n\n" + name + ".prototype." + k + " = " + func.prototype[k].toString() + ";";
+    // start with the constructor function or class definition
+    let script = func.toString();
+
+    // strip out the name in a way that Internet Explorer also understands
+    // (IE doesn't have the Function.name property supported by Chrome and
+    // Firefox)
+    const matches = script.match(/(function|class)(?:\s|\n)+(\w+)/),
+      isFunction = matches[1] === "function",
+      name = matches[2];
+
+    if(isFunction) {
+      // then rebuild the member methods
+      for (let k in func.prototype) {
+        // We preserve some formatting so it's easy to read the code in the debug
+        // view. Yes, you'll be able to see the generated code in your browser's
+        // debugger.
+        script += `\n\n${name}.prototype.${k} = ${stringify(func.prototype[k])};`;
+      }
+    }
+
+    // And the static members
+    for(let k in func) {
+      script += `\n\n${name}\.${k} = ${stringify(func[k])};`;
     }
 
     // Automatically instantiate an object out of the class inside the worker,
@@ -221,7 +244,7 @@ export default class Workerize extends EventDispatcher {
       description: "The worker thread containing our class."
     });
     */
-    this.worker = Workerize.createWorker(script, false);
+    this.worker = Workerize.createWorker(script, dependencies, true);
 
     /*
     pliny.property({
