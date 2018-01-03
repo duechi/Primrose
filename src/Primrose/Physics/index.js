@@ -6,33 +6,33 @@ pliny.namespace({
 });
 */
 
-import BaseServerPlugin from "./BaseServerPlugin";
+import BaseEnginePlugin from "./BaseEnginePlugin";
 import DirectedForceField from "./DirectedForceField";
 import EngineServer from "./EngineServer";
 import EntityManager from "./EntityManager";
 import GroundPhysics from "./GroundPhysics";
-import InRenderThreadServer from "./InRenderThreadServer";
-import InWorkerThreadServer from "./InWorkerThreadServer";
+import InRenderThreadEngine from "./InRenderThreadEngine";
+import InWorkerThreadEngine from "./InWorkerThreadEngine";
 import RPCBuffer from "./RPCBuffer";
 
 export {
-  BaseServerPlugin,
+  BaseEnginePlugin,
   DirectedForceField,
   EngineServer,
   EntityManager,
   GroundPhysics,
-  InRenderThreadServer,
-  InWorkerThreadServer,
+  InRenderThreadEngine,
+  InWorkerThreadEngine,
   RPCBuffer
 };
 
 export default {
-  BaseServerPlugin,
+  BaseEnginePlugin,
   DirectedForceField,
   EngineServer,
   EntityManager,
   GroundPhysics,
-  InRenderThreadServer,
-  InWorkerThreadServer,
+  InRenderThreadEngine,
+  InWorkerThreadEngine,
   RPCBuffer
 };

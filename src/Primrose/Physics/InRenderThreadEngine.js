@@ -1,13 +1,13 @@
 import CANNON from "cannon";
 
-import BaseServerPlugin from "./BaseServerPlugin";
+import BaseEnginePlugin from "./BaseEnginePlugin";
 
 import EngineServer from "./EngineServer";
 
 const data = [],
   evt = { type: "message", data };
 
-export default class InRenderThreadServer extends BaseServerPlugin {
+export default class InRenderThreadEngine extends BaseEnginePlugin {
 
   constructor() {
     super();

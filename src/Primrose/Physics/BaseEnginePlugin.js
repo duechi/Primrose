@@ -6,10 +6,10 @@ import { checkCommands } from "./Commands";
 import GroundPhysics from "./GroundPhysics";
 
 
-export default class BaseServerPlugin extends BasePlugin {
+export default class BaseEnginePlugin extends BasePlugin {
 
   constructor(options, defaults) {
-    super("PhysicsServer", options, coalesce({
+    super("PhysicsEngine", options, coalesce({
       allowSleep: true,
       gravity: -9.8
     }, defaults));

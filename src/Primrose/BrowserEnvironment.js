@@ -10,7 +10,7 @@ import { Ground, Sky, Fader } from "./Controls";
 import { iOSOrientationHack, PresentationUI } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
 import { Clipboard, GamepadManager } from "./Input";
-import { EntityManager, InRenderThreadServer, InWorkerThreadServer } from "./Physics";
+import { EntityManager, InRenderThreadEngine, InWorkerThreadEngine } from "./Physics";
 import { Teleporter } from "./Tools";
 import { Manager } from "./Network";
 
@@ -74,13 +74,13 @@ function normalizeOptions(options) {
 
   if(options.physics) {
     if(typeof options.physics === "string") {
-      add(InWorkerThreadServer, {
+      add(InWorkerThreadEngine, {
         gravity: options.gravity,
         workerPath: options.physics
       });
     }
     else{
-      add(InRenderThreadServer, { gravity: options.gravity });
+      add(InRenderThreadEngine, { gravity: options.gravity });
     }
   }
 

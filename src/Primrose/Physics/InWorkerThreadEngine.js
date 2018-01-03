@@ -1,10 +1,10 @@
-import BaseServerPlugin from "./BaseServerPlugin";
+import BaseEnginePlugin from "./BaseEnginePlugin";
 import { Commands, CommandIDs } from "./Commands";
 import RPCBuffer from "./RPCBuffer";
 
 const rpc = new RPCBuffer();
 
-export default class InWorkerThreadServer extends BaseServerPlugin {
+export default class InWorkerThreadEngine extends BaseEnginePlugin {
   constructor(options) {
     super(options);
 
