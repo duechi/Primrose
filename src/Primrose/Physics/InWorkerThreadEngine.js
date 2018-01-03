@@ -76,38 +76,38 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
   }
 
   setGravity(v) {
-    rpc.add(CommandIDs["setGravity"]);
+    rpc.add(CommandIDs.setGravity);
     rpc.add(v);
   }
 
   enableAllowSleep() {
-    rpc.add(CommandIDs["enableAllowSleep"]);
+    rpc.add(CommandIDs.enableAllowSleep);
   }
 
   disableAllowSleep() {
-    rpc.add(CommandIDs["disableAllowSleep"]);
+    rpc.add(CommandIDs.disableAllowSleep);
   }
 
   newBody(id, mass, type) {
-    rpc.add(CommandIDs["newBody"]);
+    rpc.add(CommandIDs.newBody);
     rpc.add(id);
     rpc.add(mass);
     rpc.add(type);
   }
 
   removeBody(id) {
-    rpc.add(CommandIDs["removeBody"]);
+    rpc.add(CommandIDs.removeBody);
     rpc.add(id);
   }
 
   addSphere(id, radius) {
-    rpc.add(CommandIDs["addSphere"]);
+    rpc.add(CommandIDs.addSphere);
     rpc.add(id);
     rpc.add(radius);
   }
 
   addBox(id, width, height, depth) {
-    rpc.add(CommandIDs["addBox"]);
+    rpc.add(CommandIDs.addBox);
     rpc.add(id);
     rpc.add(width);
     rpc.add(height);
@@ -115,12 +115,12 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
   }
 
   addPlane(id) {
-    rpc.add(CommandIDs["addPlane"]);
+    rpc.add(CommandIDs.addPlane);
     rpc.add(id);
   }
 
   setPosition(id, x, y, z) {
-    rpc.add(CommandIDs["setPosition"]);
+    rpc.add(CommandIDs.setPosition);
     rpc.add(id);
     rpc.add(x);
     rpc.add(y);
@@ -128,7 +128,7 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
   }
 
   setQuaternion(id, x, y, z, w) {
-    rpc.add(CommandIDs["setQuaternion"]);
+    rpc.add(CommandIDs.setQuaternion);
     rpc.add(id);
     rpc.add(x);
     rpc.add(y);
@@ -137,7 +137,7 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
   }
 
   setVelocity(id, x, y, z) {
-    rpc.add(CommandIDs["setVelocity"]);
+    rpc.add(CommandIDs.setVelocity);
     rpc.add(id);
     rpc.add(x);
     rpc.add(y);
@@ -145,7 +145,7 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
   }
 
   setAngularVelocity(id, x, y, z) {
-    rpc.add(CommandIDs["setAngularVelocity"]);
+    rpc.add(CommandIDs.setAngularVelocity);
     rpc.add(id);
     rpc.add(x);
     rpc.add(y);
@@ -153,19 +153,19 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
   }
 
   setLinearDamping(id, v) {
-    rpc.add(CommandIDs["setLinearDamping"]);
+    rpc.add(CommandIDs.setLinearDamping);
     rpc.add(id);
     rpc.add(v);
   }
 
   setAngularDamping(id, v) {
-    rpc.add(CommandIDs["setAngularDamping"]);
+    rpc.add(CommandIDs.setAngularDamping);
     rpc.add(id);
     rpc.add(v);
   }
 
   addSpring(id1, id2, restLength, stiffness, damping) {
-    rpc.add(CommandIDs["addSpring"]);
+    rpc.add(CommandIDs.addSpring);
     rpc.add(id1);
     rpc.add(id2);
     rpc.add(restLength);
