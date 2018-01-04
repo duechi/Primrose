@@ -1,16 +1,19 @@
 var env = new Primrose.BrowserEnvironment({
     fullScreenButtonContainer: "#fullScreenButtonContainer",
-    gravity: 0
+    gravity: -1
   }),
 
   center = hub()
-    .phys({mass: 0})
+    .named("SpringHub")
+    .phys({ mass: 0, type: CANNON.Body.KINEMATIC })
     .addTo(env.scene)
     .at(0, 1.5, -3);
 
-for(var i = 0; i < 500; ++i){
+
+for(let i = 0; i < 10; ++i) {
   sphere(Primrose.Random.number(0.1, 0.2), 20, 20)
     .colored(Primrose.Random.color())
+    .named("Spring" + i)
     .phys({ mass: i + 1 })
     .addTo(env.scene)
     .at(
@@ -26,7 +29,7 @@ for(var i = 0; i < 500; ++i){
     .spring(center, {
       restLength: 1,
       stiffness: 500,
-      drag: 5
+      damping: 5
     })
     .on("enter", function() {
       this.velocity.y = Primrose.Random.number(5, 10);

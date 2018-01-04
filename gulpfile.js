@@ -43,20 +43,20 @@ var gulp = require("gulp"),
     sourceMap: false
   }),
 
-  demos = glob("demos/*/src/index.js").map((entry) => {
-    const name = entry.match(/demos\/(\w+)\/src\/index.js/)[1],
-      fileName = entry.replace("src/index.js", "app.js");
-    return marigold.js({
-      name: "demo_" + name,
-      entry,
-      fileName,
-      advertise: false,
-      sourceMap: false,
-      extractDocumentation: false,
-      format: "umd",
-      watchFiles: srcFiles
-    });
-  }),
+  // demos = glob("demos/*/src/index.js").map((entry) => {
+  //   const name = entry.match(/demos\/(\w+)\/src\/index.js/)[1],
+  //     fileName = entry.replace("src/index.js", "app.js");
+  //   return marigold.js({
+  //     name: "demo_" + name,
+  //     entry,
+  //     fileName,
+  //     advertise: false,
+  //     sourceMap: false,
+  //     extractDocumentation: false,
+  //     format: "umd",
+  //     watchFiles: srcFiles
+  //   });
+  // }),
 
   jsBuild = (name, entry, format) => {
     return marigold.js({
@@ -84,17 +84,17 @@ var gulp = require("gulp"),
     .concat(pugFiles)
     .concat(stylusFiles)
     .concat(preloaderFiles)
-    .concat(srcFiles)
-    .concat(["demos/*/src/*.js"]),
+    // .concat(["demos/*/src/*.js"])
+    .concat(srcFiles),
 
   reloadOnFiles = ["!gulpfile.js"]
     .concat(jsFiles)
     .concat(cssFiles)
-    .concat(htmlFiles)
-    .concat(["demos/*/app.js"]),
+    // .concat(["demos/*/app.js"])
+    .concat(htmlFiles),
 
   devServer = marigold.devServer(stopOnFiles, reloadOnFiles, {
-    debounceDelay: 1500,
+    // debounceDelay: 1000,
     keepOpenOnLastDisconnect: true,
     url: "Primrose/demos/physics1"
   }),
@@ -111,14 +111,14 @@ delete jsESModules.default;
 gulp.task("serve", devServer);
 
 marigold.taskify([
-  html,
-  css,
+  //html,
+  //css,
   //images,
-  preloader,
+  //preloader,
   jsUMD,
-  jsESModules,
+  //jsESModules,
   physics
-].concat(demos), {
+]/*.concat(demos)*/, {
   default: devServer,
   release() {
     gulp.start(tidy.release);

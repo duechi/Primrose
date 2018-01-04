@@ -13691,16 +13691,64 @@ World.prototype.clearForces = function(){
 });
 });
 
+function cmd() {
+  const params = Array.prototype.slice.call(arguments),
+    name = params.splice(0, 1);
+  return { name, params };
+}
+
+const Commands = [
+  cmd("addBox", "Int32", "Float64", "Float64", "Float64"),
+  cmd("addPlane", "Int32"),
+  cmd("addSphere", "Int32", "Float64"),
+  cmd("addSpring", "Int32", "Int32", "Float64", "Float64", "Float64"),
+  cmd("disableAllowSleep"),
+  cmd("enableAllowSleep"),
+  cmd("newBody", "Int32", "Float64", "Int32"),
+  cmd("removeBody", "Int32"),
+  cmd("setAngularDamping", "Int32", "Float64"),
+  cmd("setAngularVelocity", "Int32", "Float64", "Float64", "Float64"),
+  cmd("setGravity", "Float64"),
+  cmd("setLinearDamping", "Int32", "Float64"),
+  cmd("setPosition", "Int32", "Float64", "Float64", "Float64"),
+  cmd("setQuaternion", "Int32", "Float64", "Float64", "Float64", "Float64"),
+  cmd("setVelocity", "Int32", "Float64", "Float64", "Float64")
+];
+const CommandIDs = {};
+
+for(let i = 0; i < Commands.length; ++i) {
+  CommandIDs[Commands[i].name] = i;
+}
+
+function checkCommands(obj, reqs = []) {
+  for(let i = 0; i < Commands.length; ++i) {
+    const cmd = Commands[i],
+      handler = obj[cmd.name];
+    if(typeof handler !== "function") {
+      reqs.push("Physics server plugin does not implement command: " + cmd.name);
+    }
+    else if(handler.length !== cmd.params.length) {
+      reqs.push(`Physics server plugin's implementation of command: ${cmd.name} had ${handler.length} parameters when ${cmd.params.length} were expected.`);
+    }
+  }
+  return reqs;
+}
+
 class EngineServer {
-  constructor(send) {
-    this.send = send;
+  constructor() {
+
+    const reqs = checkCommands(this);
+    if(reqs.length > 0) {
+      throw new Error(reqs.join("/n"));
+    }
+
     this.physics = new cannon.World();
     this.bodyIDs = [];
     this.bodyDB = {};
     this.springs = [];
     this.output = [];
 
-    this.physics.broadphase = new cannon.NaiveBroadphase();
+    this.physics.broadphase = new cannon.SAPBroadphase(this.physics);
     this.physics.solver.iterations = 10;
 
     this.physics.addEventListener("postStep", (evt) => {
@@ -13714,33 +13762,54 @@ class EngineServer {
     this.physics.step(EngineServer.DT, dt);
   }
 
-  enableAllowSleep() {
-    this.physics.allowSleep = true;
-  }
-
-  disableAllowSleep(v) {
-    this.physics.allowSleep = false;
-  }
-
-  setGravity(g) {
-    this.physics.gravity.set(0, g, 0);
-  }
-
   sleepBody(evt) {
     //console.log(this, evt.target);
   }
 
   getBody(id) {
     const body = this.bodyDB[id];
-    if(!body)  {
-      console.error("Don't recognize body", id);
+    if(!body) {
+      console.log("don't have", id, this.bodyIDs);
     }
-    else {
-      if(body.sleepState === cannon.Body.SLEEPING) {
-        body.wakeUp();
-      }
-      return body;
+    else if(body.sleepState === cannon.Body.SLEEPING) {
+      body.wakeUp();
     }
+    return body;
+  }
+
+  addBox(id, width, height, depth) {
+    const body = this.getBody(id);
+    body.addShape(
+      new cannon.Box(
+        new cannon.Vec3(width, height, depth)));
+  }
+
+  addSphere(id, radius) {
+    const body = this.getBody(id);
+    body.addShape(new cannon.Sphere(radius));
+  }
+
+  addPlane(id) {
+    const body = this.getBody(id);
+    body.addShape(new cannon.Plane());
+  }
+
+  addSpring(id1, id2, restLength, stiffness, damping) {
+    const body1 = this.getBody(id1),
+      body2 = this.getBody(id2);
+    this.springs.push(new cannon.Spring(body1, body2, {
+      restLength,
+      stiffness,
+      damping
+    }));
+  }
+
+  disableAllowSleep() {
+    this.physics.allowSleep = false;
+  }
+
+  enableAllowSleep() {
+    this.physics.allowSleep = true;
   }
 
   newBody(id, mass, type) {
@@ -13757,21 +13826,46 @@ class EngineServer {
     this.physics.addBody(body);
   }
 
-  addSphere(id, radius) {
-    const body = this.getBody(id);
-    body.addShape(new cannon.Sphere(radius));
+  removeBody(oldID) {
+    const oldBodyDB = this.bodyDB,
+      oldBodyIDs = this.bodyIDs;
+
+    this.bodyDB = {};
+    this.bodyIDs = [];
+    
+    for(let i = 0; i < oldBodyIDs.length; ++i) {
+      const curID = oldBodyIDs[i];
+      if(curID < oldID) {
+        this.bodyDB[curID] = oldBodyDB[curID];
+        this.bodyIDs.push(curID);
+      }
+      else if(curID > oldID) {
+        this.bodyDB[curID - 1] = oldBodyDB[curID];
+        this.bodyIDs.push(curID - 1);
+      }
+      else {
+        this.physics.removeBody(oldBodyDB[curID]);
+      }
+    }
   }
 
-  addBox(id, width, height, depth) {
+  setAngularDamping(id, v) {
     const body = this.getBody(id);
-    body.addShape(
-      new cannon.Box(
-        new cannon.Vec3(width, height, depth)));
+    body.angularDamping = v;
   }
 
-  addPlane(id) {
+  setAngularVelocity(id, x, y, z) {
     const body = this.getBody(id);
-    body.addShape(new cannon.Plane());
+    body.angularVelocity.set(x, y, z);
+  }
+
+  setGravity(g) {
+    this.physics.gravity.set(0, g, 0);
+  }
+
+  setLinearDamping(id, v) {
+    const body = this.getBody(id);
+    body.linearDamping = v;
   }
 
   setPosition(id, x, y, z) {
@@ -13788,74 +13882,126 @@ class EngineServer {
     const body = this.getBody(id);
     body.velocity.set(x, y, z);
   }
-
-  setAngularVelocity(id, x, y, z) {
-    const body = this.getBody(id);
-    body.angularVelocity.set(x, y, z);
-  }
-
-  setLinearDamping(id, v) {
-    const body = this.getBody(id);
-    body.linearDamping = v;
-  }
-
-  setAngularDamping(id, v) {
-    const body = this.getBody(id);
-    body.angularDamping = v;
-  }
-
-  addSpring(id1, id2, restLength, stiffness, damping) {
-    const body1 = this.getBody(id1),
-      body2 = this.getBody(id2);
-    this.springs.push(new cannon.Spring(body1, body2, {
-      restLength,
-      stiffness,
-      damping
-    }));
-  }
 }
 
 EngineServer.DT = 0.01;
 
+const DATA_START = 1;
+const DATA_LENGTH = 80000000;
+const PTR = Symbol("PTR");
+const DV = Symbol("DV");
+
+class RPCBuffer {
+  constructor(buffer) {
+    if(buffer) {
+      this.buffer = buffer;
+    }
+    else {
+      this.buffer = new ArrayBuffer(DATA_LENGTH);
+      this.rewind();
+    }
+  }
+
+  set buffer(v) {
+    this[DV] = new Float64Array(v);
+    this[PTR] = DATA_START;
+  }
+
+  get buffer() {
+    return this[DV].buffer;
+  }
+
+  get ready() {
+    return this.buffer.byteLength > 0;
+  }
+
+  get length() {
+    if(this.ready) {
+      return this[DV][0];
+    }
+  }
+
+  set length(v) {
+    if(this.ready) {
+      this[DV][0] = v;
+    }
+  }
+
+  get available() {
+    return this[PTR] < this.length;
+  }
+
+  get full() {
+    return this.length === DATA_LENGTH;
+  }
+
+  add(v) {
+    if(this.ready && !this.full) {
+      this[DV][this.length++] = v;
+    }
+  }
+
+  remove() {
+    if(this.ready && this.available) {
+      return this[DV][this[PTR]++];
+    }
+  }
+
+  rewind() {
+    this[PTR] = DATA_START;
+    this.length = DATA_START;
+  }
+}
+
 const T = EngineServer.DT * 1000;
 const engine = new EngineServer();
-const data = [];
 const wasSleeping = {};
 const params = [];
+const returner = { messageID: null };
 
 let lastTime = null;
 let timer = null;
+let rpc = new RPCBuffer();
+
+function start() {
+  if(timer === null) {
+    lastTime = performance.now();
+    timer = setInterval(ontick, T);
+  }
+}
 
 onmessage = (evt) => {
   if(evt.data === "start") {
-    if(timer === null) {
-      lastTime = performance.now();
-      timer = setInterval(ontick, T);
-      console.log("worker timer started", T);
-    }
+    start();
   }
   else if(evt.data === "stop") {
     if(timer !== null) {
       clearInterval(timer);
       timer = null;
-      console.log("worker timer stopped");
     }
   }
   else {
-    const arr = evt.data;
-    let i = 0;
-    while(i < arr.length) {
-      const name = arr[i++],
-        handler = engine[name];
+    rpc.buffer = evt.data;
+
+    while(rpc.available) {
+      const cmdID = rpc.remove(),
+        cmd = Commands[cmdID],
+        handler = engine[cmd.name];
       if(handler) {
-        const len = handler.length;
-        params.length = len;
-        for(let j = 0; j < len; ++j) {
-          params[j] = arr[i++];
+        params.length = cmd.params.length;
+        for(let j = 0; j < cmd.params.length; ++j) {
+          params[j] = rpc.remove();
         }
         handler.apply(engine, params);
       }
     }
+
+    rpc.rewind();
+  }
+
+  returner.messageID = evt.data.messageID;
+  if(returner.messageID) {
+    postMessage(returner);
   }
 };
 
@@ -13866,35 +14012,37 @@ function ontick() {
   lastTime = t;
   engine.update(dt);
 
-  let i = 0;
-  for(let n = 0; n < engine.bodyIDs.length; ++n) {
-    const id = engine.bodyIDs[n],
-      body = engine.bodyDB[id],
-      sleeping = body.sleepState === cannon.Body.SLEEPING;
+  if(rpc.ready) {
+    for(let n = 0; n < engine.bodyIDs.length; ++n) {
+      const id = engine.bodyIDs[n],
+        body = engine.bodyDB[id],
+        sleeping = body.sleepState === cannon.Body.SLEEPING;
 
-    if(!sleeping || !wasSleeping[id]) {
-      data[i + 0] = id;
-      data[i + 1] = body.position.x;
-      data[i + 2] = body.position.y;
-      data[i + 3] = body.position.z;
-      data[i + 4] = body.quaternion.x;
-      data[i + 5] = body.quaternion.y;
-      data[i + 6] = body.quaternion.z;
-      data[i + 7] = body.quaternion.w;
-      data[i + 8] = body.velocity.x;
-      data[i + 9] = body.velocity.y;
-      data[i + 10] = body.velocity.z;
-      data[i + 11] = body.angularVelocity.x;
-      data[i + 12] = body.angularVelocity.y;
-      data[i + 13] = body.angularVelocity.z;
-      i += 14;
+      if(!sleeping || !wasSleeping[id]) {
+        rpc.add(id);
+        rpc.add(body.position.x);
+        rpc.add(body.position.y);
+        rpc.add(body.position.z);
+        rpc.add(body.quaternion.x);
+        rpc.add(body.quaternion.y);
+        rpc.add(body.quaternion.z);
+        rpc.add(body.quaternion.w);
+        rpc.add(body.velocity.x);
+        rpc.add(body.velocity.y);
+        rpc.add(body.velocity.z);
+        rpc.add(body.angularVelocity.x);
+        rpc.add(body.angularVelocity.y);
+        rpc.add(body.angularVelocity.z);
+      }
+
+      wasSleeping[id] = sleeping;
     }
 
-    wasSleeping[id] = sleeping;
+    postMessage(rpc.buffer, [rpc.buffer]);
   }
-
-  postMessage(data);
 }
+
+start();
 
 })));
 //# sourceMappingURL=PrimrosePhysics.js.map

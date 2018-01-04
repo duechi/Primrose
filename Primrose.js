@@ -674,10 +674,14 @@ Object.assign( EventDispatcher.prototype, {
 } );
 
 var REVISION = '85';
+var MOUSE = { LEFT: 0, MIDDLE: 1, RIGHT: 2 };
 var CullFaceNone = 0;
 var CullFaceBack = 1;
 var CullFaceFront = 2;
+var CullFaceFrontBack = 3;
 var FrontFaceDirectionCW = 0;
+var FrontFaceDirectionCCW = 1;
+var BasicShadowMap = 0;
 var PCFShadowMap = 1;
 var PCFSoftShadowMap = 2;
 var FrontSide = 0;
@@ -760,6 +764,7 @@ var RGBFormat = 1022;
 var RGBAFormat = 1023;
 var LuminanceFormat = 1024;
 var LuminanceAlphaFormat = 1025;
+var RGBEFormat = RGBAFormat;
 var DepthFormat = 1026;
 var DepthStencilFormat = 1027;
 var RGB_S3TC_DXT1_Format = 2001;
@@ -787,6 +792,7 @@ var LinearEncoding = 3000;
 var sRGBEncoding = 3001;
 var GammaEncoding = 3007;
 var RGBEEncoding = 3002;
+var LogLuvEncoding = 3003;
 var RGBM7Encoding = 3004;
 var RGBM16Encoding = 3005;
 var RGBDEncoding = 3006;
@@ -2422,6 +2428,24 @@ Object.assign( WebGLRenderTarget.prototype, EventDispatcher.prototype, {
 	}
 
 } );
+
+/**
+ * @author alteredq / http://alteredqualia.com
+ */
+
+function WebGLRenderTargetCube( width, height, options ) {
+
+	WebGLRenderTarget.call( this, width, height, options );
+
+	this.activeCubeFace = 0; // PX 0, NX 1, PY 2, NY 3, PZ 4, NZ 5
+	this.activeMipMapLevel = 0;
+
+}
+
+WebGLRenderTargetCube.prototype = Object.create( WebGLRenderTarget.prototype );
+WebGLRenderTargetCube.prototype.constructor = WebGLRenderTargetCube;
+
+WebGLRenderTargetCube.prototype.isWebGLRenderTargetCube = true;
 
 /**
  * @author mikael emtinger / http://gomo.se/
@@ -12488,6 +12512,48 @@ Object.assign( BufferAttribute.prototype, {
 
 } );
 
+//
+
+function Int8BufferAttribute( array, itemSize ) {
+
+	BufferAttribute.call( this, new Int8Array( array ), itemSize );
+
+}
+
+Int8BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
+Int8BufferAttribute.prototype.constructor = Int8BufferAttribute;
+
+
+function Uint8BufferAttribute( array, itemSize ) {
+
+	BufferAttribute.call( this, new Uint8Array( array ), itemSize );
+
+}
+
+Uint8BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
+Uint8BufferAttribute.prototype.constructor = Uint8BufferAttribute;
+
+
+function Uint8ClampedBufferAttribute( array, itemSize ) {
+
+	BufferAttribute.call( this, new Uint8ClampedArray( array ), itemSize );
+
+}
+
+Uint8ClampedBufferAttribute.prototype = Object.create( BufferAttribute.prototype );
+Uint8ClampedBufferAttribute.prototype.constructor = Uint8ClampedBufferAttribute;
+
+
+function Int16BufferAttribute( array, itemSize ) {
+
+	BufferAttribute.call( this, new Int16Array( array ), itemSize );
+
+}
+
+Int16BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
+Int16BufferAttribute.prototype.constructor = Int16BufferAttribute;
+
+
 function Uint16BufferAttribute( array, itemSize ) {
 
 	BufferAttribute.call( this, new Uint16Array( array ), itemSize );
@@ -12496,6 +12562,16 @@ function Uint16BufferAttribute( array, itemSize ) {
 
 Uint16BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
 Uint16BufferAttribute.prototype.constructor = Uint16BufferAttribute;
+
+
+function Int32BufferAttribute( array, itemSize ) {
+
+	BufferAttribute.call( this, new Int32Array( array ), itemSize );
+
+}
+
+Int32BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
+Int32BufferAttribute.prototype.constructor = Int32BufferAttribute;
 
 
 function Uint32BufferAttribute( array, itemSize ) {
@@ -12517,6 +12593,15 @@ function Float32BufferAttribute( array, itemSize ) {
 Float32BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
 Float32BufferAttribute.prototype.constructor = Float32BufferAttribute;
 
+
+function Float64BufferAttribute( array, itemSize ) {
+
+	BufferAttribute.call( this, new Float64Array( array ), itemSize );
+
+}
+
+Float64BufferAttribute.prototype = Object.create( BufferAttribute.prototype );
+Float64BufferAttribute.prototype.constructor = Float64BufferAttribute;
 
 /**
  * @author mrdoob / http://mrdoob.com/
@@ -24468,6 +24553,37 @@ Group.prototype = Object.assign( Object.create( Object3D.prototype ), {
 } );
 
 /**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+function VideoTexture( video, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy ) {
+
+	Texture.call( this, video, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy );
+
+	this.generateMipmaps = false;
+
+	var scope = this;
+
+	function update() {
+
+		requestAnimationFrame( update );
+
+		if ( video.readyState >= video.HAVE_CURRENT_DATA ) {
+
+			scope.needsUpdate = true;
+
+		}
+
+	}
+
+	update();
+
+}
+
+VideoTexture.prototype = Object.create( Texture.prototype );
+VideoTexture.prototype.constructor = VideoTexture;
+
+/**
  * @author alteredq / http://alteredqualia.com/
  */
 
@@ -24494,6 +24610,55 @@ CompressedTexture.prototype = Object.create( Texture.prototype );
 CompressedTexture.prototype.constructor = CompressedTexture;
 
 CompressedTexture.prototype.isCompressedTexture = true;
+
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+function CanvasTexture( canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy ) {
+
+	Texture.call( this, canvas, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy );
+
+	this.needsUpdate = true;
+
+}
+
+CanvasTexture.prototype = Object.create( Texture.prototype );
+CanvasTexture.prototype.constructor = CanvasTexture;
+
+/**
+ * @author Matt DesLauriers / @mattdesl
+ * @author atix / arthursilber.de
+ */
+
+function DepthTexture( width, height, type, mapping, wrapS, wrapT, magFilter, minFilter, anisotropy, format ) {
+
+	format = format !== undefined ? format : DepthFormat;
+
+	if ( format !== DepthFormat && format !== DepthStencilFormat ) {
+
+		throw new Error( 'DepthTexture format must be either THREE.DepthFormat or THREE.DepthStencilFormat' )
+
+	}
+
+	if ( type === undefined && format === DepthFormat ) type = UnsignedShortType;
+	if ( type === undefined && format === DepthStencilFormat ) type = UnsignedInt248Type;
+
+	Texture.call( this, null, mapping, wrapS, wrapT, magFilter, minFilter, format, type, anisotropy );
+
+	this.image = { width: width, height: height };
+
+	this.magFilter = magFilter !== undefined ? magFilter : NearestFilter;
+	this.minFilter = minFilter !== undefined ? minFilter : NearestFilter;
+
+	this.flipY = false;
+	this.generateMipmaps	= false;
+
+}
+
+DepthTexture.prototype = Object.create( Texture.prototype );
+DepthTexture.prototype.constructor = DepthTexture;
+DepthTexture.prototype.isDepthTexture = true;
 
 /**
  * @author mrdoob / http://mrdoob.com/
@@ -36167,6 +36332,94 @@ Object.assign( StereoCamera.prototype, {
 } );
 
 /**
+ * Camera for rendering cube maps
+ *	- renders scene into axis-aligned cube
+ *
+ * @author alteredq / http://alteredqualia.com/
+ */
+
+function CubeCamera( near, far, cubeResolution ) {
+
+	Object3D.call( this );
+
+	this.type = 'CubeCamera';
+
+	var fov = 90, aspect = 1;
+
+	var cameraPX = new PerspectiveCamera( fov, aspect, near, far );
+	cameraPX.up.set( 0, - 1, 0 );
+	cameraPX.lookAt( new Vector3( 1, 0, 0 ) );
+	this.add( cameraPX );
+
+	var cameraNX = new PerspectiveCamera( fov, aspect, near, far );
+	cameraNX.up.set( 0, - 1, 0 );
+	cameraNX.lookAt( new Vector3( - 1, 0, 0 ) );
+	this.add( cameraNX );
+
+	var cameraPY = new PerspectiveCamera( fov, aspect, near, far );
+	cameraPY.up.set( 0, 0, 1 );
+	cameraPY.lookAt( new Vector3( 0, 1, 0 ) );
+	this.add( cameraPY );
+
+	var cameraNY = new PerspectiveCamera( fov, aspect, near, far );
+	cameraNY.up.set( 0, 0, - 1 );
+	cameraNY.lookAt( new Vector3( 0, - 1, 0 ) );
+	this.add( cameraNY );
+
+	var cameraPZ = new PerspectiveCamera( fov, aspect, near, far );
+	cameraPZ.up.set( 0, - 1, 0 );
+	cameraPZ.lookAt( new Vector3( 0, 0, 1 ) );
+	this.add( cameraPZ );
+
+	var cameraNZ = new PerspectiveCamera( fov, aspect, near, far );
+	cameraNZ.up.set( 0, - 1, 0 );
+	cameraNZ.lookAt( new Vector3( 0, 0, - 1 ) );
+	this.add( cameraNZ );
+
+	var options = { format: RGBFormat, magFilter: LinearFilter, minFilter: LinearFilter };
+
+	this.renderTarget = new WebGLRenderTargetCube( cubeResolution, cubeResolution, options );
+	this.renderTarget.texture.name = "CubeCamera";
+
+	this.updateCubeMap = function ( renderer, scene ) {
+
+		if ( this.parent === null ) this.updateMatrixWorld();
+
+		var renderTarget = this.renderTarget;
+		var generateMipmaps = renderTarget.texture.generateMipmaps;
+
+		renderTarget.texture.generateMipmaps = false;
+
+		renderTarget.activeCubeFace = 0;
+		renderer.render( scene, cameraPX, renderTarget );
+
+		renderTarget.activeCubeFace = 1;
+		renderer.render( scene, cameraNX, renderTarget );
+
+		renderTarget.activeCubeFace = 2;
+		renderer.render( scene, cameraPY, renderTarget );
+
+		renderTarget.activeCubeFace = 3;
+		renderer.render( scene, cameraNY, renderTarget );
+
+		renderTarget.activeCubeFace = 4;
+		renderer.render( scene, cameraPZ, renderTarget );
+
+		renderTarget.texture.generateMipmaps = generateMipmaps;
+
+		renderTarget.activeCubeFace = 5;
+		renderer.render( scene, cameraNZ, renderTarget );
+
+		renderer.setRenderTarget( null );
+
+	};
+
+}
+
+CubeCamera.prototype = Object.create( Object3D.prototype );
+CubeCamera.prototype.constructor = CubeCamera;
+
+/**
  * @author mrdoob / http://mrdoob.com/
  */
 
@@ -40120,6 +40373,340 @@ Object.assign( Cylindrical.prototype, {
 } );
 
 /**
+ * @author alteredq / http://alteredqualia.com/
+ */
+
+function MorphBlendMesh( geometry, material ) {
+
+	Mesh.call( this, geometry, material );
+
+	this.animationsMap = {};
+	this.animationsList = [];
+
+	// prepare default animation
+	// (all frames played together in 1 second)
+
+	var numFrames = this.geometry.morphTargets.length;
+
+	var name = "__default";
+
+	var startFrame = 0;
+	var endFrame = numFrames - 1;
+
+	var fps = numFrames / 1;
+
+	this.createAnimation( name, startFrame, endFrame, fps );
+	this.setAnimationWeight( name, 1 );
+
+}
+
+MorphBlendMesh.prototype = Object.create( Mesh.prototype );
+MorphBlendMesh.prototype.constructor = MorphBlendMesh;
+
+MorphBlendMesh.prototype.createAnimation = function ( name, start, end, fps ) {
+
+	var animation = {
+
+		start: start,
+		end: end,
+
+		length: end - start + 1,
+
+		fps: fps,
+		duration: ( end - start ) / fps,
+
+		lastFrame: 0,
+		currentFrame: 0,
+
+		active: false,
+
+		time: 0,
+		direction: 1,
+		weight: 1,
+
+		directionBackwards: false,
+		mirroredLoop: false
+
+	};
+
+	this.animationsMap[ name ] = animation;
+	this.animationsList.push( animation );
+
+};
+
+MorphBlendMesh.prototype.autoCreateAnimations = function ( fps ) {
+
+	var pattern = /([a-z]+)_?(\d+)/i;
+
+	var firstAnimation, frameRanges = {};
+
+	var geometry = this.geometry;
+
+	for ( var i = 0, il = geometry.morphTargets.length; i < il; i ++ ) {
+
+		var morph = geometry.morphTargets[ i ];
+		var chunks = morph.name.match( pattern );
+
+		if ( chunks && chunks.length > 1 ) {
+
+			var name = chunks[ 1 ];
+
+			if ( ! frameRanges[ name ] ) frameRanges[ name ] = { start: Infinity, end: - Infinity };
+
+			var range = frameRanges[ name ];
+
+			if ( i < range.start ) range.start = i;
+			if ( i > range.end ) range.end = i;
+
+			if ( ! firstAnimation ) firstAnimation = name;
+
+		}
+
+	}
+
+	for ( var name in frameRanges ) {
+
+		var range = frameRanges[ name ];
+		this.createAnimation( name, range.start, range.end, fps );
+
+	}
+
+	this.firstAnimation = firstAnimation;
+
+};
+
+MorphBlendMesh.prototype.setAnimationDirectionForward = function ( name ) {
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		animation.direction = 1;
+		animation.directionBackwards = false;
+
+	}
+
+};
+
+MorphBlendMesh.prototype.setAnimationDirectionBackward = function ( name ) {
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		animation.direction = - 1;
+		animation.directionBackwards = true;
+
+	}
+
+};
+
+MorphBlendMesh.prototype.setAnimationFPS = function ( name, fps ) {
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		animation.fps = fps;
+		animation.duration = ( animation.end - animation.start ) / animation.fps;
+
+	}
+
+};
+
+MorphBlendMesh.prototype.setAnimationDuration = function ( name, duration ) {
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		animation.duration = duration;
+		animation.fps = ( animation.end - animation.start ) / animation.duration;
+
+	}
+
+};
+
+MorphBlendMesh.prototype.setAnimationWeight = function ( name, weight ) {
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		animation.weight = weight;
+
+	}
+
+};
+
+MorphBlendMesh.prototype.setAnimationTime = function ( name, time ) {
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		animation.time = time;
+
+	}
+
+};
+
+MorphBlendMesh.prototype.getAnimationTime = function ( name ) {
+
+	var time = 0;
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		time = animation.time;
+
+	}
+
+	return time;
+
+};
+
+MorphBlendMesh.prototype.getAnimationDuration = function ( name ) {
+
+	var duration = - 1;
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		duration = animation.duration;
+
+	}
+
+	return duration;
+
+};
+
+MorphBlendMesh.prototype.playAnimation = function ( name ) {
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		animation.time = 0;
+		animation.active = true;
+
+	} else {
+
+		console.warn( "THREE.MorphBlendMesh: animation[" + name + "] undefined in .playAnimation()" );
+
+	}
+
+};
+
+MorphBlendMesh.prototype.stopAnimation = function ( name ) {
+
+	var animation = this.animationsMap[ name ];
+
+	if ( animation ) {
+
+		animation.active = false;
+
+	}
+
+};
+
+MorphBlendMesh.prototype.update = function ( delta ) {
+
+	for ( var i = 0, il = this.animationsList.length; i < il; i ++ ) {
+
+		var animation = this.animationsList[ i ];
+
+		if ( ! animation.active ) continue;
+
+		var frameTime = animation.duration / animation.length;
+
+		animation.time += animation.direction * delta;
+
+		if ( animation.mirroredLoop ) {
+
+			if ( animation.time > animation.duration || animation.time < 0 ) {
+
+				animation.direction *= - 1;
+
+				if ( animation.time > animation.duration ) {
+
+					animation.time = animation.duration;
+					animation.directionBackwards = true;
+
+				}
+
+				if ( animation.time < 0 ) {
+
+					animation.time = 0;
+					animation.directionBackwards = false;
+
+				}
+
+			}
+
+		} else {
+
+			animation.time = animation.time % animation.duration;
+
+			if ( animation.time < 0 ) animation.time += animation.duration;
+
+		}
+
+		var keyframe = animation.start + _Math.clamp( Math.floor( animation.time / frameTime ), 0, animation.length - 1 );
+		var weight = animation.weight;
+
+		if ( keyframe !== animation.currentFrame ) {
+
+			this.morphTargetInfluences[ animation.lastFrame ] = 0;
+			this.morphTargetInfluences[ animation.currentFrame ] = 1 * weight;
+
+			this.morphTargetInfluences[ keyframe ] = 0;
+
+			animation.lastFrame = animation.currentFrame;
+			animation.currentFrame = keyframe;
+
+		}
+
+		var mix = ( animation.time % frameTime ) / frameTime;
+
+		if ( animation.directionBackwards ) mix = 1 - mix;
+
+		if ( animation.currentFrame !== animation.lastFrame ) {
+
+			this.morphTargetInfluences[ animation.currentFrame ] = mix * weight;
+			this.morphTargetInfluences[ animation.lastFrame ] = ( 1 - mix ) * weight;
+
+		} else {
+
+			this.morphTargetInfluences[ animation.currentFrame ] = weight;
+
+		}
+
+	}
+
+};
+
+/**
+ * @author alteredq / http://alteredqualia.com/
+ */
+
+function ImmediateRenderObject( material ) {
+
+	Object3D.call( this );
+
+	this.material = material;
+	this.render = function ( renderCallback ) {};
+
+}
+
+ImmediateRenderObject.prototype = Object.create( Object3D.prototype );
+ImmediateRenderObject.prototype.constructor = ImmediateRenderObject;
+
+ImmediateRenderObject.prototype.isImmediateRenderObject = true;
+
+/**
  * @author mrdoob / http://mrdoob.com/
  * @author WestLangley / http://github.com/WestLangley
 */
@@ -40264,6 +40851,88 @@ VertexNormalsHelper.prototype.update = ( function () {
 }() );
 
 /**
+ * @author alteredq / http://alteredqualia.com/
+ * @author mrdoob / http://mrdoob.com/
+ * @author WestLangley / http://github.com/WestLangley
+*/
+
+function SpotLightHelper( light ) {
+
+	Object3D.call( this );
+
+	this.light = light;
+	this.light.updateMatrixWorld();
+
+	this.matrix = light.matrixWorld;
+	this.matrixAutoUpdate = false;
+
+	var geometry = new BufferGeometry();
+
+	var positions = [
+		0, 0, 0,   0,   0,   1,
+		0, 0, 0,   1,   0,   1,
+		0, 0, 0, - 1,   0,   1,
+		0, 0, 0,   0,   1,   1,
+		0, 0, 0,   0, - 1,   1
+	];
+
+	for ( var i = 0, j = 1, l = 32; i < l; i ++, j ++ ) {
+
+		var p1 = ( i / l ) * Math.PI * 2;
+		var p2 = ( j / l ) * Math.PI * 2;
+
+		positions.push(
+			Math.cos( p1 ), Math.sin( p1 ), 1,
+			Math.cos( p2 ), Math.sin( p2 ), 1
+		);
+
+	}
+
+	geometry.addAttribute( 'position', new Float32BufferAttribute( positions, 3 ) );
+
+	var material = new LineBasicMaterial( { fog: false } );
+
+	this.cone = new LineSegments( geometry, material );
+	this.add( this.cone );
+
+	this.update();
+
+}
+
+SpotLightHelper.prototype = Object.create( Object3D.prototype );
+SpotLightHelper.prototype.constructor = SpotLightHelper;
+
+SpotLightHelper.prototype.dispose = function () {
+
+	this.cone.geometry.dispose();
+	this.cone.material.dispose();
+
+};
+
+SpotLightHelper.prototype.update = function () {
+
+	var vector = new Vector3();
+	var vector2 = new Vector3();
+
+	return function update() {
+
+		var coneLength = this.light.distance ? this.light.distance : 1000;
+		var coneWidth = coneLength * Math.tan( this.light.angle );
+
+		this.cone.scale.set( coneWidth, coneWidth, coneLength );
+
+		vector.setFromMatrixPosition( this.light.matrixWorld );
+		vector2.setFromMatrixPosition( this.light.target.matrixWorld );
+
+		this.cone.lookAt( vector2.sub( vector ) );
+
+		this.cone.material.color.copy( this.light.color );
+
+	};
+
+}();
+
+/**
  * @author Sean Griffin / http://twitter.com/sgrif
  * @author Michael Guerrero / http://realitymeltdown.com
  * @author mrdoob / http://mrdoob.com/
@@ -40381,6 +41050,146 @@ SkeletonHelper.prototype.update = function () {
 /**
  * @author alteredq / http://alteredqualia.com/
  * @author mrdoob / http://mrdoob.com/
+ */
+
+function PointLightHelper( light, sphereSize ) {
+
+	this.light = light;
+	this.light.updateMatrixWorld();
+
+	var geometry = new SphereBufferGeometry( sphereSize, 4, 2 );
+	var material = new MeshBasicMaterial( { wireframe: true, fog: false } );
+	material.color.copy( this.light.color );
+
+	Mesh.call( this, geometry, material );
+
+	this.matrix = this.light.matrixWorld;
+	this.matrixAutoUpdate = false;
+
+	/*
+	var distanceGeometry = new THREE.IcosahedronGeometry( 1, 2 );
+	var distanceMaterial = new THREE.MeshBasicMaterial( { color: hexColor, fog: false, wireframe: true, opacity: 0.1, transparent: true } );
+
+	this.lightSphere = new THREE.Mesh( bulbGeometry, bulbMaterial );
+	this.lightDistance = new THREE.Mesh( distanceGeometry, distanceMaterial );
+
+	var d = light.distance;
+
+	if ( d === 0.0 ) {
+
+		this.lightDistance.visible = false;
+
+	} else {
+
+		this.lightDistance.scale.set( d, d, d );
+
+	}
+
+	this.add( this.lightDistance );
+	*/
+
+}
+
+PointLightHelper.prototype = Object.create( Mesh.prototype );
+PointLightHelper.prototype.constructor = PointLightHelper;
+
+PointLightHelper.prototype.dispose = function () {
+
+	this.geometry.dispose();
+	this.material.dispose();
+
+};
+
+PointLightHelper.prototype.update = function () {
+
+	this.material.color.copy( this.light.color );
+
+	/*
+	var d = this.light.distance;
+
+	if ( d === 0.0 ) {
+
+		this.lightDistance.visible = false;
+
+	} else {
+
+		this.lightDistance.visible = true;
+		this.lightDistance.scale.set( d, d, d );
+
+	}
+	*/
+
+};
+
+/**
+ * @author abelnation / http://github.com/abelnation
+ * @author Mugen87 / http://github.com/Mugen87
+ * @author WestLangley / http://github.com/WestLangley
+ */
+
+function RectAreaLightHelper( light ) {
+
+	Object3D.call( this );
+
+	this.light = light;
+	this.light.updateMatrixWorld();
+
+	this.matrix = light.matrixWorld;
+	this.matrixAutoUpdate = false;
+
+	var material = new LineBasicMaterial( { color: light.color } );
+
+	var geometry = new BufferGeometry();
+
+	geometry.addAttribute( 'position', new BufferAttribute( new Float32Array( 5 * 3 ), 3 ) );
+
+	this.add( new Line( geometry, material ) );
+
+	this.update();
+
+}
+
+RectAreaLightHelper.prototype = Object.create( Object3D.prototype );
+RectAreaLightHelper.prototype.constructor = RectAreaLightHelper;
+
+RectAreaLightHelper.prototype.dispose = function () {
+
+	this.children[ 0 ].geometry.dispose();
+	this.children[ 0 ].material.dispose();
+
+};
+
+RectAreaLightHelper.prototype.update = function () {
+
+	var line = this.children[ 0 ];
+
+	// update material
+
+	line.material.color.copy( this.light.color );
+
+	// calculate new dimensions of the helper
+
+	var hx = this.light.width * 0.5;
+	var hy = this.light.height * 0.5;
+
+	var position = line.geometry.attributes.position;
+	var array = position.array;
+
+	// update vertices
+
+	array[  0 ] =   hx; array[  1 ] = - hy; array[  2 ] = 0;
+	array[  3 ] =   hx; array[  4 ] =   hy; array[  5 ] = 0;
+	array[  6 ] = - hx; array[  7 ] =   hy; array[  8 ] = 0;
+	array[  9 ] = - hx; array[ 10 ] = - hy; array[ 11 ] = 0;
+	array[ 12 ] =   hx; array[ 13 ] = - hy; array[ 14 ] = 0;
+
+	position.needsUpdate = true;
+
+};
+
+/**
+ * @author alteredq / http://alteredqualia.com/
+ * @author mrdoob / http://mrdoob.com/
  * @author Mugen87 / https://github.com/Mugen87
  */
 
@@ -40451,6 +41260,137 @@ HemisphereLightHelper.prototype.update = function () {
 	};
 
 }();
+
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+function GridHelper( size, divisions, color1, color2 ) {
+
+	size = size || 10;
+	divisions = divisions || 10;
+	color1 = new Color( color1 !== undefined ? color1 : 0x444444 );
+	color2 = new Color( color2 !== undefined ? color2 : 0x888888 );
+
+	var center = divisions / 2;
+	var step = size / divisions;
+	var halfSize = size / 2;
+
+	var vertices = [], colors = [];
+
+	for ( var i = 0, j = 0, k = - halfSize; i <= divisions; i ++, k += step ) {
+
+		vertices.push( - halfSize, 0, k, halfSize, 0, k );
+		vertices.push( k, 0, - halfSize, k, 0, halfSize );
+
+		var color = i === center ? color1 : color2;
+
+		color.toArray( colors, j ); j += 3;
+		color.toArray( colors, j ); j += 3;
+		color.toArray( colors, j ); j += 3;
+		color.toArray( colors, j ); j += 3;
+
+	}
+
+	var geometry = new BufferGeometry();
+	geometry.addAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+	geometry.addAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
+
+	var material = new LineBasicMaterial( { vertexColors: VertexColors } );
+
+	LineSegments.call( this, geometry, material );
+
+}
+
+GridHelper.prototype = Object.create( LineSegments.prototype );
+GridHelper.prototype.constructor = GridHelper;
+
+/**
+ * @author mrdoob / http://mrdoob.com/
+ * @author Mugen87 / http://github.com/Mugen87
+ * @author Hectate / http://www.github.com/Hectate
+ */
+
+function PolarGridHelper( radius, radials, circles, divisions, color1, color2 ) {
+
+	radius = radius || 10;
+	radials = radials || 16;
+	circles = circles || 8;
+	divisions = divisions || 64;
+	color1 = new Color( color1 !== undefined ? color1 : 0x444444 );
+	color2 = new Color( color2 !== undefined ? color2 : 0x888888 );
+
+	var vertices = [];
+	var colors = [];
+
+	var x, z;
+	var v, i, j, r, color;
+
+	// create the radials
+
+	for ( i = 0; i <= radials; i ++ ) {
+
+		v = ( i / radials ) * ( Math.PI * 2 );
+
+		x = Math.sin( v ) * radius;
+		z = Math.cos( v ) * radius;
+
+		vertices.push( 0, 0, 0 );
+		vertices.push( x, 0, z );
+
+		color = ( i & 1 ) ? color1 : color2;
+
+		colors.push( color.r, color.g, color.b );
+		colors.push( color.r, color.g, color.b );
+
+	}
+
+	// create the circles
+
+	for ( i = 0; i <= circles; i ++ ) {
+
+		color = ( i & 1 ) ? color1 : color2;
+
+		r = radius - ( radius / circles * i );
+
+		for ( j = 0; j < divisions; j ++ ) {
+
+			// first vertex
+
+			v = ( j / divisions ) * ( Math.PI * 2 );
+
+			x = Math.sin( v ) * r;
+			z = Math.cos( v ) * r;
+
+			vertices.push( x, 0, z );
+			colors.push( color.r, color.g, color.b );
+
+			// second vertex
+
+			v = ( ( j + 1 ) / divisions ) * ( Math.PI * 2 );
+
+			x = Math.sin( v ) * r;
+			z = Math.cos( v ) * r;
+
+			vertices.push( x, 0, z );
+			colors.push( color.r, color.g, color.b );
+
+		}
+
+	}
+
+	var geometry = new BufferGeometry();
+	geometry.addAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+	geometry.addAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
+
+	var material = new LineBasicMaterial( { vertexColors: VertexColors } );
+
+	LineSegments.call( this, geometry, material );
+
+}
+
+PolarGridHelper.prototype = Object.create( LineSegments.prototype );
+PolarGridHelper.prototype.constructor = PolarGridHelper;
 
 /**
  * @author mrdoob / http://mrdoob.com/
@@ -40560,6 +41500,86 @@ FaceNormalsHelper.prototype.update = ( function () {
 	};
 
 }() );
+
+/**
+ * @author alteredq / http://alteredqualia.com/
+ * @author mrdoob / http://mrdoob.com/
+ * @author WestLangley / http://github.com/WestLangley
+ */
+
+function DirectionalLightHelper( light, size ) {
+
+	Object3D.call( this );
+
+	this.light = light;
+	this.light.updateMatrixWorld();
+
+	this.matrix = light.matrixWorld;
+	this.matrixAutoUpdate = false;
+
+	if ( size === undefined ) size = 1;
+
+	var geometry = new BufferGeometry();
+	geometry.addAttribute( 'position', new Float32BufferAttribute( [
+		- size,   size, 0,
+		  size,   size, 0,
+		  size, - size, 0,
+		- size, - size, 0,
+		- size,   size, 0
+	], 3 ) );
+
+	var material = new LineBasicMaterial( { fog: false } );
+
+	this.add( new Line( geometry, material ) );
+
+	geometry = new BufferGeometry();
+	geometry.addAttribute( 'position', new Float32BufferAttribute( [ 0, 0, 0, 0, 0, 1 ], 3 ) );
+
+	this.add( new Line( geometry, material ));
+
+	this.update();
+
+}
+
+DirectionalLightHelper.prototype = Object.create( Object3D.prototype );
+DirectionalLightHelper.prototype.constructor = DirectionalLightHelper;
+
+DirectionalLightHelper.prototype.dispose = function () {
+
+	var lightPlane = this.children[ 0 ];
+	var targetLine = this.children[ 1 ];
+
+	lightPlane.geometry.dispose();
+	lightPlane.material.dispose();
+	targetLine.geometry.dispose();
+	targetLine.material.dispose();
+
+};
+
+DirectionalLightHelper.prototype.update = function () {
+
+	var v1 = new Vector3();
+	var v2 = new Vector3();
+	var v3 = new Vector3();
+
+	return function update() {
+
+		v1.setFromMatrixPosition( this.light.matrixWorld );
+		v2.setFromMatrixPosition( this.light.target.matrixWorld );
+		v3.subVectors( v2, v1 );
+
+		var lightPlane = this.children[ 0 ];
+		var targetLine = this.children[ 1 ];
+
+		lightPlane.lookAt( v3 );
+		lightPlane.material.color.copy( this.light.color );
+
+		targetLine.lookAt( v3 );
+		targetLine.scale.z = v3.length();
+
+	};
+
+}();
 
 /**
  * @author alteredq / http://alteredqualia.com/
@@ -40761,6 +41781,247 @@ CameraHelper.prototype.update = function () {
 }();
 
 /**
+ * @author mrdoob / http://mrdoob.com/
+ * @author Mugen87 / http://github.com/Mugen87
+ */
+
+function BoxHelper( object, color ) {
+
+	this.object = object;
+
+	if ( color === undefined ) color = 0xffff00;
+
+	var indices = new Uint16Array( [ 0, 1, 1, 2, 2, 3, 3, 0, 4, 5, 5, 6, 6, 7, 7, 4, 0, 4, 1, 5, 2, 6, 3, 7 ] );
+	var positions = new Float32Array( 8 * 3 );
+
+	var geometry = new BufferGeometry();
+	geometry.setIndex( new BufferAttribute( indices, 1 ) );
+	geometry.addAttribute( 'position', new BufferAttribute( positions, 3 ) );
+
+	LineSegments.call( this, geometry, new LineBasicMaterial( { color: color } ) );
+
+	this.matrixAutoUpdate = false;
+
+	this.update();
+
+}
+
+BoxHelper.prototype = Object.create( LineSegments.prototype );
+BoxHelper.prototype.constructor = BoxHelper;
+
+BoxHelper.prototype.update = ( function () {
+
+	var box = new Box3();
+
+	return function update( object ) {
+
+		if ( object !== undefined ) {
+
+			console.warn( 'THREE.BoxHelper: .update() has no longer arguments.' );
+
+		}
+
+		if ( this.object !== undefined ) {
+
+			box.setFromObject( this.object );
+
+		}
+
+		if ( box.isEmpty() ) return;
+
+		var min = box.min;
+		var max = box.max;
+
+		/*
+		  5____4
+		1/___0/|
+		| 6__|_7
+		2/___3/
+
+		0: max.x, max.y, max.z
+		1: min.x, max.y, max.z
+		2: min.x, min.y, max.z
+		3: max.x, min.y, max.z
+		4: max.x, max.y, min.z
+		5: min.x, max.y, min.z
+		6: min.x, min.y, min.z
+		7: max.x, min.y, min.z
+		*/
+
+		var position = this.geometry.attributes.position;
+		var array = position.array;
+
+		array[  0 ] = max.x; array[  1 ] = max.y; array[  2 ] = max.z;
+		array[  3 ] = min.x; array[  4 ] = max.y; array[  5 ] = max.z;
+		array[  6 ] = min.x; array[  7 ] = min.y; array[  8 ] = max.z;
+		array[  9 ] = max.x; array[ 10 ] = min.y; array[ 11 ] = max.z;
+		array[ 12 ] = max.x; array[ 13 ] = max.y; array[ 14 ] = min.z;
+		array[ 15 ] = min.x; array[ 16 ] = max.y; array[ 17 ] = min.z;
+		array[ 18 ] = min.x; array[ 19 ] = min.y; array[ 20 ] = min.z;
+		array[ 21 ] = max.x; array[ 22 ] = min.y; array[ 23 ] = min.z;
+
+		position.needsUpdate = true;
+
+		this.geometry.computeBoundingSphere();
+
+	};
+
+} )();
+
+BoxHelper.prototype.setFromObject = function ( object ) {
+
+	this.object = object;
+	this.update();
+
+	return this;
+
+};
+
+/**
+ * @author WestLangley / http://github.com/WestLangley
+ * @author zz85 / http://github.com/zz85
+ * @author bhouston / http://clara.io
+ *
+ * Creates an arrow for visualizing directions
+ *
+ * Parameters:
+ *  dir - Vector3
+ *  origin - Vector3
+ *  length - Number
+ *  color - color in hex value
+ *  headLength - Number
+ *  headWidth - Number
+ */
+
+var lineGeometry;
+var coneGeometry;
+
+function ArrowHelper( dir, origin, length, color, headLength, headWidth ) {
+
+	// dir is assumed to be normalized
+
+	Object3D.call( this );
+
+	if ( color === undefined ) color = 0xffff00;
+	if ( length === undefined ) length = 1;
+	if ( headLength === undefined ) headLength = 0.2 * length;
+	if ( headWidth === undefined ) headWidth = 0.2 * headLength;
+
+	if ( lineGeometry === undefined ) {
+
+		lineGeometry = new BufferGeometry();
+		lineGeometry.addAttribute( 'position', new Float32BufferAttribute( [ 0, 0, 0, 0, 1, 0 ], 3 ) );
+
+		coneGeometry = new CylinderBufferGeometry( 0, 0.5, 1, 5, 1 );
+		coneGeometry.translate( 0, - 0.5, 0 );
+
+	}
+
+	this.position.copy( origin );
+
+	this.line = new Line( lineGeometry, new LineBasicMaterial( { color: color } ) );
+	this.line.matrixAutoUpdate = false;
+	this.add( this.line );
+
+	this.cone = new Mesh( coneGeometry, new MeshBasicMaterial( { color: color } ) );
+	this.cone.matrixAutoUpdate = false;
+	this.add( this.cone );
+
+	this.setDirection( dir );
+	this.setLength( length, headLength, headWidth );
+
+}
+
+ArrowHelper.prototype = Object.create( Object3D.prototype );
+ArrowHelper.prototype.constructor = ArrowHelper;
+
+ArrowHelper.prototype.setDirection = ( function () {
+
+	var axis = new Vector3();
+	var radians;
+
+	return function setDirection( dir ) {
+
+		// dir is assumed to be normalized
+
+		if ( dir.y > 0.99999 ) {
+
+			this.quaternion.set( 0, 0, 0, 1 );
+
+		} else if ( dir.y < - 0.99999 ) {
+
+			this.quaternion.set( 1, 0, 0, 0 );
+
+		} else {
+
+			axis.set( dir.z, 0, - dir.x ).normalize();
+
+			radians = Math.acos( dir.y );
+
+			this.quaternion.setFromAxisAngle( axis, radians );
+
+		}
+
+	};
+
+}() );
+
+ArrowHelper.prototype.setLength = function ( length, headLength, headWidth ) {
+
+	if ( headLength === undefined ) headLength = 0.2 * length;
+	if ( headWidth === undefined ) headWidth = 0.2 * headLength;
+
+	this.line.scale.set( 1, Math.max( 0, length - headLength ), 1 );
+	this.line.updateMatrix();
+
+	this.cone.scale.set( headWidth, headLength, headWidth );
+	this.cone.position.y = length;
+	this.cone.updateMatrix();
+
+};
+
+ArrowHelper.prototype.setColor = function ( color ) {
+
+	this.line.material.color.copy( color );
+	this.cone.material.color.copy( color );
+
+};
+
+/**
+ * @author sroucheray / http://sroucheray.org/
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+function AxisHelper( size ) {
+
+	size = size || 1;
+
+	var vertices = [
+		0, 0, 0,  size, 0, 0,
+		0, 0, 0,  0, size, 0,
+		0, 0, 0,  0, 0, size
+	];
+
+	var colors = [
+		1, 0, 0,  1, 0.6, 0,
+		0, 1, 0,  0.6, 1, 0,
+		0, 0, 1,  0, 0.6, 1
+	];
+
+	var geometry = new BufferGeometry();
+	geometry.addAttribute( 'position', new Float32BufferAttribute( vertices, 3 ) );
+	geometry.addAttribute( 'color', new Float32BufferAttribute( colors, 3 ) );
+
+	var material = new LineBasicMaterial( { vertexColors: VertexColors } );
+
+	LineSegments.call( this, geometry, material );
+
+}
+
+AxisHelper.prototype = Object.create( LineSegments.prototype );
+AxisHelper.prototype.constructor = AxisHelper;
+
+/**
  * @author zz85 https://github.com/zz85
  *
  * Centripetal CatmullRom Curve - which is useful for avoiding
@@ -40937,6 +42198,159 @@ CatmullRomCurve3.prototype.getPoint = function ( t ) {
 
 };
 
+function CubicBezierCurve3( v0, v1, v2, v3 ) {
+
+	Curve.call( this );
+
+	this.v0 = v0;
+	this.v1 = v1;
+	this.v2 = v2;
+	this.v3 = v3;
+
+}
+
+CubicBezierCurve3.prototype = Object.create( Curve.prototype );
+CubicBezierCurve3.prototype.constructor = CubicBezierCurve3;
+
+CubicBezierCurve3.prototype.getPoint = function ( t ) {
+
+	var v0 = this.v0, v1 = this.v1, v2 = this.v2, v3 = this.v3;
+
+	return new Vector3(
+		CubicBezier( t, v0.x, v1.x, v2.x, v3.x ),
+		CubicBezier( t, v0.y, v1.y, v2.y, v3.y ),
+		CubicBezier( t, v0.z, v1.z, v2.z, v3.z )
+	);
+
+};
+
+function QuadraticBezierCurve3( v0, v1, v2 ) {
+
+	Curve.call( this );
+
+	this.v0 = v0;
+	this.v1 = v1;
+	this.v2 = v2;
+
+}
+
+QuadraticBezierCurve3.prototype = Object.create( Curve.prototype );
+QuadraticBezierCurve3.prototype.constructor = QuadraticBezierCurve3;
+
+QuadraticBezierCurve3.prototype.getPoint = function ( t ) {
+
+	var v0 = this.v0, v1 = this.v1, v2 = this.v2;
+
+	return new Vector3(
+		QuadraticBezier( t, v0.x, v1.x, v2.x ),
+		QuadraticBezier( t, v0.y, v1.y, v2.y ),
+		QuadraticBezier( t, v0.z, v1.z, v2.z )
+	);
+
+};
+
+function LineCurve3( v1, v2 ) {
+
+	Curve.call( this );
+
+	this.v1 = v1;
+	this.v2 = v2;
+
+}
+
+LineCurve3.prototype = Object.create( Curve.prototype );
+LineCurve3.prototype.constructor = LineCurve3;
+
+LineCurve3.prototype.getPoint = function ( t ) {
+
+	if ( t === 1 ) {
+
+		return this.v2.clone();
+
+	}
+
+	var vector = new Vector3();
+
+	vector.subVectors( this.v2, this.v1 ); // diff
+	vector.multiplyScalar( t );
+	vector.add( this.v1 );
+
+	return vector;
+
+};
+
+function ArcCurve( aX, aY, aRadius, aStartAngle, aEndAngle, aClockwise ) {
+
+	EllipseCurve.call( this, aX, aY, aRadius, aRadius, aStartAngle, aEndAngle, aClockwise );
+
+}
+
+ArcCurve.prototype = Object.create( EllipseCurve.prototype );
+ArcCurve.prototype.constructor = ArcCurve;
+
+/**
+ * @author alteredq / http://alteredqualia.com/
+ */
+
+var SceneUtils = {
+
+	createMultiMaterialObject: function ( geometry, materials ) {
+
+		var group = new Group();
+
+		for ( var i = 0, l = materials.length; i < l; i ++ ) {
+
+			group.add( new Mesh( geometry, materials[ i ] ) );
+
+		}
+
+		return group;
+
+	},
+
+	detach: function ( child, parent, scene ) {
+
+		child.applyMatrix( parent.matrixWorld );
+		parent.remove( child );
+		scene.add( child );
+
+	},
+
+	attach: function ( child, scene, parent ) {
+
+		var matrixWorldInverse = new Matrix4();
+		matrixWorldInverse.getInverse( parent.matrixWorld );
+		child.applyMatrix( matrixWorldInverse );
+
+		scene.remove( child );
+		parent.add( child );
+
+	}
+
+};
+
+/**
+ * @author mrdoob / http://mrdoob.com/
+ */
+
+function Face4( a, b, c, d, normal, color, materialIndex ) {
+
+	console.warn( 'THREE.Face4 has been removed. A THREE.Face3 will be created instead.' );
+	return new Face3( a, b, c, normal, color, materialIndex );
+
+}
+
+var LineStrip = 0;
+
+var LinePieces = 1;
+
+function MeshFaceMaterial( materials ) {
+
+	console.warn( 'THREE.MeshFaceMaterial has been removed. Use an Array instead.' );
+	return materials;
+
+}
+
 function MultiMaterial( materials ) {
 
 	if ( materials === undefined ) materials = [];
@@ -40953,6 +42367,127 @@ function MultiMaterial( materials ) {
 
 }
 
+function PointCloud( geometry, material ) {
+
+	console.warn( 'THREE.PointCloud has been renamed to THREE.Points.' );
+	return new Points( geometry, material );
+
+}
+
+function Particle( material ) {
+
+	console.warn( 'THREE.Particle has been renamed to THREE.Sprite.' );
+	return new Sprite( material );
+
+}
+
+function ParticleSystem( geometry, material ) {
+
+	console.warn( 'THREE.ParticleSystem has been renamed to THREE.Points.' );
+	return new Points( geometry, material );
+
+}
+
+function PointCloudMaterial( parameters ) {
+
+	console.warn( 'THREE.PointCloudMaterial has been renamed to THREE.PointsMaterial.' );
+	return new PointsMaterial( parameters );
+
+}
+
+function ParticleBasicMaterial( parameters ) {
+
+	console.warn( 'THREE.ParticleBasicMaterial has been renamed to THREE.PointsMaterial.' );
+	return new PointsMaterial( parameters );
+
+}
+
+function ParticleSystemMaterial( parameters ) {
+
+	console.warn( 'THREE.ParticleSystemMaterial has been renamed to THREE.PointsMaterial.' );
+	return new PointsMaterial( parameters );
+
+}
+
+function Vertex( x, y, z ) {
+
+	console.warn( 'THREE.Vertex has been removed. Use THREE.Vector3 instead.' );
+	return new Vector3( x, y, z );
+
+}
+
+//
+
+function DynamicBufferAttribute( array, itemSize ) {
+
+	console.warn( 'THREE.DynamicBufferAttribute has been removed. Use new THREE.BufferAttribute().setDynamic( true ) instead.' );
+	return new BufferAttribute( array, itemSize ).setDynamic( true );
+
+}
+
+function Int8Attribute( array, itemSize ) {
+
+	console.warn( 'THREE.Int8Attribute has been removed. Use new THREE.Int8BufferAttribute() instead.' );
+	return new Int8BufferAttribute( array, itemSize );
+
+}
+
+function Uint8Attribute( array, itemSize ) {
+
+	console.warn( 'THREE.Uint8Attribute has been removed. Use new THREE.Uint8BufferAttribute() instead.' );
+	return new Uint8BufferAttribute( array, itemSize );
+
+}
+
+function Uint8ClampedAttribute( array, itemSize ) {
+
+	console.warn( 'THREE.Uint8ClampedAttribute has been removed. Use new THREE.Uint8ClampedBufferAttribute() instead.' );
+	return new Uint8ClampedBufferAttribute( array, itemSize );
+
+}
+
+function Int16Attribute( array, itemSize ) {
+
+	console.warn( 'THREE.Int16Attribute has been removed. Use new THREE.Int16BufferAttribute() instead.' );
+	return new Int16BufferAttribute( array, itemSize );
+
+}
+
+function Uint16Attribute( array, itemSize ) {
+
+	console.warn( 'THREE.Uint16Attribute has been removed. Use new THREE.Uint16BufferAttribute() instead.' );
+	return new Uint16BufferAttribute( array, itemSize );
+
+}
+
+function Int32Attribute( array, itemSize ) {
+
+	console.warn( 'THREE.Int32Attribute has been removed. Use new THREE.Int32BufferAttribute() instead.' );
+	return new Int32BufferAttribute( array, itemSize );
+
+}
+
+function Uint32Attribute( array, itemSize ) {
+
+	console.warn( 'THREE.Uint32Attribute has been removed. Use new THREE.Uint32BufferAttribute() instead.' );
+	return new Uint32BufferAttribute( array, itemSize );
+
+}
+
+function Float32Attribute( array, itemSize ) {
+
+	console.warn( 'THREE.Float32Attribute has been removed. Use new THREE.Float32BufferAttribute() instead.' );
+	return new Float32BufferAttribute( array, itemSize );
+
+}
+
+function Float64Attribute( array, itemSize ) {
+
+	console.warn( 'THREE.Float64Attribute has been removed. Use new THREE.Float64BufferAttribute() instead.' );
+	return new Float64BufferAttribute( array, itemSize );
+
+}
+
 //
 
 Curve.create = function ( construct, getPoint ) {
@@ -40966,6 +42501,33 @@ Curve.create = function ( construct, getPoint ) {
 	return construct;
 
 };
+
+//
+
+function ClosedSplineCurve3( points ) {
+
+	console.warn( 'THREE.ClosedSplineCurve3 has been deprecated. Use THREE.CatmullRomCurve3 instead.' );
+
+	CatmullRomCurve3.call( this, points );
+	this.type = 'catmullrom';
+	this.closed = true;
+
+}
+
+ClosedSplineCurve3.prototype = Object.create( CatmullRomCurve3.prototype );
+
+//
+
+function SplineCurve3( points ) {
+
+	console.warn( 'THREE.SplineCurve3 has been deprecated. Use THREE.CatmullRomCurve3 instead.' );
+
+	CatmullRomCurve3.call( this, points );
+	this.type = 'catmullrom';
+
+}
+
+SplineCurve3.prototype = Object.create( CatmullRomCurve3.prototype );
 
 //
 
@@ -40999,6 +42561,50 @@ Object.assign( Spline.prototype, {
 	}
 
 } );
+
+//
+function BoundingBoxHelper( object, color ) {
+
+	console.warn( 'THREE.BoundingBoxHelper has been deprecated. Creating a THREE.BoxHelper instead.' );
+	return new BoxHelper( object, color );
+
+}
+
+function EdgesHelper( object, hex ) {
+
+	console.warn( 'THREE.EdgesHelper has been removed. Use THREE.EdgesGeometry instead.' );
+	return new LineSegments( new EdgesGeometry( object.geometry ), new LineBasicMaterial( { color: hex !== undefined ? hex : 0xffffff } ) );
+
+}
+
+GridHelper.prototype.setColors = function () {
+
+	console.error( 'THREE.GridHelper: setColors() has been deprecated, pass them in the constructor instead.' );
+
+};
+
+function WireframeHelper( object, hex ) {
+
+	console.warn( 'THREE.WireframeHelper has been removed. Use THREE.WireframeGeometry instead.' );
+	return new LineSegments( new WireframeGeometry( object.geometry ), new LineBasicMaterial( { color: hex !== undefined ? hex : 0xffffff } ) );
+
+}
+
+//
+
+function XHRLoader( manager ) {
+
+	console.warn( 'THREE.XHRLoader has been renamed to THREE.FileLoader.' );
+	return new FileLoader( manager );
+
+}
+
+function BinaryTextureLoader( manager ) {
+
+	console.warn( 'THREE.BinaryTextureLoader has been renamed to THREE.DataTextureLoader.' );
+	return new DataTextureLoader( manager );
+
+}
 
 //
 
@@ -42050,6 +43656,513 @@ AudioAnalyser.prototype.getData = function () {
 
 };
 
+//
+
+var GeometryUtils = {
+
+	merge: function ( geometry1, geometry2, materialIndexOffset ) {
+
+		console.warn( 'THREE.GeometryUtils: .merge() has been moved to Geometry. Use geometry.merge( geometry2, matrix, materialIndexOffset ) instead.' );
+		var matrix;
+
+		if ( geometry2.isMesh ) {
+
+			geometry2.matrixAutoUpdate && geometry2.updateMatrix();
+
+			matrix = geometry2.matrix;
+			geometry2 = geometry2.geometry;
+
+		}
+
+		geometry1.merge( geometry2, matrix, materialIndexOffset );
+
+	},
+
+	center: function ( geometry ) {
+
+		console.warn( 'THREE.GeometryUtils: .center() has been moved to Geometry. Use geometry.center() instead.' );
+		return geometry.center();
+
+	}
+
+};
+
+var ImageUtils = {
+
+	crossOrigin: undefined,
+
+	loadTexture: function ( url, mapping, onLoad, onError ) {
+
+		console.warn( 'THREE.ImageUtils.loadTexture has been deprecated. Use THREE.TextureLoader() instead.' );
+
+		var loader = new TextureLoader();
+		loader.setCrossOrigin( this.crossOrigin );
+
+		var texture = loader.load( url, onLoad, undefined, onError );
+
+		if ( mapping ) texture.mapping = mapping;
+
+		return texture;
+
+	},
+
+	loadTextureCube: function ( urls, mapping, onLoad, onError ) {
+
+		console.warn( 'THREE.ImageUtils.loadTextureCube has been deprecated. Use THREE.CubeTextureLoader() instead.' );
+
+		var loader = new CubeTextureLoader();
+		loader.setCrossOrigin( this.crossOrigin );
+
+		var texture = loader.load( urls, onLoad, undefined, onError );
+
+		if ( mapping ) texture.mapping = mapping;
+
+		return texture;
+
+	},
+
+	loadCompressedTexture: function () {
+
+		console.error( 'THREE.ImageUtils.loadCompressedTexture has been removed. Use THREE.DDSLoader instead.' );
+
+	},
+
+	loadCompressedTextureCube: function () {
+
+		console.error( 'THREE.ImageUtils.loadCompressedTextureCube has been removed. Use THREE.DDSLoader instead.' );
+
+	}
+
+};
+
+//
+
+function Projector() {
+
+	console.error( 'THREE.Projector has been moved to /examples/js/renderers/Projector.js.' );
+
+	this.projectVector = function ( vector, camera ) {
+
+		console.warn( 'THREE.Projector: .projectVector() is now vector.project().' );
+		vector.project( camera );
+
+	};
+
+	this.unprojectVector = function ( vector, camera ) {
+
+		console.warn( 'THREE.Projector: .unprojectVector() is now vector.unproject().' );
+		vector.unproject( camera );
+
+	};
+
+	this.pickingRay = function () {
+
+		console.error( 'THREE.Projector: .pickingRay() is now raycaster.setFromCamera().' );
+
+	};
+
+}
+
+//
+
+function CanvasRenderer() {
+
+	console.error( 'THREE.CanvasRenderer has been moved to /examples/js/renderers/CanvasRenderer.js' );
+
+	this.domElement = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
+	this.clear = function () {};
+	this.render = function () {};
+	this.setClearColor = function () {};
+	this.setSize = function () {};
+
+}
+
+
+
+
+var THREE = Object.freeze({
+	WebGLRenderTargetCube: WebGLRenderTargetCube,
+	WebGLRenderTarget: WebGLRenderTarget,
+	WebGLRenderer: WebGLRenderer,
+	ShaderLib: ShaderLib,
+	UniformsLib: UniformsLib,
+	UniformsUtils: UniformsUtils,
+	ShaderChunk: ShaderChunk,
+	FogExp2: FogExp2,
+	Fog: Fog,
+	Scene: Scene,
+	LensFlare: LensFlare,
+	Sprite: Sprite,
+	LOD: LOD,
+	SkinnedMesh: SkinnedMesh,
+	Skeleton: Skeleton,
+	Bone: Bone,
+	Mesh: Mesh,
+	LineSegments: LineSegments,
+	LineLoop: LineLoop,
+	Line: Line,
+	Points: Points,
+	Group: Group,
+	VideoTexture: VideoTexture,
+	DataTexture: DataTexture,
+	CompressedTexture: CompressedTexture,
+	CubeTexture: CubeTexture,
+	CanvasTexture: CanvasTexture,
+	DepthTexture: DepthTexture,
+	Texture: Texture,
+	CompressedTextureLoader: CompressedTextureLoader,
+	DataTextureLoader: DataTextureLoader,
+	CubeTextureLoader: CubeTextureLoader,
+	TextureLoader: TextureLoader,
+	ObjectLoader: ObjectLoader,
+	MaterialLoader: MaterialLoader,
+	BufferGeometryLoader: BufferGeometryLoader,
+	DefaultLoadingManager: DefaultLoadingManager,
+	LoadingManager: LoadingManager,
+	JSONLoader: JSONLoader,
+	ImageLoader: ImageLoader,
+	FontLoader: FontLoader,
+	FileLoader: FileLoader,
+	Loader: Loader,
+	Cache: Cache,
+	AudioLoader: AudioLoader,
+	SpotLightShadow: SpotLightShadow,
+	SpotLight: SpotLight,
+	PointLight: PointLight,
+	RectAreaLight: RectAreaLight,
+	HemisphereLight: HemisphereLight,
+	DirectionalLightShadow: DirectionalLightShadow,
+	DirectionalLight: DirectionalLight,
+	AmbientLight: AmbientLight,
+	LightShadow: LightShadow,
+	Light: Light,
+	StereoCamera: StereoCamera,
+	PerspectiveCamera: PerspectiveCamera,
+	OrthographicCamera: OrthographicCamera,
+	CubeCamera: CubeCamera,
+	ArrayCamera: ArrayCamera,
+	Camera: Camera,
+	AudioListener: AudioListener,
+	PositionalAudio: PositionalAudio,
+	AudioContext: AudioContext$1,
+	AudioAnalyser: AudioAnalyser,
+	Audio: Audio$1,
+	VectorKeyframeTrack: VectorKeyframeTrack,
+	StringKeyframeTrack: StringKeyframeTrack,
+	QuaternionKeyframeTrack: QuaternionKeyframeTrack,
+	NumberKeyframeTrack: NumberKeyframeTrack,
+	ColorKeyframeTrack: ColorKeyframeTrack,
+	BooleanKeyframeTrack: BooleanKeyframeTrack,
+	PropertyMixer: PropertyMixer,
+	PropertyBinding: PropertyBinding,
+	KeyframeTrack: KeyframeTrack,
+	AnimationUtils: AnimationUtils,
+	AnimationObjectGroup: AnimationObjectGroup,
+	AnimationMixer: AnimationMixer,
+	AnimationClip: AnimationClip,
+	Uniform: Uniform,
+	InstancedBufferGeometry: InstancedBufferGeometry,
+	BufferGeometry: BufferGeometry,
+	GeometryIdCount: GeometryIdCount,
+	Geometry: Geometry,
+	InterleavedBufferAttribute: InterleavedBufferAttribute,
+	InstancedInterleavedBuffer: InstancedInterleavedBuffer,
+	InterleavedBuffer: InterleavedBuffer,
+	InstancedBufferAttribute: InstancedBufferAttribute,
+	Face3: Face3,
+	Object3D: Object3D,
+	Raycaster: Raycaster,
+	Layers: Layers,
+	EventDispatcher: EventDispatcher,
+	Clock: Clock,
+	QuaternionLinearInterpolant: QuaternionLinearInterpolant,
+	LinearInterpolant: LinearInterpolant,
+	DiscreteInterpolant: DiscreteInterpolant,
+	CubicInterpolant: CubicInterpolant,
+	Interpolant: Interpolant,
+	Triangle: Triangle,
+	Math: _Math,
+	Spherical: Spherical,
+	Cylindrical: Cylindrical,
+	Plane: Plane,
+	Frustum: Frustum,
+	Sphere: Sphere,
+	Ray: Ray,
+	Matrix4: Matrix4,
+	Matrix3: Matrix3,
+	Box3: Box3,
+	Box2: Box2,
+	Line3: Line3,
+	Euler: Euler,
+	Vector4: Vector4,
+	Vector3: Vector3,
+	Vector2: Vector2,
+	Quaternion: Quaternion,
+	Color: Color,
+	MorphBlendMesh: MorphBlendMesh,
+	ImmediateRenderObject: ImmediateRenderObject,
+	VertexNormalsHelper: VertexNormalsHelper,
+	SpotLightHelper: SpotLightHelper,
+	SkeletonHelper: SkeletonHelper,
+	PointLightHelper: PointLightHelper,
+	RectAreaLightHelper: RectAreaLightHelper,
+	HemisphereLightHelper: HemisphereLightHelper,
+	GridHelper: GridHelper,
+	PolarGridHelper: PolarGridHelper,
+	FaceNormalsHelper: FaceNormalsHelper,
+	DirectionalLightHelper: DirectionalLightHelper,
+	CameraHelper: CameraHelper,
+	BoxHelper: BoxHelper,
+	ArrowHelper: ArrowHelper,
+	AxisHelper: AxisHelper,
+	CatmullRomCurve3: CatmullRomCurve3,
+	CubicBezierCurve3: CubicBezierCurve3,
+	QuadraticBezierCurve3: QuadraticBezierCurve3,
+	LineCurve3: LineCurve3,
+	ArcCurve: ArcCurve,
+	EllipseCurve: EllipseCurve,
+	SplineCurve: SplineCurve,
+	CubicBezierCurve: CubicBezierCurve,
+	QuadraticBezierCurve: QuadraticBezierCurve,
+	LineCurve: LineCurve,
+	Shape: Shape,
+	Path: Path,
+	ShapePath: ShapePath,
+	Font: Font,
+	CurvePath: CurvePath,
+	Curve: Curve,
+	ShapeUtils: ShapeUtils,
+	SceneUtils: SceneUtils,
+	WireframeGeometry: WireframeGeometry,
+	ParametricGeometry: ParametricGeometry,
+	ParametricBufferGeometry: ParametricBufferGeometry,
+	TetrahedronGeometry: TetrahedronGeometry,
+	TetrahedronBufferGeometry: TetrahedronBufferGeometry,
+	OctahedronGeometry: OctahedronGeometry,
+	OctahedronBufferGeometry: OctahedronBufferGeometry,
+	IcosahedronGeometry: IcosahedronGeometry,
+	IcosahedronBufferGeometry: IcosahedronBufferGeometry,
+	DodecahedronGeometry: DodecahedronGeometry,
+	DodecahedronBufferGeometry: DodecahedronBufferGeometry,
+	PolyhedronGeometry: PolyhedronGeometry,
+	PolyhedronBufferGeometry: PolyhedronBufferGeometry,
+	TubeGeometry: TubeGeometry,
+	TubeBufferGeometry: TubeBufferGeometry,
+	TorusKnotGeometry: TorusKnotGeometry,
+	TorusKnotBufferGeometry: TorusKnotBufferGeometry,
+	TorusGeometry: TorusGeometry,
+	TorusBufferGeometry: TorusBufferGeometry,
+	TextGeometry: TextGeometry,
+	TextBufferGeometry: TextBufferGeometry,
+	SphereGeometry: SphereGeometry,
+	SphereBufferGeometry: SphereBufferGeometry,
+	RingGeometry: RingGeometry,
+	RingBufferGeometry: RingBufferGeometry,
+	PlaneGeometry: PlaneGeometry,
+	PlaneBufferGeometry: PlaneBufferGeometry,
+	LatheGeometry: LatheGeometry,
+	LatheBufferGeometry: LatheBufferGeometry,
+	ShapeGeometry: ShapeGeometry,
+	ShapeBufferGeometry: ShapeBufferGeometry,
+	ExtrudeGeometry: ExtrudeGeometry,
+	ExtrudeBufferGeometry: ExtrudeBufferGeometry,
+	EdgesGeometry: EdgesGeometry,
+	ConeGeometry: ConeGeometry,
+	ConeBufferGeometry: ConeBufferGeometry,
+	CylinderGeometry: CylinderGeometry,
+	CylinderBufferGeometry: CylinderBufferGeometry,
+	CircleGeometry: CircleGeometry,
+	CircleBufferGeometry: CircleBufferGeometry,
+	BoxGeometry: BoxGeometry,
+	BoxBufferGeometry: BoxBufferGeometry,
+	ShadowMaterial: ShadowMaterial,
+	SpriteMaterial: SpriteMaterial,
+	RawShaderMaterial: RawShaderMaterial,
+	ShaderMaterial: ShaderMaterial,
+	PointsMaterial: PointsMaterial,
+	MeshPhysicalMaterial: MeshPhysicalMaterial,
+	MeshStandardMaterial: MeshStandardMaterial,
+	MeshPhongMaterial: MeshPhongMaterial,
+	MeshToonMaterial: MeshToonMaterial,
+	MeshNormalMaterial: MeshNormalMaterial,
+	MeshLambertMaterial: MeshLambertMaterial,
+	MeshDepthMaterial: MeshDepthMaterial,
+	MeshBasicMaterial: MeshBasicMaterial,
+	LineDashedMaterial: LineDashedMaterial,
+	LineBasicMaterial: LineBasicMaterial,
+	Material: Material,
+	Float64BufferAttribute: Float64BufferAttribute,
+	Float32BufferAttribute: Float32BufferAttribute,
+	Uint32BufferAttribute: Uint32BufferAttribute,
+	Int32BufferAttribute: Int32BufferAttribute,
+	Uint16BufferAttribute: Uint16BufferAttribute,
+	Int16BufferAttribute: Int16BufferAttribute,
+	Uint8ClampedBufferAttribute: Uint8ClampedBufferAttribute,
+	Uint8BufferAttribute: Uint8BufferAttribute,
+	Int8BufferAttribute: Int8BufferAttribute,
+	BufferAttribute: BufferAttribute,
+	REVISION: REVISION,
+	MOUSE: MOUSE,
+	CullFaceNone: CullFaceNone,
+	CullFaceBack: CullFaceBack,
+	CullFaceFront: CullFaceFront,
+	CullFaceFrontBack: CullFaceFrontBack,
+	FrontFaceDirectionCW: FrontFaceDirectionCW,
+	FrontFaceDirectionCCW: FrontFaceDirectionCCW,
+	BasicShadowMap: BasicShadowMap,
+	PCFShadowMap: PCFShadowMap,
+	PCFSoftShadowMap: PCFSoftShadowMap,
+	FrontSide: FrontSide,
+	BackSide: BackSide,
+	DoubleSide: DoubleSide,
+	FlatShading: FlatShading,
+	SmoothShading: SmoothShading,
+	NoColors: NoColors,
+	FaceColors: FaceColors,
+	VertexColors: VertexColors,
+	NoBlending: NoBlending,
+	NormalBlending: NormalBlending,
+	AdditiveBlending: AdditiveBlending,
+	SubtractiveBlending: SubtractiveBlending,
+	MultiplyBlending: MultiplyBlending,
+	CustomBlending: CustomBlending,
+	AddEquation: AddEquation,
+	SubtractEquation: SubtractEquation,
+	ReverseSubtractEquation: ReverseSubtractEquation,
+	MinEquation: MinEquation,
+	MaxEquation: MaxEquation,
+	ZeroFactor: ZeroFactor,
+	OneFactor: OneFactor,
+	SrcColorFactor: SrcColorFactor,
+	OneMinusSrcColorFactor: OneMinusSrcColorFactor,
+	SrcAlphaFactor: SrcAlphaFactor,
+	OneMinusSrcAlphaFactor: OneMinusSrcAlphaFactor,
+	DstAlphaFactor: DstAlphaFactor,
+	OneMinusDstAlphaFactor: OneMinusDstAlphaFactor,
+	DstColorFactor: DstColorFactor,
+	OneMinusDstColorFactor: OneMinusDstColorFactor,
+	SrcAlphaSaturateFactor: SrcAlphaSaturateFactor,
+	NeverDepth: NeverDepth,
+	AlwaysDepth: AlwaysDepth,
+	LessDepth: LessDepth,
+	LessEqualDepth: LessEqualDepth,
+	EqualDepth: EqualDepth,
+	GreaterEqualDepth: GreaterEqualDepth,
+	GreaterDepth: GreaterDepth,
+	NotEqualDepth: NotEqualDepth,
+	MultiplyOperation: MultiplyOperation,
+	MixOperation: MixOperation,
+	AddOperation: AddOperation,
+	NoToneMapping: NoToneMapping,
+	LinearToneMapping: LinearToneMapping,
+	ReinhardToneMapping: ReinhardToneMapping,
+	Uncharted2ToneMapping: Uncharted2ToneMapping,
+	CineonToneMapping: CineonToneMapping,
+	UVMapping: UVMapping,
+	CubeReflectionMapping: CubeReflectionMapping,
+	CubeRefractionMapping: CubeRefractionMapping,
+	EquirectangularReflectionMapping: EquirectangularReflectionMapping,
+	EquirectangularRefractionMapping: EquirectangularRefractionMapping,
+	SphericalReflectionMapping: SphericalReflectionMapping,
+	CubeUVReflectionMapping: CubeUVReflectionMapping,
+	CubeUVRefractionMapping: CubeUVRefractionMapping,
+	RepeatWrapping: RepeatWrapping,
+	ClampToEdgeWrapping: ClampToEdgeWrapping,
+	MirroredRepeatWrapping: MirroredRepeatWrapping,
+	NearestFilter: NearestFilter,
+	NearestMipMapNearestFilter: NearestMipMapNearestFilter,
+	NearestMipMapLinearFilter: NearestMipMapLinearFilter,
+	LinearFilter: LinearFilter,
+	LinearMipMapNearestFilter: LinearMipMapNearestFilter,
+	LinearMipMapLinearFilter: LinearMipMapLinearFilter,
+	UnsignedByteType: UnsignedByteType,
+	ByteType: ByteType,
+	ShortType: ShortType,
+	UnsignedShortType: UnsignedShortType,
+	IntType: IntType,
+	UnsignedIntType: UnsignedIntType,
+	FloatType: FloatType,
+	HalfFloatType: HalfFloatType,
+	UnsignedShort4444Type: UnsignedShort4444Type,
+	UnsignedShort5551Type: UnsignedShort5551Type,
+	UnsignedShort565Type: UnsignedShort565Type,
+	UnsignedInt248Type: UnsignedInt248Type,
+	AlphaFormat: AlphaFormat,
+	RGBFormat: RGBFormat,
+	RGBAFormat: RGBAFormat,
+	LuminanceFormat: LuminanceFormat,
+	LuminanceAlphaFormat: LuminanceAlphaFormat,
+	RGBEFormat: RGBEFormat,
+	DepthFormat: DepthFormat,
+	DepthStencilFormat: DepthStencilFormat,
+	RGB_S3TC_DXT1_Format: RGB_S3TC_DXT1_Format,
+	RGBA_S3TC_DXT1_Format: RGBA_S3TC_DXT1_Format,
+	RGBA_S3TC_DXT3_Format: RGBA_S3TC_DXT3_Format,
+	RGBA_S3TC_DXT5_Format: RGBA_S3TC_DXT5_Format,
+	RGB_PVRTC_4BPPV1_Format: RGB_PVRTC_4BPPV1_Format,
+	RGB_PVRTC_2BPPV1_Format: RGB_PVRTC_2BPPV1_Format,
+	RGBA_PVRTC_4BPPV1_Format: RGBA_PVRTC_4BPPV1_Format,
+	RGBA_PVRTC_2BPPV1_Format: RGBA_PVRTC_2BPPV1_Format,
+	RGB_ETC1_Format: RGB_ETC1_Format,
+	LoopOnce: LoopOnce,
+	LoopRepeat: LoopRepeat,
+	LoopPingPong: LoopPingPong,
+	InterpolateDiscrete: InterpolateDiscrete,
+	InterpolateLinear: InterpolateLinear,
+	InterpolateSmooth: InterpolateSmooth,
+	ZeroCurvatureEnding: ZeroCurvatureEnding,
+	ZeroSlopeEnding: ZeroSlopeEnding,
+	WrapAroundEnding: WrapAroundEnding,
+	TrianglesDrawMode: TrianglesDrawMode,
+	TriangleStripDrawMode: TriangleStripDrawMode,
+	TriangleFanDrawMode: TriangleFanDrawMode,
+	LinearEncoding: LinearEncoding,
+	sRGBEncoding: sRGBEncoding,
+	GammaEncoding: GammaEncoding,
+	RGBEEncoding: RGBEEncoding,
+	LogLuvEncoding: LogLuvEncoding,
+	RGBM7Encoding: RGBM7Encoding,
+	RGBM16Encoding: RGBM16Encoding,
+	RGBDEncoding: RGBDEncoding,
+	BasicDepthPacking: BasicDepthPacking,
+	RGBADepthPacking: RGBADepthPacking,
+	CubeGeometry: BoxGeometry,
+	Face4: Face4,
+	LineStrip: LineStrip,
+	LinePieces: LinePieces,
+	MeshFaceMaterial: MeshFaceMaterial,
+	MultiMaterial: MultiMaterial,
+	PointCloud: PointCloud,
+	Particle: Particle,
+	ParticleSystem: ParticleSystem,
+	PointCloudMaterial: PointCloudMaterial,
+	ParticleBasicMaterial: ParticleBasicMaterial,
+	ParticleSystemMaterial: ParticleSystemMaterial,
+	Vertex: Vertex,
+	DynamicBufferAttribute: DynamicBufferAttribute,
+	Int8Attribute: Int8Attribute,
+	Uint8Attribute: Uint8Attribute,
+	Uint8ClampedAttribute: Uint8ClampedAttribute,
+	Int16Attribute: Int16Attribute,
+	Uint16Attribute: Uint16Attribute,
+	Int32Attribute: Int32Attribute,
+	Uint32Attribute: Uint32Attribute,
+	Float32Attribute: Float32Attribute,
+	Float64Attribute: Float64Attribute,
+	ClosedSplineCurve3: ClosedSplineCurve3,
+	SplineCurve3: SplineCurve3,
+	Spline: Spline,
+	BoundingBoxHelper: BoundingBoxHelper,
+	EdgesHelper: EdgesHelper,
+	WireframeHelper: WireframeHelper,
+	XHRLoader: XHRLoader,
+	BinaryTextureLoader: BinaryTextureLoader,
+	GeometryUtils: GeometryUtils,
+	ImageUtils: ImageUtils,
+	Projector: Projector,
+	CanvasRenderer: CanvasRenderer
+});
+
 /*
 pliny.function({
   parent: "Live API",
@@ -42853,7 +44966,7 @@ function dynamicInvoke(obj, args) {
     handler.apply(obj, args);
   }
   else {
-    console.error("no", name, "in", obj);
+    console.error("no", name, "in", args, obj);
   }
 }
 
@@ -43000,26 +45113,6 @@ function hax(target, name, thunk) {
   }
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "haxClass",
-  description: "Intercept a class (a function that can be invoked with `new`) that is stored in a target object and inject our own code to run before the object is instantiated.",
-  parameters: [{
-    name: "target",
-    type: "Object",
-    description: "The object in which the class is stored. Probably `window`."
-  }, {
-    name: "name",
-    type: "String",
-    description: "The name of the class, in the object store."
-  }, {
-    name: "thunk",
-    type: "Function",
-    description: "The function to invoke before instantiating the class. It receives the parameters that will be passed to the class constructor."
-  }]
-});
-*/
 function haxClass(target, name, thunk) {
   hax(target, name, (original, args) => {
     thunk(args);
@@ -43031,26 +45124,6 @@ function haxClass(target, name, thunk) {
   });
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "haxFunction",
-  description: "Intercept a function that is stored in a target object and inject our own code to run before the function is called.",
-  parameters: [{
-    name: "target",
-    type: "Object",
-    description: "The object in which the function is stored. Probably `window`."
-  }, {
-    name: "name",
-    type: "String",
-    description: "The name of the function, in the object store."
-  }, {
-    name: "thunk",
-    type: "Function",
-    description: "The function to invoke before calling the target function. It receives the parameters that will be passed to the target function."
-  }]
-});
-*/
 function haxFunction(target, name, thunk) {
   hax(target, name, (original, args) => {
     thunk(args);
@@ -43381,13 +45454,6 @@ function setSetting(settingName, val) {
   }
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "standardUnlockBehavior",
-  description: "On iOS, does nothing. On Android, removes the screen orientation lock. On desktop PCs, removes the moue pointer lock."
-});
-*/
 function standardUnlockBehavior() {
   if (isMobile) {
     if(!isiOS) {
@@ -43401,31 +45467,12 @@ function standardUnlockBehavior() {
   }
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "standardExitFullScreenBehavior",
-  description: "Performs the standardUnlockBehavior before exiting Full Screen mode."
-});
-*/
 function standardExitFullScreenBehavior() {
   return standardUnlockBehavior()
     .then(() => FullScreen.exit())
     .catch((exp) => console.warn("FullScreen failed", exp));
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "standardLockBehavior",
-  description: "On iOS devices, this function does nothing. On Android mobile devices, it locks the screen orientation. On desktop devices, it locks the mouse pointer to the view.",
-  parameters: [{
-    name: "elem",
-    type: "Element",
-    description: "The DOM element to which to perform the lock operations."
-  }]
-});
-*/
 function standardLockBehavior(elem) {
   if(isiOS) {
     return Promise.resolve(elem);
@@ -43440,13 +45487,6 @@ function standardLockBehavior(elem) {
   }
 }
 
-/*
-pliny.function({
-  parent: "Util",
-  name: "standardFullScreenBehavior",
-  description: "Requests Full Screen mode, and whether it succeeds or fails, executes the standardLockBehavior."
-});
-*/
 function standardFullScreenBehavior(elem) {
   return FullScreen.request(elem)
     .catch((exp) => console.warn("FullScreen failed", exp))
@@ -43572,67 +45612,89 @@ Then we can create and use an automatically workerized version of it as follows.
 });
 */
 
+function stringify(val) {
+  const type = typeof val;
+  if(type === "function") {
+    return val.toString();
+  }
+  else {
+    let serialized = JSON.stringify(val);
+    if(val instanceof Date) {
+      serialized = `new Date(${serialized})`;
+    }
+    return serialized;
+  }
+}
+
 class Workerize extends EventDispatcher {
 
-  static createWorker(script, stripFunc) {
-
-    /*
-    pliny.function({
-      parent: "Util.Workerize",
-      name: "createWorker",
-      description: "A static function that loads Plain Ol' JavaScript Functions into a WebWorker.",
-      parameters: [{
-        name: "script",
-        type: "(String|Function)",
-        description: "A String defining a script, or a Function that can be toString()'d to get it's script."
-      }, {
-        name: "stripFunc",
-        type: "Boolean",
-        description: "Set to true if you want the function to strip the surround function block scope from the script."
-      }],
-      returns: "The WebWorker object."
-    });
-    */
-
-    if (typeof script === "function") {
-      script = script.toString();
-    }
-
-    if (stripFunc) {
-      script = script.trim();
-      var start = script.indexOf('{');
+  /*
+  pliny.function({
+    parent: "Util.Workerize",
+    name: "createWorker",
+    description: "A static function that loads Plain Ol' JavaScript Functions into a WebWorker.",
+    parameters: [{
+      name: "script",
+      type: "(String|Function)",
+      description: "A String defining a script, or a Function that can be toString()'d to get it's script."
+    }, {
+      name: "keepFunctionHeader",
+      type: "Boolean",
+      description: "Set to true if you don't want the function to strip the surround function block scope from the script. Ignored if the script begins with a class."
+    }],
+    returns: "The WebWorker object."
+  });
+  */
+  static createWorker(func, dependencies, keepHeader) {
+    let script = func.toString().trim();
+    
+    if(script.indexOf("function") === 0 && !keepHeader) {
+      const start = script.indexOf('{');
       script = script.substring(start + 1, script.length - 1);
     }
-
-    var blob = new Blob([script], {
-        type: "text/javascript"
-      }),
-      dataURI = URL.createObjectURL(blob);
-
-    return new Worker(dataURI);
+      
+    if(dependencies) {
+      script = dependencies
+        .map((d) => d.toString() + "\n\n")
+        .join("")
+        + script;
+    }
+    
+    const blob = new Blob([script], { type: "text/javascript" }),
+      dataURI = URL.createObjectURL(blob),
+      worker = new Worker(dataURI);
+    
+    return worker;
   }
 
-  constructor(func) {
+  constructor(func, dependencies) {
     super();
-    // First, rebuild the script that defines the class. Since we're dealing
-    // with pre-ES6 browsers, we have to use ES5 syntax in the script, or invoke
-    // a conversion at a point post-script reconstruction, pre-workerization.
 
-    // start with the constructor function
-    var script = func.toString(),
-      // strip out the name in a way that Internet Explorer also understands
-      // (IE doesn't have the Function.name property supported by Chrome and
-      // Firefox)
-      matches = script.match(/function\s+(\w+)\s*\(/),
-      name = matches[1],
-      k;
+    // First, rebuild the script that defines the class.
 
-    // then rebuild the member methods
-    for (k in func.prototype) {
-      // We preserve some formatting so it's easy to read the code in the debug
-      // view. Yes, you'll be able to see the generated code in your browser's
-      // debugger.
-      script += "\n\n" + name + ".prototype." + k + " = " + func.prototype[k].toString() + ";";
+    // start with the constructor function or class definition
+    let script = func.toString();
+
+    // strip out the name in a way that Internet Explorer also understands
+    // (IE doesn't have the Function.name property supported by Chrome and
+    // Firefox)
+    const matches = script.match(/(function|class)(?:\s|\n)+(\w+)/),
+      isFunction = matches[1] === "function",
+      name = matches[2];
+
+    if(isFunction) {
+      // then rebuild the member methods
+      for (let k in func.prototype) {
+        // We preserve some formatting so it's easy to read the code in the debug
+        // view. Yes, you'll be able to see the generated code in your browser's
+        // debugger.
+        script += `\n\n${name}.prototype.${k} = ${stringify(func.prototype[k])};`;
+      }
+    }
+
+    // And the static members
+    for(let k in func) {
+      script += `\n\n${name}\.${k} = ${stringify(func[k])};`;
     }
 
     // Automatically instantiate an object out of the class inside the worker,
@@ -43674,7 +45736,7 @@ class Workerize extends EventDispatcher {
       description: "The worker thread containing our class."
     });
     */
-    this.worker = Workerize.createWorker(script, false);
+    this.worker = Workerize.createWorker(script, dependencies, true);
 
     /*
     pliny.property({
@@ -44924,6 +46986,7 @@ class Entity extends Object3D {
     this.mesh = null;
 
     this.physMapped = false;
+    this._index = null;
 
     this.velocity = new Vector3();
     this.angularVelocity = new Vector3();
@@ -45041,29 +47104,30 @@ class Entity extends Object3D {
 
   newBody(options) {
     this.physMapped = true;
-    this.commands.push(["newBody", this.uuid, options.mass, options.type]);
+    this.commands.push(["newBody", options.mass, options.type || 1]);
   }
 
   addSphere(r) {
-    this.commands.push(["addSphere", this.uuid, r]);
+    this.commands.push(["addSphere", r]);
   }
 
   addPlane() {
-    this.commands.push(["addPlane", this.uuid]);
+    this.commands.push(["addPlane"]);
   }
 
   addBox(w, h, d) {
-    this.commands.push(["addBox", this.uuid, w, h, d]);
+    this.commands.push(["addBox", w, h, d]);
   }
 
   spring(b, options) {
     if(this.physMapped && b.physMapped) {
-      this.commands.push(["addSpring",
-        this.uuid,
-        b.uuid,
+      this.commands.push([
+        "addSpring",
+        b._index,
         options.restLength,
         options.stiffness,
-        options.damping]);
+        options.damping
+      ]);
     }
     else {
       console.warn("Missing physics objects [A, B]: ", this.physMapped, b.physMapped);
@@ -47044,31 +49108,6 @@ Button3D.DEFAULTS = {
   toggle: true
 };
 
-/*
-pliny.class({
-  parent: "Primrose.Plugin",
-  name: "BasePlugin",
-  baseClass: "THREE.EventDispatcher",
-  description: "A common base class for all plugins.",
-  parameters: [{
-    name: "name",
-    type: "String",
-    description: "A friendly name for the plugin."
-  }, {
-    name: "options",
-    type: "Object",
-    description: "A hash object for optional parameters",
-    optional: true,
-    default: null
-  }, {
-    name: "defaults",
-    type: "Object",
-    description: "A hash object containing the default values for all optional parameters",
-    optional: true,
-    default: null
-  }]
-});
-*/
 class BasePlugin extends EventDispatcher {
 
   constructor(name, options, defaults) {
@@ -47880,39 +49919,6 @@ CubeTextureLoader.prototype.load = function(urls, onLoad, onProgress, onError) {
   return texture;
 };
 
-/*
-pliny.method({
-  parent: "THREE.Object3D",
-  name: "emit",
-  description: "Creates a new Event object to fire through `dispatchEvent`.",
-  parameters: [{
-    name: "evt",
-    type: "String",
-    description: "The type of the event to fire."
-  }, {
-    name: "obj",
-    type: "Object",
-    description: "Additional information to include in the event.",
-    optional: true
-  }]
-});
-
-pliny.method({
-  parent: "THREE.EventDispatcher",
-  name: "emit",
-  description: "Creates a new Event object to fire through `dispatchEvent`.",
-  parameters: [{
-    name: "evt",
-    type: "String",
-    description: "The type of the event to fire."
-  }, {
-    name: "obj",
-    type: "Object",
-    description: "Additional information to include in the event.",
-    optional: true
-  }]
-});
-*/
 Object3D.prototype.emit = EventDispatcher.prototype.emit = function(evt, obj) {
   if(!obj) {
     obj = {};
@@ -48109,21 +50115,15 @@ Object3D.prototype.on = EventDispatcher.prototype.on = function(event, listener)
   return this;
 };
 
-/*
-pliny.method({
-  parent: "THREE.Matrix4",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the matrix.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per matrix element.",
-    optional: true,
-    default: 10
-  }]
-});
-*/
+Object3D.prototype.once = EventDispatcher.prototype.once = function(event, listener) {
+  const handler = (evt) => {
+    listener(evt);
+    this.removeEventListener(event, handler);
+  };
+
+  this.addEventListener(event, handler);
+};
+
 Matrix4.prototype.toString = function(digits) {
   if(digits === undefined){
     digits = 10;
@@ -48751,14 +50751,6 @@ Object.assign( MTLLoader, {
   CASTS_SHADOWS_ONTO_INVISIBLE_SURFACES: 10
 });
 
-/*
-pliny.property({
-  parent: "THREE.Object3D",
-  name: "pickable",
-  type: "Boolean",
-  description: "Returns true if the current object has any event listeners attached to it that represent picking operations."
-});
-*/
 Object.defineProperty(Object3D.prototype, "pickable", {
   get: function() {
     const l = this._listeners;
@@ -49714,27 +51706,6 @@ class OBJ {
 	}
 }
 
-/*
-pliny.method({
-  parent: "THREE.Geometry",
-  name: "offset",
-  returns: "THREE.Geometry",
-  descriptions: "Modifies the geometry, adding a constant offset to each vertex. Returns itself to enable method chaining.",
-  parameters: [{
-    name: "x",
-    type: "Number",
-    description: "The offset in the X-axis by which to move the vertices."
-  }, {
-    name: "y",
-    type: "Number",
-    description: "The offset in the Y-axis by which to move the vertices."
-  }, {
-    name: "z",
-    type: "Number",
-    description: "The offset in the Z-axis by which to move the vertices."
-  }]
-})
-*/
 Geometry.prototype.offset = function(x, y, z){
   const arr = this.vertices;
   for(let i = 0; i < arr.length; ++i) {
@@ -49779,19 +51750,6 @@ BufferGeometry.prototype.offset = function(x, y, z){
   return this;
 };
 
-/*
-pliny.method({
-  parent: "THREE.Object3D",
-  name: "phys",
-  description: "Make a 3D object react to physics updates. Calls `Live API.phys` under the hood.",
-  returns: "Primrose.Controls.Entity",
-  parameters: [{
-    name: "options",
-    type: "Live API.phys.optionsHash",
-    description: "Optional settings for creating the physics settings."
-  }]
-});
-*/
 Object3D.prototype.phys = Mesh.prototype.phys = function(options) {
   return phys(this, options);
 };
@@ -49854,77 +51812,6 @@ Mesh.prototype.textured =
     return textured(this, texture, options);
   };
 
-/*
-pliny.method({
-  parent: "THREE.Euler",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the Euler rotation.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-
-pliny.method({
-  parent: "THREE.Quaternion",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the Quaternion rotation.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-
-pliny.method({
-  parent: "THREE.Vector2",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the vector.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-
-pliny.method({
-  parent: "THREE.Vector3",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the vector.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-
-pliny.method({
-  parent: "THREE.Vector4",
-  name: "toString",
-  returns: "String",
-  description: "Prints a debugging log of the vector.",
-  parameters: [{
-    name: "digits",
-    type: "Number",
-    description: "The number of significant digits to print per element.",
-    optional: true,
-    default: 10
-  }]
-});
-*/
 Euler.prototype.toString =
 Quaternion.prototype.toString =
 Vector2.prototype.toString =
@@ -50195,8 +52082,6 @@ pliny.class({
 });
 */
 
-// The JSON format object loader is not always included in the Three.js distribution,
-// so we have to first check for it.
 var loaders = null;
 var PATH_PATTERN = /((?:https?:\/\/)?(?:[^/]+\/)+)(\w+)(\.(?:\w+))$/;
 var EXTENSION_PATTERN = /(\.(?:\w+))+$/;
@@ -50887,12 +52772,6 @@ class Progress {
   }
 }
 
-/*, {
-    name: "texture",
-    type: "String or Array of String",
-    optional: true,
-    description: "The texture(s) to use for the sky."
-  }*/
 class SkyPlugin extends BasePlugin {
   constructor(options) {
     super("Sky", options);
@@ -54854,14 +56733,49 @@ var Controls = {
   Video
 };
 
-/*
-pliny.class({
-  parent: "Primrose.Plugin",
-  baseClass: "Primrose.Plugin.BasePlugin",
-  name: "GroundPhysics",
-  description: "Adds the ground to the physics system."
-});
-*/
+function cmd() {
+  const params = Array.prototype.slice.call(arguments),
+    name = params.splice(0, 1);
+  return { name, params };
+}
+
+const Commands = [
+  cmd("addBox", "Int32", "Float64", "Float64", "Float64"),
+  cmd("addPlane", "Int32"),
+  cmd("addSphere", "Int32", "Float64"),
+  cmd("addSpring", "Int32", "Int32", "Float64", "Float64", "Float64"),
+  cmd("disableAllowSleep"),
+  cmd("enableAllowSleep"),
+  cmd("newBody", "Int32", "Float64", "Int32"),
+  cmd("removeBody", "Int32"),
+  cmd("setAngularDamping", "Int32", "Float64"),
+  cmd("setAngularVelocity", "Int32", "Float64", "Float64", "Float64"),
+  cmd("setGravity", "Float64"),
+  cmd("setLinearDamping", "Int32", "Float64"),
+  cmd("setPosition", "Int32", "Float64", "Float64", "Float64"),
+  cmd("setQuaternion", "Int32", "Float64", "Float64", "Float64", "Float64"),
+  cmd("setVelocity", "Int32", "Float64", "Float64", "Float64")
+];
+const CommandIDs = {};
+
+for(let i = 0; i < Commands.length; ++i) {
+  CommandIDs[Commands[i].name] = i;
+}
+
+function checkCommands(obj, reqs = []) {
+  for(let i = 0; i < Commands.length; ++i) {
+    const cmd = Commands[i],
+      handler = obj[cmd.name];
+    if(typeof handler !== "function") {
+      reqs.push("Physics server plugin does not implement command: " + cmd.name);
+    }
+    else if(handler.length !== cmd.params.length) {
+      reqs.push(`Physics server plugin's implementation of command: ${cmd.name} had ${handler.length} parameters when ${cmd.params.length} were expected.`);
+    }
+  }
+  return reqs;
+}
+
 class GroundPhysics extends BasePlugin {
 
   constructor() {
@@ -54882,24 +56796,27 @@ class GroundPhysics extends BasePlugin {
 
 }
 
-class BaseServerPlugin extends BasePlugin {
+class BaseEnginePlugin extends BasePlugin {
 
   constructor(options, defaults) {
-    super("PhysicsServer", options, coalesce({
+    super("PhysicsEngine", options, coalesce({
       allowSleep: true,
       gravity: -9.8
     }, defaults));
 
+    this._toRemove = [];
     this._gravity = null;
     this._allowSleep = null;
   }
 
   get requirements() {
-    return ["scene", "entities"];
+    const reqs = ["scene", "entities"];
+    return checkCommands(this, reqs);
   }
 
   _install(env) {
     env.physics = this;
+
 
     this.gravity = this.options.gravity;
     this.allowSleep = this.options.allowSleep;
@@ -54911,37 +56828,56 @@ class BaseServerPlugin extends BasePlugin {
     for(let i = 0; i < env.entities.count; ++i) {
       const ent = env.entities.get(i);
       if(ent.physMapped) {
-        for(let i = 0; i < ent.commands.length; ++i) {
-          dynamicInvoke(this, ent.commands[i]);
-        }
-        ent.commands.length = 0;
+        if(ent.parent != null) {
+          for(let j = 0; j < ent.commands.length; ++j) {
+            const args = ent.commands[j];
+            args.splice(1, 0, i);
+            dynamicInvoke(this, args);
+          }
+          ent.commands.length = 0;
 
-        if(ent.positionChanged) {
-          this.setPosition(ent.uuid, ent.position.x, ent.position.y, ent.position.z);
-        }
+          if(ent.positionChanged) {
+            this.setPosition(i, ent.position.x, ent.position.y, ent.position.z);
+          }
 
-        if(ent.quaternionChanged) {
-          this.setQuaternion(ent.uuid, ent.quaternion.x, ent.quaternion.y, ent.quaternion.z, ent.quaternion.w);
-        }
+          if(ent.quaternionChanged) {
+            this.setQuaternion(i, ent.quaternion.x, ent.quaternion.y, ent.quaternion.z, ent.quaternion.w);
+          }
 
-        if(ent.velocityChanged) {
-          this.setVelocity(ent.uuid, ent.velocity.x, ent.velocity.y, ent.velocity.z);
-        }
+          if(ent.velocityChanged) {
+            this.setVelocity(i, ent.velocity.x, ent.velocity.y, ent.velocity.z);
+          }
 
-        if(ent.angularVelocityChanged) {
-          this.setAngularVelocity(ent.uuid, ent.angularVelocity.x, ent.angularVelocity.y, ent.angularVelocity.z);
-        }
+          if(ent.angularVelocityChanged) {
+            this.setAngularVelocity(i, ent.angularVelocity.x, ent.angularVelocity.y, ent.angularVelocity.z);
+          }
 
-        if(ent.linearDampingChanged) {
-          this.setLinearDamping(ent.uuid, ent.linearDamping);
-        }
+          if(ent.linearDampingChanged) {
+            this.setLinearDamping(i, ent.linearDamping);
+          }
 
-        if(ent.angularDampingChanged) {
-          this.setAngularDamping(ent.uuid, ent.angularDamping);
-        }
+          if(ent.angularDampingChanged) {
+            this.setAngularDamping(i, ent.angularDamping);
+          }
 
-        ent.commit();
+          ent.commit();
+        }
+        else {
+          this._toRemove.push(i);
+        }
       }
+    }
+
+    if(this._toRemove.length > 0) {
+      for(let n = 0; n < this._toRemove.length; ++n) {
+        const i = this._toRemove[n],
+          ent = env.entities.get(i);
+          
+        this.removeBody(i);
+        ent.physMapped = false;
+        env.entities.remove(i);
+      }
+      this._toRemove.length = 0;
     }
   }
 
@@ -54966,62 +56902,6 @@ class BaseServerPlugin extends BasePlugin {
   set gravity(v) {
     this._gravity = v;
     this.setGravity(v);
-  }
-
-  setGravity(v) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setGravity(v)");
-  }
-
-  enableAllowSleep() {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::enableAllowSleep()");
-  }
-
-  disableAllowSleep() {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::disableAllowSleep()");
-  }
-
-  newBody(id, mass, type) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::newBody(id, mass, type)");
-  }
-
-  addSphere(id, radius) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addSphere(id, radius)");
-  }
-
-  addBox(id, width, height, depth) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addBox(id, width, height, depth)");
-  }
-
-  addPlane(id) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addPlane(id)");
-  }
-
-  setPosition(id, x, y, z) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setPosition(id, x, y, z)");
-  }
-
-  setQuaternion(id, x, y, z, w) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setQuaternion(id, x, y, z, w)");
-  }
-
-  setVelocity(id, x, y, z) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setVelocity(id, x, y, z)");
-  }
-
-  setAngularVelocity(id, x, y, z) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setAngularVelocity(id, x, y, z)");
-  }
-
-  setLinearDamping(id, v) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setLinearDamping(id, v)");
-  }
-
-  setAngularDamping(id, v) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::setAngularDamping(id, v)");
-  }
-
-  addSpring(id1, id2, restLength, stiffness, damping) {
-    throw new Error("Not implemented: Primrose.Physics.BaseServerPlugin::addSpring(id1, id2, restLength, stiffness, damping)");
   }
 }
 
@@ -68806,15 +70686,20 @@ class DirectedForceField {
 }
 
 class EngineServer {
-  constructor(send) {
-    this.send = send;
+  constructor() {
+
+    const reqs = checkCommands(this);
+    if(reqs.length > 0) {
+      throw new Error(reqs.join("/n"));
+    }
+
     this.physics = new cannon.World();
     this.bodyIDs = [];
     this.bodyDB = {};
     this.springs = [];
     this.output = [];
 
-    this.physics.broadphase = new cannon.NaiveBroadphase();
+    this.physics.broadphase = new cannon.SAPBroadphase(this.physics);
     this.physics.solver.iterations = 10;
 
     this.physics.addEventListener("postStep", (evt) => {
@@ -68828,33 +70713,54 @@ class EngineServer {
     this.physics.step(EngineServer.DT, dt);
   }
 
-  enableAllowSleep() {
-    this.physics.allowSleep = true;
-  }
-
-  disableAllowSleep(v) {
-    this.physics.allowSleep = false;
-  }
-
-  setGravity(g) {
-    this.physics.gravity.set(0, g, 0);
-  }
-
   sleepBody(evt) {
     //console.log(this, evt.target);
   }
 
   getBody(id) {
     const body = this.bodyDB[id];
-    if(!body)  {
-      console.error("Don't recognize body", id);
+    if(!body) {
+      console.log("don't have", id, this.bodyIDs);
     }
-    else {
-      if(body.sleepState === cannon.Body.SLEEPING) {
-        body.wakeUp();
-      }
-      return body;
+    else if(body.sleepState === cannon.Body.SLEEPING) {
+      body.wakeUp();
     }
+    return body;
+  }
+
+  addBox(id, width, height, depth) {
+    const body = this.getBody(id);
+    body.addShape(
+      new cannon.Box(
+        new cannon.Vec3(width, height, depth)));
+  }
+
+  addSphere(id, radius) {
+    const body = this.getBody(id);
+    body.addShape(new cannon.Sphere(radius));
+  }
+
+  addPlane(id) {
+    const body = this.getBody(id);
+    body.addShape(new cannon.Plane());
+  }
+
+  addSpring(id1, id2, restLength, stiffness, damping) {
+    const body1 = this.getBody(id1),
+      body2 = this.getBody(id2);
+    this.springs.push(new cannon.Spring(body1, body2, {
+      restLength,
+      stiffness,
+      damping
+    }));
+  }
+
+  disableAllowSleep() {
+    this.physics.allowSleep = false;
+  }
+
+  enableAllowSleep() {
+    this.physics.allowSleep = true;
   }
 
   newBody(id, mass, type) {
@@ -68871,21 +70777,46 @@ class EngineServer {
     this.physics.addBody(body);
   }
 
-  addSphere(id, radius) {
-    const body = this.getBody(id);
-    body.addShape(new cannon.Sphere(radius));
+  removeBody(oldID) {
+    const oldBodyDB = this.bodyDB,
+      oldBodyIDs = this.bodyIDs;
+
+    this.bodyDB = {};
+    this.bodyIDs = [];
+    
+    for(let i = 0; i < oldBodyIDs.length; ++i) {
+      const curID = oldBodyIDs[i];
+      if(curID < oldID) {
+        this.bodyDB[curID] = oldBodyDB[curID];
+        this.bodyIDs.push(curID);
+      }
+      else if(curID > oldID) {
+        this.bodyDB[curID - 1] = oldBodyDB[curID];
+        this.bodyIDs.push(curID - 1);
+      }
+      else {
+        this.physics.removeBody(oldBodyDB[curID]);
+      }
+    }
   }
 
-  addBox(id, width, height, depth) {
+  setAngularDamping(id, v) {
     const body = this.getBody(id);
-    body.addShape(
-      new cannon.Box(
-        new cannon.Vec3(width, height, depth)));
+    body.angularDamping = v;
   }
 
-  addPlane(id) {
+  setAngularVelocity(id, x, y, z) {
     const body = this.getBody(id);
-    body.addShape(new cannon.Plane());
+    body.angularVelocity.set(x, y, z);
+  }
+
+  setGravity(g) {
+    this.physics.gravity.set(0, g, 0);
+  }
+
+  setLinearDamping(id, v) {
+    const body = this.getBody(id);
+    body.linearDamping = v;
   }
 
   setPosition(id, x, y, z) {
@@ -68902,31 +70833,6 @@ class EngineServer {
     const body = this.getBody(id);
     body.velocity.set(x, y, z);
   }
-
-  setAngularVelocity(id, x, y, z) {
-    const body = this.getBody(id);
-    body.angularVelocity.set(x, y, z);
-  }
-
-  setLinearDamping(id, v) {
-    const body = this.getBody(id);
-    body.linearDamping = v;
-  }
-
-  setAngularDamping(id, v) {
-    const body = this.getBody(id);
-    body.angularDamping = v;
-  }
-
-  addSpring(id1, id2, restLength, stiffness, damping) {
-    const body1 = this.getBody(id1),
-      body2 = this.getBody(id2);
-    this.springs.push(new cannon.Spring(body1, body2, {
-      restLength,
-      stiffness,
-      damping
-    }));
-  }
 }
 
 EngineServer.DT = 0.01;
@@ -68935,13 +70841,12 @@ class EntityManager extends BasePlugin {
   constructor() {
     super("EntityManager");
     this.entities = [];
-    this.entityDB = {};
     this._find =  (child) => {
       if(child.isEntity) {
         const i = this.entities.indexOf(child);
-        if(i === -1) {
+        if(child.parent !== null && i === -1) {
+          child._index = this.entities.length;
           this.entities.push(child);
-          this.entityDB[child.uuid] = child;
         }
       }
     };
@@ -68957,12 +70862,15 @@ class EntityManager extends BasePlugin {
 
   preUpdate(env, dt) {
     env.scene.traverse(this._find);
+    for(let i = 0; i < this.entities.length; ++i) {
+      const child = this.entities[i];
+      if(child.parent !== null) {
+        child.update(dt);  
+      }
+    }
   }
 
   postUpdate(env, dt) {
-    for(let i = 0; i < this.entities.length; ++i) {
-      this.entities[i].update();
-    }
   }
 
   get count() {
@@ -68970,17 +70878,15 @@ class EntityManager extends BasePlugin {
   }
 
   get(id) {
-    const t = typeof id;
-    if(t === "number") {
-      return this.entities[id];
-    }
-    else if(t === "string") {
-      return this.entityDB[id];
-    }
+    return this.entities[id];
+  }
+
+  remove(id) {
+    return this.entities.splice(id, 1);
   }
 }
 
-class InRenderThreadServer extends BaseServerPlugin {
+class InRenderThreadEngine extends BaseEnginePlugin {
 
   constructor() {
     super();
@@ -69020,6 +70926,10 @@ class InRenderThreadServer extends BaseServerPlugin {
 
   newBody(id, mass, type) {
     this._engine.newBody(id, mass, type);
+  }
+
+  removeBody(id) {
+    this._engine.removeBody(id);
   }
 
   addSphere(id, radius) {
@@ -69063,111 +70973,273 @@ class InRenderThreadServer extends BaseServerPlugin {
   }
 }
 
-const rpcQueue = [];
+const DATA_START = 1;
+const DATA_LENGTH = 80000000;
+const PTR = Symbol("PTR");
+const DV = Symbol("DV");
 
-function pq() {
-  rpcQueue.push.apply(rpcQueue, arguments);
-}
-
-function recv(ent, arr, i) {
-  if(!ent.changed) {
-    ent.position.fromArray(arr, i + 1);
-    ent.quaternion.fromArray(arr, i + 4);
-    ent.velocity.fromArray(arr, i + 8);
-    ent.angularVelocity.fromArray(arr, i + 11);
-    ent.updateMatrix();
-    ent.commit();
+class RPCBuffer {
+  constructor(buffer) {
+    if(buffer) {
+      this.buffer = buffer;
+    }
+    else {
+      this.buffer = new ArrayBuffer(DATA_LENGTH);
+      this.rewind();
+    }
   }
-  return i + 14;
+
+  set buffer(v) {
+    this[DV] = new Float64Array(v);
+    this[PTR] = DATA_START;
+  }
+
+  get buffer() {
+    return this[DV].buffer;
+  }
+
+  get ready() {
+    return this.buffer.byteLength > 0;
+  }
+
+  get length() {
+    if(this.ready) {
+      return this[DV][0];
+    }
+  }
+
+  set length(v) {
+    if(this.ready) {
+      this[DV][0] = v;
+    }
+  }
+
+  get available() {
+    return this[PTR] < this.length;
+  }
+
+  get full() {
+    return this.length === DATA_LENGTH;
+  }
+
+  add(v) {
+    if(this.ready && !this.full) {
+      this[DV][this.length++] = v;
+    }
+  }
+
+  remove() {
+    if(this.ready && this.available) {
+      return this[DV][this[PTR]++];
+    }
+  }
+
+  rewind() {
+    this[PTR] = DATA_START;
+    this.length = DATA_START;
+  }
 }
 
-class InWorkerThreadServer extends BaseServerPlugin {
+const startMessage = { type: "start", messageID: null };
+const stopMessage = { type: "stop", messageID: null};
+
+let rpc = null;
+
+class InWorkerThreadEngine extends BaseEnginePlugin {
   constructor(options) {
     super(options);
 
+    this.entities = null;
+    this._transferables = [];
+    this._nextMessageID = 1;
+    this._resolvers = {};
     this._worker = new Worker(this.options.workerPath);
-    this._worker.onmessage = (evt) => {
-      let i = 0;
-      while(i < evt.data.length) {
-        const id = evt.data[i],
-          ent = env.entities.get(id);
-        if(ent) {
-          i = recv(ent, evt.data, i);
+    this._bufferReady = new Promise((resolve, reject) => {
+      this._worker.onmessage = (evt) => {
+        const messageID = evt.data.messageID;
+        if(messageID) {
+          const resolver = this._resolvers[messageID];
+          if(resolver) {
+            delete this._resolvers[messageID];
+            resolver(evt.data);
+          }
         }
-      }
-    };
+        else {
+          if(rpc === null) {
+            rpc = new RPCBuffer(evt.data);
+            resolve();
+          }
+          else {
+            rpc.buffer = evt.data;
+          }
+
+          while(rpc.available) {
+            const id = rpc.remove(),
+              ent = this.entities.get(id);
+            if(ent && !ent.changed) {
+              ent.position.set(
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove());
+
+              ent.quaternion.set(
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove());
+
+              ent.velocity.set(
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove());
+
+              ent.angularVelocity.set(
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove());
+
+              ent.updateMatrix();
+              ent.commit();
+            }
+          }
+
+          rpc.rewind();
+        }
+      };
+    });
+  }
+
+  _install(env) {
+    this.entities = env.entities;
+    return this._bufferReady.then(() =>
+      super._install(env));
+  }
+
+  post(data, transfer) {
+    if(transfer) {
+      this._transferables[0] = data;
+      this._worker.postMessage(data, this._transferables);
+    }
+    else {
+      return new Promise((resolve, reject) => {
+        data.messageID = this._nextMessageID++;
+        this._resolvers[data.messageID] = resolve;
+        this._worker.postMessage(data);
+      });
+    }
   }
 
   start() {
-    this._worker.postMessage("start");
+    return this.post(startMessage);
   }
 
   stop() {
-    this._worker.postMessage("stop");
+    return this.post(stopMessage);
   }
 
   preUpdate(env, dt) {
-    super.preUpdate(env, dt);
-    if(rpcQueue.length > 0) {
-      this._worker.postMessage(rpcQueue);
-      rpcQueue.length = 0;
+    if(rpc && rpc.ready) {
+      super.preUpdate(env, dt);
+      this.post(rpc.buffer, true);
     }
   }
 
   setGravity(v) {
-    pq("setGravity", v);
+    rpc.add(CommandIDs.setGravity);
+    rpc.add(v);
   }
 
   enableAllowSleep() {
-    pq("enableAllowSleep");
+    rpc.add(CommandIDs.enableAllowSleep);
   }
 
   disableAllowSleep() {
-    pq("disableAllowSleep");
+    rpc.add(CommandIDs.disableAllowSleep);
   }
 
   newBody(id, mass, type) {
-    pq("newBody", id, mass, type);
+    rpc.add(CommandIDs.newBody);
+    rpc.add(id);
+    rpc.add(mass);
+    rpc.add(type);
+  }
+
+  removeBody(id) {
+    rpc.add(CommandIDs.removeBody);
+    rpc.add(id);
   }
 
   addSphere(id, radius) {
-    pq("addSphere", id, radius);
+    rpc.add(CommandIDs.addSphere);
+    rpc.add(id);
+    rpc.add(radius);
   }
 
   addBox(id, width, height, depth) {
-    pq("addBox", id, width, height, depth);
+    rpc.add(CommandIDs.addBox);
+    rpc.add(id);
+    rpc.add(width);
+    rpc.add(height);
+    rpc.add(depth);
   }
 
   addPlane(id) {
-    pq("addPlane", id);
+    rpc.add(CommandIDs.addPlane);
+    rpc.add(id);
   }
 
   setPosition(id, x, y, z) {
-    pq("setPosition", id, x, y, z);
+    rpc.add(CommandIDs.setPosition);
+    rpc.add(id);
+    rpc.add(x);
+    rpc.add(y);
+    rpc.add(z);
   }
 
   setQuaternion(id, x, y, z, w) {
-    pq("setQuaternion", id, x, y, z, w);
+    rpc.add(CommandIDs.setQuaternion);
+    rpc.add(id);
+    rpc.add(x);
+    rpc.add(y);
+    rpc.add(z);
+    rpc.add(w);
   }
 
   setVelocity(id, x, y, z) {
-    pq("setVelocity", id, x, y, z);
+    rpc.add(CommandIDs.setVelocity);
+    rpc.add(id);
+    rpc.add(x);
+    rpc.add(y);
+    rpc.add(z);
   }
 
   setAngularVelocity(id, x, y, z) {
-    pq("setAngularVelocity", id, x, y, z);
+    rpc.add(CommandIDs.setAngularVelocity);
+    rpc.add(id);
+    rpc.add(x);
+    rpc.add(y);
+    rpc.add(z);
   }
 
   setLinearDamping(id, v) {
-    pq("setLinearDamping", id, v);
+    rpc.add(CommandIDs.setLinearDamping);
+    rpc.add(id);
+    rpc.add(v);
   }
 
   setAngularDamping(id, v) {
-    pq("setAngularDamping", id, v);
+    rpc.add(CommandIDs.setAngularDamping);
+    rpc.add(id);
+    rpc.add(v);
   }
 
   addSpring(id1, id2, restLength, stiffness, damping) {
-    pq("addSpring", id1, id2, restLength, stiffness, damping);
+    rpc.add(CommandIDs.addSpring);
+    rpc.add(id1);
+    rpc.add(id2);
+    rpc.add(restLength);
+    rpc.add(stiffness);
+    rpc.add(damping);
   }
 }
 
@@ -69180,13 +71252,14 @@ pliny.namespace({
 */
 
 var Physics = {
-  BaseServerPlugin,
+  BaseEnginePlugin,
   DirectedForceField,
   EngineServer,
   EntityManager,
   GroundPhysics,
-  InRenderThreadServer,
-  InWorkerThreadServer
+  InRenderThreadEngine,
+  InWorkerThreadEngine,
+  RPCBuffer
 };
 
 const TEMP = new Vector3();
@@ -70779,14 +72852,6 @@ class Note extends PositionalSound {
   }
 }
 
-/*
-pliny.class({
-  parent: "Primrose.Audio",
-  name: "Music",
-  description: "A synthesizer that you can program to play notes."
-});
-*/
-
 var MAX_NOTE_COUNT = (navigator.maxTouchPoints || 10) + 1;
 var TYPES = ["sine",
     "square",
@@ -70923,14 +72988,6 @@ class Sound extends PositionalSound {
   }
 }
 
-/*
-pliny.class({
-  parent: "Primrose.Audio",
-  baseClass: "Primrose.BasePlugin",
-  name: "Speech",
-  description: "Installs a text-2-speech engine in the BrowserEnvironment"
-});
-*/
 class Speech extends BasePlugin {
   constructor (options) {
     super("Text2Speech", options, {
@@ -71408,7 +73465,6 @@ function calcFoV(aFoV, aDim, bDim){
 
 let defaultFieldOfView = 100;
 
-// Start at a higher number to reduce chance of conflict.
 let nextDisplayId$1 = 1000;
 
 class PolyfilledVRDisplay extends BaseVRDisplay {
@@ -73274,16 +75330,6 @@ pliny.class({
 });
 */
 
-/**
- * An implementation of a simple complementary filter, which fuses gyroscope and accelerometer data from the 'devicemotion' event.
- *
- * Accelerometer data is very noisy, but stable over the long term. Gyroscope data is smooth, but tends to drift over the long term.
- *
- * This fusion is relatively simple:
- * 1. Get orientation estimates from accelerometer by applying a low-pass filter on that data.
- * 2. Get orientation estimates from gyroscope by integrating over time.
- * 3. Combine the two estimates, weighing (1) in the long term, but (2) for the short term.
- */
 class ComplementaryFilter {
   constructor(kFilter) {
     this.kFilter = kFilter;
@@ -73917,9 +75963,6 @@ pliny.class({
 });
 */
 
-/*
-  A collection of all the recorded state values at a single point in time.
-*/
 class Frame {
 
   static parse(timestamp, obj, root) {
@@ -75635,11 +77678,16 @@ class Environment extends EventDispatcher {
     this.start = () => {
       if(allowRestart) {
         this.ready.then(() => {
-          this.plugins.forEach((plugin) =>
-            plugin.start());
           this.VR.currentDevice.startAnimation(animate);
           lt = performance.now() * MILLISECONDS_TO_SECONDS;
           this.renderer.domElement.style.cursor = "none";
+          let promise = Promise.resolve();
+          for(let i = 0; i < this.plugins.length; ++i) {
+            const plugin = this.plugins[i];
+            promise = promise.then(() =>
+              plugin.start());
+          }
+          return promise;
         });
       }
     };
@@ -76474,15 +78522,6 @@ Environment.DEFAULTS = {
   disableAdvertising: false
 };
 
-/*
-pliny.class({
-  parent: "Primrose.Controls",
-  baseClass: "Primrose.BasePlugin",
-  name: "iOSOrientationHack",
-  description: "Makes up for iOS not firing the `resize` event on the window when the user changes orientation of their device."
-});
-*/
-
 class iOSOrientationHack extends BasePlugin {
   constructor() {
     super("iOSOrientationHack");
@@ -76576,19 +78615,6 @@ class MixedRealityVRDisplay extends PolyfilledVRDisplay {
   }
 }
 
-/*
-  pliny.method({
-    parent: "Primrose.Environment",
-    name: "insertFullScreenButtons",
-    description: "Add the default UI for managing full screen state.",
-    returns: "Array of `HTMLButtonElement`s",
-    parameters: [{
-      name: "containerSpec",
-      type: "String",
-      description: "A query selector for the DOM element to which to add the buttons."
-    }]
-  });
-  */
 class PresentationUI extends BasePlugin {
   constructor(options) {
     super("PresentationUI", options);
@@ -76739,14 +78765,6 @@ var Displays = {
   StandardMonitorVRDisplay
 };
 
-/*
-pliny.class({
-  parent: "Primrose.Graphics",
-  baseClass: "Primrose.BasePlugin",
-  name: "FogPlugin",
-  description: "Installs fog in the BrowserEnvironment"
-});
-*/
 class FogPlugin extends BasePlugin {
 
   constructor() {
@@ -76780,14 +78798,6 @@ class ModelFactoryPlugin extends BasePlugin {
   }
 }
 
-/*
-pliny.class({
-  parent: "Primrose.Graphics.Shadows",
-  baseClass: "Primrose.BasePlugin",
-  name: "EnableShadows",
-  description: "Installs shadow mapping on the renderer in the BrowserEnvironment"
-});
-*/
 class EnableShadows extends BasePlugin {
 
   constructor() {
@@ -76805,14 +78815,6 @@ class EnableShadows extends BasePlugin {
 
 }
 
-/*
-pliny.class({
-  parent: "Primrose.Graphics.Shadows",
-  baseClass: "Primrose.BasePlugin",
-  name: "GroundShadows",
-  description: "Installs shadow mapping on the ground in the BrowserEnvironment"
-});
-*/
 class GroundShadows extends BasePlugin {
 
   constructor(options) {
@@ -76836,43 +78838,6 @@ class GroundShadows extends BasePlugin {
 
 }
 
-/*
-pliny.class({
-  parent: "Primrose.Graphics.Shadows",
-  baseClass: "Primrose.BasePlugin",
-  name: "SunShadows",
-  description: "Installs shadow mapping from the Sun in the BrowserEnvironment",
-  parameters: [{
-    name: "options",
-    type: "Primrose.Graphics.Shadows.SunShadows.optionsHash",
-    description: "Options for creating the shadow map"
-  }]
-});
-
-pliny.record({
-  parent: "Primrose.Graphics.Shadows.SunShadows",
-  name: "optionsHash",
-  parameters: [{
-    name: "mapSize",
-    type: "Number",
-    optional: true,
-    default: 2048,
-    description: "The size to use for the width and height of the shadow map that will be generated."
-  }, {
-    name: "radius",
-    type: "Number",
-    optional: true,
-    default: 1,
-    description: "The number of pixels of blurring to perform at the edge of the shadows."
-  }, {
-    name: "cameraSize",
-    type: "Number",
-    optional: true,
-    default: 15,
-    description: "The radius of the frustum of the shadow projecting camera."
-  }]
-});
-*/
 class SunShadows extends BasePlugin {
 
   constructor(options) {
@@ -76900,43 +78865,6 @@ class SunShadows extends BasePlugin {
 
 }
 
-/*
-pliny.class({
-  parent: "Primrose.Graphics",
-  baseClass: "Primrose.BasePlugin",
-  name: "Shadows",
-  description: "Installs shadow mapping in the BrowserEnvironment",
-  parameters: [{
-    name: "options",
-    type: "Primrose.Plugin.Shadows.optionsHash",
-    description: "Options for creating the shadow map"
-  }]
-});
-
-pliny.record({
-  parent: "Primrose.Graphics.Shadows",
-  name: "optionsHash",
-  parameters: [{
-    name: "mapSize",
-    type: "Number",
-    optional: true,
-    default: 2048,
-    description: "The size to use for the width and height of the shadow map that will be generated."
-  }, {
-    name: "radius",
-    type: "Number",
-    optional: true,
-    default: 1,
-    description: "The number of pixels of blurring to perform at the edge of the shadows."
-  }, {
-    name: "cameraSize",
-    type: "Number",
-    optional: true,
-    default: 15,
-    description: "The radius of the frustum of the shadow projecting camera."
-  }]
-});
-*/
 class Shadows extends BasePlugin {
 
   constructor(options) {
@@ -77166,11 +79094,6 @@ pliny.class({
 */
 
 const PEERING_TIMEOUT_LENGTH = 30000;
-// some useful information:
-// - https://www.webrtc-experiment.com/docs/STUN-or-TURN.html
-// - http://www.html5rocks.com/en/tutorials/webrtc/infrastructure/#after-signaling-using-ice-to-cope-with-nats-and-firewalls
-// - https://github.com/coturn/rfc5766-turn-server/
-
 let INSTANCE_COUNT = 0;
 
 class WebRTCSocketEvent extends Event {
@@ -78014,11 +79937,24 @@ pliny.function({
 });
 */
 
-function color() {
-  var r = int(0, 256),
-    g = int(0, 256),
-    b = int(0, 256);
-  return r << 16 | g << 8 | b;
+function color(n = 256, monochromatic = false) {
+  if(n < 2) {
+    return 0xffffff;
+  }
+  else {
+    const f = 255 / (n - 1),
+      r = f * int(0, n);
+
+    let g = r,
+      b = r;
+
+    if(!monochromatic) {
+      g = f * int(0, n);
+      b = f * int(0, n);
+    }
+
+    return Math.floor(r) << 16 | Math.floor(g) << 8 | Math.floor(b);
+  }
 }
 
 /*
@@ -78477,13 +80413,13 @@ function normalizeOptions(options) {
 
   if(options.physics) {
     if(typeof options.physics === "string") {
-      add(InWorkerThreadServer, {
+      add(InWorkerThreadEngine, {
         gravity: options.gravity,
         workerPath: options.physics
       });
     }
     else{
-      add(InRenderThreadServer, { gravity: options.gravity });
+      add(InRenderThreadEngine, { gravity: options.gravity });
     }
   }
 
@@ -78897,7 +80833,7 @@ var index$6 = {
 };
 
 /*
- * Copyright (C) 2014 - 2016 Sean T. McBeth <sean@seanmcbeth.com>
+ * Copyright (C) 2014 - 2018 Sean T. McBeth <sean@seanmcbeth.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -78912,7 +80848,11 @@ var index$6 = {
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-coalesce(window, assets, flags, liveAPI, util);
+coalesce(window, assets, flags, liveAPI, util, {
+  THREE,
+  CANNON: cannon
+});
+
 // Do this just for side effects, we are monkey-patching Three.js classes with our own utilities.
 
 return index$6;
