@@ -229,3 +229,12 @@ Object3D.prototype.on = EventDispatcher.prototype.on = function(event, listener)
   this.addEventListener(event, listener);
   return this;
 };
+
+Object3D.prototype.once = EventDispatcher.prototype.once = function(event, listener) {
+  const handler = (evt) => {
+    listener(evt);
+    this.removeEventListener(event, handler);
+  };
+
+  this.addEventListener(event, handler);
+}
