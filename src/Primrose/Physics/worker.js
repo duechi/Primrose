@@ -1,7 +1,5 @@
 import CANNON from "cannon";
 
-import dynamicInvoke from "../../util/dynamicInvoke";
-
 import { Commands } from "./Commands";
 import EngineServer from "./EngineServer";
 import RPCBuffer from "./RPCBuffer";
@@ -9,18 +7,23 @@ import RPCBuffer from "./RPCBuffer";
 const T = EngineServer.DT * 1000,
   engine = new EngineServer(),
   wasSleeping = {},
-  params = [];
+  params = [],
+  returner = { messageID: null };
 
 let lastTime = null,
   timer = null,
-  rpc = null;
+  rpc = new RPCBuffer();
+
+function start() {
+  if(timer === null) {
+    lastTime = performance.now();
+    timer = setInterval(ontick, T);
+  }
+}
 
 onmessage = (evt) => {
   if(evt.data === "start") {
-    if(timer === null) {
-      lastTime = performance.now();
-      timer = setInterval(ontick, T);
-    }
+    start();
   }
   else if(evt.data === "stop") {
     if(timer !== null) {
@@ -29,12 +32,7 @@ onmessage = (evt) => {
     }
   }
   else {
-    if(rpc === null) {
-      rpc = new RPCBuffer(evt.data);
-    }
-    else {
-      rpc.buffer = evt.data;
-    }
+    rpc.buffer = evt.data;
 
     while(rpc.available) {
       const cmdID = rpc.remove(),
@@ -51,6 +49,11 @@ onmessage = (evt) => {
 
     rpc.rewind();
   }
+
+  returner.messageID = evt.data.messageID;
+  if(returner.messageID) {
+    postMessage(returner);
+  }
 };
 
 
@@ -60,7 +63,7 @@ function ontick() {
   lastTime = t;
   engine.update(dt);
 
-  if(rpc && rpc.ready) {
+  if(rpc.ready) {
     for(let n = 0; n < engine.bodyIDs.length; ++n) {
       const id = engine.bodyIDs[n],
         body = engine.bodyDB[id],
@@ -90,4 +93,4 @@ function ontick() {
   }
 }
 
-postMessage("ready");
+start();

@@ -2,76 +2,107 @@ import BaseEnginePlugin from "./BaseEnginePlugin";
 import { Commands, CommandIDs } from "./Commands";
 import RPCBuffer from "./RPCBuffer";
 
-const rpc = new RPCBuffer();
+const startMessage = { type: "start", messageID: null },
+  stopMessage = { type: "stop", messageID: null} ;
+
+let rpc = null;
 
 export default class InWorkerThreadEngine extends BaseEnginePlugin {
   constructor(options) {
     super(options);
 
-    this.rpc = rpc;
-
     this.entities = null;
-    this._workerReady = false;
+    this._transferables = [];
+    this._nextMessageID = 1;
+    this._resolvers = {};
     this._worker = new Worker(this.options.workerPath);
-    this._worker.onmessage = (evt) => {
-      if(evt.data === "ready") {
-        this._workerReady = true;
-      }
-      else {
-        rpc.buffer = evt.data;
-
-        while(rpc.available) {
-          const id = rpc.remove(),
-            ent = this.entities.get(id);
-          if(ent && !ent.changed) {
-            ent.position.set(
-              rpc.remove(),
-              rpc.remove(),
-              rpc.remove());
-
-            ent.quaternion.set(
-              rpc.remove(),
-              rpc.remove(),
-              rpc.remove(),
-              rpc.remove());
-
-            ent.velocity.set(
-              rpc.remove(),
-              rpc.remove(),
-              rpc.remove());
-
-            ent.angularVelocity.set(
-              rpc.remove(),
-              rpc.remove(),
-              rpc.remove());
-
-            ent.updateMatrix();
-            ent.commit();
+    this._bufferReady = new Promise((resolve, reject) => {
+      this._worker.onmessage = (evt) => {
+        const messageID = evt.data.messageID;
+        if(messageID) {
+          const resolver = this._resolvers[messageID];
+          if(resolver) {
+            delete this._resolvers[messageID];
+            resolver(evt.data);
           }
         }
+        else {
+          if(rpc === null) {
+            rpc = new RPCBuffer(evt.data);
+            resolve();
+          }
+          else {
+            rpc.buffer = evt.data;
+          }
 
-        rpc.rewind();
-      }
-    };
+          while(rpc.available) {
+            const id = rpc.remove(),
+              ent = this.entities.get(id);
+            if(ent && !ent.changed) {
+              ent.position.set(
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove());
+
+              ent.quaternion.set(
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove());
+
+              ent.velocity.set(
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove());
+
+              ent.angularVelocity.set(
+                rpc.remove(),
+                rpc.remove(),
+                rpc.remove());
+
+              ent.updateMatrix();
+              ent.commit();
+            }
+          }
+
+          rpc.rewind();
+        }
+      };
+    });
   }
 
   _install(env) {
     this.entities = env.entities;
-    return super._install(env);
+    return this._bufferReady.then(() =>
+      super._install(env));
+  }
+
+  post(data, transfer) {
+    if(transfer) {
+      this._transferables[0] = data;
+      this._worker.postMessage(data, this._transferables);
+    }
+    else {
+      return new Promise((resolve, reject) => {
+        data.messageID = this._nextMessageID++;
+        this._resolvers[data.messageID] = resolve;
+        this._worker.postMessage(data);
+      });
+    }
   }
 
   start() {
-    this._worker.postMessage("start");
+    return this.post(startMessage);
   }
 
   stop() {
-    this._worker.postMessage("stop");
+    return this.post(stopMessage);
   }
 
   preUpdate(env, dt) {
-    if(this._workerReady && rpc.ready) {
+    if(rpc && rpc.ready) {
       super.preUpdate(env, dt);
-      this._worker.postMessage(rpc.buffer, [rpc.buffer]);
+      this.post(rpc.buffer, true);
     }
   }
 
