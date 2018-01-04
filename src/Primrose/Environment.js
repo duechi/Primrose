@@ -698,11 +698,16 @@ export default class Environment extends EventDispatcher {
     this.start = () => {
       if(allowRestart) {
         this.ready.then(() => {
-          this.plugins.forEach((plugin) =>
-            plugin.start());
           this.VR.currentDevice.startAnimation(animate);
           lt = performance.now() * MILLISECONDS_TO_SECONDS;
           this.renderer.domElement.style.cursor = "none";
+          let promise = Promise.resolve();
+          for(let i = 0; i < this.plugins.length; ++i) {
+            const plugin = this.plugins[i];
+            promise = promise.then(() =>
+              plugin.start());
+          }
+          return promise;
         });
       }
     };
