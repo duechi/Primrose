@@ -14,6 +14,7 @@ export default class BaseEnginePlugin extends BasePlugin {
       gravity: -9.8
     }, defaults));
 
+    this._toRemove = [];
     this._gravity = null;
     this._allowSleep = null;
   }
@@ -34,7 +35,7 @@ export default class BaseEnginePlugin extends BasePlugin {
   }
 
   preUpdate(env, dt) {
-    for(let i = env.entities.count - 1; i >= 0; --i) {
+    for(let i = 0; i < env.entities.count; ++i) {
       const ent = env.entities.get(i);
       if(ent.physMapped) {
         if(ent.parent != null) {
@@ -72,11 +73,21 @@ export default class BaseEnginePlugin extends BasePlugin {
           ent.commit();
         }
         else {
-          this.removeBody(i);
-          ent.physMapped = false;
-          env.entities.remove(i);
+          this._toRemove.push(i);
         }
       }
+    }
+
+    if(this._toRemove.length > 0) {
+      for(let n = 0; n < this._toRemove.length; ++n) {
+        const i = this._toRemove[n],
+          ent = env.entities.get(i);
+          
+        this.removeBody(i);
+        ent.physMapped = false;
+        env.entities.remove(i);
+      }
+      this._toRemove.length = 0;
     }
   }
 
