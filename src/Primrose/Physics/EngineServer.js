@@ -36,7 +36,10 @@ export default class EngineServer {
 
   getBody(id) {
     const body = this.bodyDB[id];
-    if(body.sleepState === CANNON.Body.SLEEPING) {
+    if(!body) {
+      console.log("don't have", id, this.bodyIDs);
+    }
+    else if(body.sleepState === CANNON.Body.SLEEPING) {
       body.wakeUp();
     }
     return body;
