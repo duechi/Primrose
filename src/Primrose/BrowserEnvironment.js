@@ -10,7 +10,7 @@ import { Ground, Sky, Fader } from "./Controls";
 import { iOSOrientationHack, PresentationUI } from "./Displays";
 import { Shadows, Fog, Text3D, ModelFactoryPlugin } from "./Graphics";
 import { Clipboard, GamepadManager } from "./Input";
-import { EntityManager, InRenderThreadEngine, InWorkerThreadEngine } from "./Physics";
+import { EntityManager, InRenderThreadEngine, InWorkerThreadWithSerializablesEngine as InWorkerThreadEngine } from "./Physics";
 import { Teleporter } from "./Tools";
 import { Manager } from "./Network";
 

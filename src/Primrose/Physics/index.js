@@ -12,7 +12,8 @@ import EngineServer from "./EngineServer";
 import EntityManager from "./EntityManager";
 import GroundPhysics from "./GroundPhysics";
 import InRenderThreadEngine from "./InRenderThreadEngine";
-import InWorkerThreadEngine from "./InWorkerThreadEngine";
+import InWorkerThreadWithTransferablesEngine from "./InWorkerThreadWithTransferablesEngine";
+import InWorkerThreadWithSerializablesEngine from "./InWorkerThreadWithSerializablesEngine";
 import RPCBuffer from "./RPCBuffer";
 
 export {
@@ -22,7 +23,8 @@ export {
   EntityManager,
   GroundPhysics,
   InRenderThreadEngine,
-  InWorkerThreadEngine,
+  InWorkerThreadWithTransferablesEngine,
+  InWorkerThreadWithSerializablesEngine,
   RPCBuffer
 };
 
@@ -33,6 +35,7 @@ export default {
   EntityManager,
   GroundPhysics,
   InRenderThreadEngine,
-  InWorkerThreadEngine,
+  InWorkerThreadWithTransferablesEngine,
+  InWorkerThreadWithSerializablesEngine,
   RPCBuffer
 };

@@ -61,8 +61,7 @@ export default class Entity extends Object3D {
 
     this.velocity = new Vector3();
     this.angularVelocity = new Vector3();
-    this.linearDamping = 0;
-    this.angularDamping = 0;
+
     this.commands = [];
 
     this._lastPosition = new Vector3();
@@ -79,9 +78,7 @@ export default class Entity extends Object3D {
     return this.positionChanged
       || this.quaternionChanged
       || this.velocityChanged
-      || this.angularVelocityChanged
-      || this.linearDampingChanged
-      || this.angularDampingChanged;
+      || this.angularVelocityChanged;
   }
 
   get positionChanged() {
@@ -100,33 +97,11 @@ export default class Entity extends Object3D {
     return !this._lastAngularVelocity.equals(this.angularVelocity);
   }
 
-  get linearDampingChanged() {
-    return this._lastLinearDamping !== this.linearDamping;
-  }
-
-  get angularDampingChanged() {
-    return this._lastAngularDamping !== this.angularDamping;
-  }
-
   commit() {
-    if(this.positionChanged) {
-      this._lastPosition.copy(this.position);
-    }
-    if(this.quaternionChanged) {
-      this._lastQuaternion.copy(this.quaternion);
-    }
-    if(this.velocityChanged) {
-      this._lastVelocity.copy(this.velocity);
-    }
-    if(this.angularVelocityChanged) {
-      this._lastAngularVelocity.copy(this.angularVelocity);
-    }
-    if(this.linearDampingChanged) {
-      this._lastLinearDamping = this.linearDamping;
-    }
-    if(this.angularDampingChanged) {
-      this._lastAngularDamping = this.angularDamping;
-    }
+    this._lastPosition.copy(this.position);
+    this._lastQuaternion.copy(this.quaternion);
+    this._lastVelocity.copy(this.velocity);
+    this._lastAngularVelocity.copy(this.angularVelocity);
   }
 
   load() {
@@ -163,9 +138,31 @@ export default class Entity extends Object3D {
     return this;
   }
 
+  set linearDamping(v) {
+    this._lastLinearDamping = v;
+    if(this.physMapped) {
+      this.commands.push(["setLinearDamping", v]);
+    }
+  }
+
+  get linearDamping() {
+    return this._lastLinearDamping;
+  }
+
   drag(v) {
     this.linearDamping = v;
     return this;
+  }
+
+  set angularDamping(v) {
+    this._lastAngularDamping = v;
+    if(this.physMapped) {
+      this.commands.push(["setAngularDamping", v]);
+    }
+  }
+
+  get angularDamping() {
+    return this._lastAngularDamping;
   }
 
   angularDrag(v) {
@@ -179,15 +176,21 @@ export default class Entity extends Object3D {
   }
 
   addSphere(r) {
-    this.commands.push(["addSphere", r]);
+    if(this.physMapped) {
+      this.commands.push(["addSphere", r]);
+    }
   }
 
   addPlane() {
-    this.commands.push(["addPlane"]);
+    if(this.physMapped) {
+      this.commands.push(["addPlane"]);
+    }
   }
 
   addBox(w, h, d) {
-    this.commands.push(["addBox", w, h, d]);
+    if(this.physMapped) {
+      this.commands.push(["addBox", w, h, d]);
+    }
   }
 
   spring(b, options) {

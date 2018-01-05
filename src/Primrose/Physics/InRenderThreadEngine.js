@@ -65,21 +65,17 @@ export default class InRenderThreadEngine extends BaseEnginePlugin {
     this._engine.addPlane(id);
   }
 
-  setPosition(id, x, y, z) {
-    this._engine.setPosition(id, x, y, z);
+  setPhysicsState(id, 
+    x, y, z,
+    qx, qy, qz, qw,
+    dx, dy, dz, 
+    adx, ady, adz) {
+    this._engine.setPhysicsState(id, 
+      x, y, z,
+      qx, qy, qz, qw,
+      dx, dy, dz, 
+      adx, ady, adz);
   }
-
-  setQuaternion(id, x, y, z, w) {
-    this._engine.setQuaternion(id, x, y, z, w);
-  }
-
-  setVelocity(id, x, y, z) {
-    this._engine.setVelocity(id, x, y, z);
-  }
-
-  setAngularVelocity(id, x, y, z) {
-    this._engine.setAngularVelocity(id, x, y, z);
-  };
 
   setLinearDamping(id, v) {
     this._engine.setLinearDamping(id, v);

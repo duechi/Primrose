@@ -1,13 +1,13 @@
 import CANNON from "cannon";
 
-import { Commands, checkCommands } from "./Commands";
+import { checkCommands } from "./Commands";
 
 export default class EngineServer {
   constructor() {
 
     const reqs = checkCommands(this);
     if(reqs.length > 0) {
-      throw new Error(reqs.join("/n"));
+      throw new Error(reqs.join("\n"));
     }
 
     this.physics = new CANNON.World();
@@ -122,11 +122,6 @@ export default class EngineServer {
     body.angularDamping = v;
   }
 
-  setAngularVelocity(id, x, y, z) {
-    const body = this.getBody(id);
-    body.angularVelocity.set(x, y, z);
-  }
-
   setGravity(g) {
     this.physics.gravity.set(0, g, 0);
   }
@@ -136,19 +131,16 @@ export default class EngineServer {
     body.linearDamping = v;
   }
 
-  setPosition(id, x, y, z) {
+  setPhysicsState(id, 
+    x, y, z,
+    qx, qy, qz, qw,
+    dx, dy, dz, 
+    adx, ady, adz) {
     const body = this.getBody(id);
     body.position.set(x, y, z);
-  }
-
-  setQuaternion(id, x, y, z, w) {
-    const body = this.getBody(id);
-    body.quaternion.set(x, y, z, w);
-  }
-
-  setVelocity(id, x, y, z) {
-    const body = this.getBody(id);
-    body.velocity.set(x, y, z);
+    body.quaternion.set(qx, qy, qz, qw);
+    body.velocity.set(dx, dy, dz);
+    body.angularVelocity.set(adx, ady, adz);
   }
 }
 

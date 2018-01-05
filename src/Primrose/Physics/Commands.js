@@ -1,34 +1,47 @@
-function cmd() {
-  const params = Array.prototype.slice.call(arguments),
-    name = params.splice(0, 1);
-  return { name, params };
+class Command {
+  constructor(name, id, paramTypes) {
+    this.id = id;
+    this.type = "method";
+    this.messageID = null;
+    this.name = name;
+    if(paramTypes) {
+      this.paramTypes = paramTypes;
+      this.params = new Array(paramTypes.length);
+    }
+    else {
+      this.paramTypes = null;
+      this.params = null;
+    }
+  }
 }
 
-const Commands = [
-  cmd("addBox", "Int32", "Float64", "Float64", "Float64"),
-  cmd("addPlane", "Int32"),
-  cmd("addSphere", "Int32", "Float64"),
-  cmd("addSpring", "Int32", "Int32", "Float64", "Float64", "Float64"),
-  cmd("disableAllowSleep"),
-  cmd("enableAllowSleep"),
-  cmd("newBody", "Int32", "Float64", "Int32"),
-  cmd("removeBody", "Int32"),
-  cmd("setAngularDamping", "Int32", "Float64"),
-  cmd("setAngularVelocity", "Int32", "Float64", "Float64", "Float64"),
-  cmd("setGravity", "Float64"),
-  cmd("setLinearDamping", "Int32", "Float64"),
-  cmd("setPosition", "Int32", "Float64", "Float64", "Float64"),
-  cmd("setQuaternion", "Int32", "Float64", "Float64", "Float64", "Float64"),
-  cmd("setVelocity", "Int32", "Float64", "Float64", "Float64")
-], CommandIDs = {};
+const CommandsByName = {}, CommandsByID = [
+  ["addBox", "Int32", "Float64", "Float64", "Float64"],
+  ["addPlane", "Int32"],
+  ["addSphere", "Int32", "Float64"],
+  ["addSpring", "Int32", "Int32", "Float64", "Float64", "Float64"],
+  ["disableAllowSleep"],
+  ["enableAllowSleep"],
+  ["newBody", "Int32", "Float64", "Int32"],
+  ["removeBody", "Int32"],
+  ["setAngularDamping", "Int32", "Float64"],
+  ["setGravity", "Float64"],
+  ["setLinearDamping", "Int32", "Float64"],
+  ["setPhysicsState", "Int32", 
+    "Float64", "Float64", "Float64",
+    "Float64", "Float64", "Float64", "Float64",
+    "Float64", "Float64", "Float64",
+    "Float64", "Float64", "Float64"]
+].map((arr, i) => {
+  const name = arr.shift();
+  return (CommandsByName[name] = new Command(name, i, arr));
+});
 
-for(let i = 0; i < Commands.length; ++i) {
-  CommandIDs[Commands[i].name] = i;
-}
+
 
 function checkCommands(obj, reqs = []) {
-  for(let i = 0; i < Commands.length; ++i) {
-    const cmd = Commands[i],
+  for(let i = 0; i < CommandsByID.length; ++i) {
+    const cmd = CommandsByID[i],
       handler = obj[cmd.name];
     if(typeof handler !== "function") {
       reqs.push("Physics server plugin does not implement command: " + cmd.name);
@@ -42,6 +55,7 @@ function checkCommands(obj, reqs = []) {
 
 export {
   checkCommands,
-  Commands,
-  CommandIDs
+  Command,
+  CommandsByName,
+  CommandsByID
 };

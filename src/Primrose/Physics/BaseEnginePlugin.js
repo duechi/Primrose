@@ -26,12 +26,12 @@ export default class BaseEnginePlugin extends BasePlugin {
 
   _install(env) {
     env.physics = this;
+    return [new GroundPhysics()];
+  }
 
-
+  start() {
     this.gravity = this.options.gravity;
     this.allowSleep = this.options.allowSleep;
-
-    return [new GroundPhysics()];
   }
 
   preUpdate(env, dt) {
@@ -46,31 +46,14 @@ export default class BaseEnginePlugin extends BasePlugin {
           }
           ent.commands.length = 0;
 
-          if(ent.positionChanged) {
-            this.setPosition(i, ent.position.x, ent.position.y, ent.position.z);
+          if(ent.changed) {
+            this.setPhysicsState(i, 
+              ent.position.x, ent.position.y, ent.position.z,
+              ent.quaternion.x, ent.quaternion.y, ent.quaternion.z, ent.quaternion.w,
+              ent.velocity.x, ent.velocity.y, ent.velocity.z,
+              ent.angularVelocity.x, ent.angularVelocity.y, ent.angularVelocity.z);
+            ent.commit();
           }
-
-          if(ent.quaternionChanged) {
-            this.setQuaternion(i, ent.quaternion.x, ent.quaternion.y, ent.quaternion.z, ent.quaternion.w);
-          }
-
-          if(ent.velocityChanged) {
-            this.setVelocity(i, ent.velocity.x, ent.velocity.y, ent.velocity.z);
-          }
-
-          if(ent.angularVelocityChanged) {
-            this.setAngularVelocity(i, ent.angularVelocity.x, ent.angularVelocity.y, ent.angularVelocity.z);
-          }
-
-          if(ent.linearDampingChanged) {
-            this.setLinearDamping(i, ent.linearDamping);
-          }
-
-          if(ent.angularDampingChanged) {
-            this.setAngularDamping(i, ent.angularDamping);
-          }
-
-          ent.commit();
         }
         else {
           this._toRemove.push(i);
