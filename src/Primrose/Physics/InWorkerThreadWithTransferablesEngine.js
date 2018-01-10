@@ -26,29 +26,29 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
     }
 
     while(this.rpc.available) {
-      const id = this.rpc.remove(),
+      const id = this.rpc.shift(),
         ent = this.entities.get(id);
       if(ent && !ent.changed) {
         ent.position.set(
-          this.rpc.remove(),
-          this.rpc.remove(),
-          this.rpc.remove());
+          this.rpc.shift(),
+          this.rpc.shift(),
+          this.rpc.shift());
 
         ent.quaternion.set(
-          this.rpc.remove(),
-          this.rpc.remove(),
-          this.rpc.remove(),
-          this.rpc.remove());
+          this.rpc.shift(),
+          this.rpc.shift(),
+          this.rpc.shift(),
+          this.rpc.shift());
 
         ent.velocity.set(
-          this.rpc.remove(),
-          this.rpc.remove(),
-          this.rpc.remove());
+          this.rpc.shift(),
+          this.rpc.shift(),
+          this.rpc.shift());
 
         ent.angularVelocity.set(
-          this.rpc.remove(),
-          this.rpc.remove(),
-          this.rpc.remove());
+          this.rpc.shift(),
+          this.rpc.shift(),
+          this.rpc.shift());
 
         ent.updateMatrix();
         ent.commit();
@@ -80,89 +80,89 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
   }
 
   setGravity(v) {
-    this.rpc.add(CommandsByName.setGravity.id);
-    this.rpc.add(v);
+    this.rpc.push(CommandsByName.setGravity.id);
+    this.rpc.push(v);
   }
 
   enableAllowSleep() {
-    this.rpc.add(CommandsByName.enableAllowSleep.id);
+    this.rpc.push(CommandsByName.enableAllowSleep.id);
   }
 
   disableAllowSleep() {
-    this.rpc.add(CommandsByName.disableAllowSleep.id);
+    this.rpc.push(CommandsByName.disableAllowSleep.id);
   }
 
   newBody(id, mass, type) {
-    this.rpc.add(CommandsByName.newBody.id);
-    this.rpc.add(id);
-    this.rpc.add(mass);
-    this.rpc.add(type);
+    this.rpc.push(CommandsByName.newBody.id);
+    this.rpc.push(id);
+    this.rpc.push(mass);
+    this.rpc.push(type);
   }
 
   removeBody(id) {
-    this.rpc.add(CommandsByName.removeBody.id);
-    this.rpc.add(id);
+    this.rpc.push(CommandsByName.removeBody.id);
+    this.rpc.push(id);
   }
 
   addSphere(id, radius) {
-    this.rpc.add(CommandsByName.addSphere.id);
-    this.rpc.add(id);
-    this.rpc.add(radius);
+    this.rpc.push(CommandsByName.addSphere.id);
+    this.rpc.push(id);
+    this.rpc.push(radius);
   }
 
   addBox(id, width, height, depth) {
-    this.rpc.add(CommandsByName.addBox.id);
-    this.rpc.add(id);
-    this.rpc.add(width);
-    this.rpc.add(height);
-    this.rpc.add(depth);
+    this.rpc.push(CommandsByName.addBox.id);
+    this.rpc.push(id);
+    this.rpc.push(width);
+    this.rpc.push(height);
+    this.rpc.push(depth);
   }
 
   addPlane(id) {
-    this.rpc.add(CommandsByName.addPlane.id);
-    this.rpc.add(id);
+    this.rpc.push(CommandsByName.addPlane.id);
+    this.rpc.push(id);
   }
 
-  setPhysicsState(id, 
+  setPhysicsState(id,
     x, y, z,
     qx, qy, qz, qw,
-    dx, dy, dz, 
+    dx, dy, dz,
     adx, ady, adz) {
-    this.rpc.add(CommandsByName.setPhysicsState.id);
-    this.rpc.add(id);
-    this.rpc.add(x);
-    this.rpc.add(y);
-    this.rpc.add(z);
-    this.rpc.add(qx);
-    this.rpc.add(qy);
-    this.rpc.add(qz);
-    this.rpc.add(qw);
-    this.rpc.add(dx);
-    this.rpc.add(dy);
-    this.rpc.add(dz);
-    this.rpc.add(adx);
-    this.rpc.add(ady);
-    this.rpc.add(adz);
+    this.rpc.push(CommandsByName.setPhysicsState.id);
+    this.rpc.push(id);
+    this.rpc.push(x);
+    this.rpc.push(y);
+    this.rpc.push(z);
+    this.rpc.push(qx);
+    this.rpc.push(qy);
+    this.rpc.push(qz);
+    this.rpc.push(qw);
+    this.rpc.push(dx);
+    this.rpc.push(dy);
+    this.rpc.push(dz);
+    this.rpc.push(adx);
+    this.rpc.push(ady);
+    this.rpc.push(adz);
   }
 
   setLinearDamping(id, v) {
-    this.rpc.add(CommandsByName.setLinearDamping.id);
-    this.rpc.add(id);
-    this.rpc.add(v);
+    this.rpc.push(CommandsByName.setLinearDamping.id);
+    this.rpc.push(id);
+    this.rpc.push(v);
   }
 
   setAngularDamping(id, v) {
-    this.rpc.add(CommandsByName.setAngularDamping.id);
-    this.rpc.add(id);
-    this.rpc.add(v);
+    this.rpc.push(CommandsByName.setAngularDamping.id);
+    this.rpc.push(id);
+    this.rpc.push(v);
   }
 
   addSpring(id1, id2, restLength, stiffness, damping) {
-    this.rpc.add(CommandsByName.addSpring.id);
-    this.rpc.add(id1);
-    this.rpc.add(id2);
-    this.rpc.add(restLength);
-    this.rpc.add(stiffness);
-    this.rpc.add(damping);
+    this.rpc.push(CommandsByName.addSpring.id);
+    this.rpc.push(id1);
+    this.rpc.push(id2);
+    this.rpc.push(restLength);
+    this.rpc.push(stiffness);
+    this.rpc.push(damping);
   }
 }

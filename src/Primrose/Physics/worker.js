@@ -28,11 +28,11 @@ onmessage = function handleMessage(evt) {
     rpc.buffer = msg;
 
     while(rpc.available) {
-      const cmd = CommandsByID[rpc.remove()];
+      const cmd = CommandsByID[rpc.shift()];
 
       params.length = cmd.params.length;
       for(let j = 0; j < cmd.params.length; ++j) {
-        params[j] = rpc.remove();
+        params[j] = rpc.shift();
       }
 
       cmd.execute(cmd, cmd.params, 0);
@@ -77,20 +77,20 @@ onmessage = function handleMessage(evt) {
 };
 
 function transfer(id, body) {
-  rpc.add(id);
-  rpc.add(body.position.x);
-  rpc.add(body.position.y);
-  rpc.add(body.position.z);
-  rpc.add(body.quaternion.x);
-  rpc.add(body.quaternion.y);
-  rpc.add(body.quaternion.z);
-  rpc.add(body.quaternion.w);
-  rpc.add(body.velocity.x);
-  rpc.add(body.velocity.y);
-  rpc.add(body.velocity.z);
-  rpc.add(body.angularVelocity.x);
-  rpc.add(body.angularVelocity.y);
-  rpc.add(body.angularVelocity.z);
+  rpc.push(id);
+  rpc.push(body.position.x);
+  rpc.push(body.position.y);
+  rpc.push(body.position.z);
+  rpc.push(body.quaternion.x);
+  rpc.push(body.quaternion.y);
+  rpc.push(body.quaternion.z);
+  rpc.push(body.quaternion.w);
+  rpc.push(body.velocity.x);
+  rpc.push(body.velocity.y);
+  rpc.push(body.velocity.z);
+  rpc.push(body.angularVelocity.x);
+  rpc.push(body.angularVelocity.y);
+  rpc.push(body.angularVelocity.z);
 }
 
 function serialize(n, id, body) {

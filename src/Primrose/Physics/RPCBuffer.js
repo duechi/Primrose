@@ -55,15 +55,27 @@ export default class RPCBuffer {
     return this.length === DATA_LENGTH;
   }
 
-  add(v) {
+  push(v) {
     if(this.ready && !this.full) {
       this[DV][this.length++] = v;
     }
   }
 
-  remove() {
+  pop() {
+    if(this.ready && this.length > 0) {
+      return this[DV][--this.length];
+    }
+  }
+
+  shift() {
     if(this.ready && this.available) {
       return this[DV][this[PTR]++];
+    }
+  }
+
+  unshift(v) {
+    if(this.ready && this[PTR] > 0) {
+      this[DV][--this[PTR]] = v;
     }
   }
 
