@@ -30,8 +30,8 @@ onmessage = function handleMessage(evt) {
     while(rpc.available) {
       const cmd = CommandsByID[rpc.shift()];
 
-      params.length = cmd.params.length;
-      for(let j = 0; j < cmd.params.length; ++j) {
+      params.length = cmd.length;
+      for(let j = 0; j < cmd.length; ++j) {
         params[j] = rpc.shift();
       }
 
@@ -60,7 +60,7 @@ onmessage = function handleMessage(evt) {
       }
       else {
         const cmd = CommandsByName[msg.name];
-        for(let i = 0; i < msg.params.length; i += cmd.paramTypes.length) {
+        for(let i = 0; i < msg.params.length; i += cmd.length) {
           cmd.execute(engine, msg.params, i);
         }
       }

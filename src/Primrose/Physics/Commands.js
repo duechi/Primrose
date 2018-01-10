@@ -14,6 +14,10 @@ class Command {
     }
   }
 
+  get length() {
+    return this.paramTypes && this.paramTypes.length || 0;
+  }
+
   execute(context, parameters, offset) {
     if(this.params) {
       const handler = context[this.name];
