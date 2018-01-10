@@ -46,6 +46,8 @@ function normalizeOptions(options) {
     }
   };
 
+  add(EntityManager);
+
   add(iOSOrientationHack);
 
   add(Audio3D, { ambientSound: options.ambientSound });
@@ -60,8 +62,6 @@ function normalizeOptions(options) {
     texture: options.groundTexture,
     model: options.groundModel
   });
-
-  add(EntityManager);
 
   add(Fader, { rate: options.fadeRate });
 
