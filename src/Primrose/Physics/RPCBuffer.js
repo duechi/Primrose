@@ -1,5 +1,5 @@
 const DATA_START = 1,
-  DATA_LENGTH = 80000000,
+  DATA_LENGTH = 800000,
   PTR = Symbol("PTR"),
   DV = Symbol("DV");
 
