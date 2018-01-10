@@ -35,7 +35,7 @@ onmessage = function handleMessage(evt) {
         params[j] = rpc.shift();
       }
 
-      cmd.execute(cmd, cmd.params, 0);
+      cmd.execute(engine, params, 0);
     }
 
     rpc.rewind();
