@@ -51,7 +51,6 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
   }
 
   _onstarted() {
-
   }
 
   stop() {

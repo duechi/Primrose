@@ -9,9 +9,13 @@ export default class RPCBuffer {
       this.buffer = buffer;
     }
     else {
-      this.buffer = new ArrayBuffer(DATA_LENGTH);
-      this.rewind();
+      this.allocate();
     }
+  }
+
+  allocate() {
+    this.buffer = new ArrayBuffer(DATA_LENGTH);
+    this.rewind();
   }
 
   set buffer(v) {
@@ -21,6 +25,12 @@ export default class RPCBuffer {
 
   get buffer() {
     return this[DV] && this[DV].buffer;
+  }
+
+  detach() {
+    const buffer = this.buffer;
+    this.allocate();
+    return buffer;
   }
 
   get ready() {

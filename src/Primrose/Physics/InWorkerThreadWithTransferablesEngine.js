@@ -7,7 +7,7 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
   constructor(options) {
     super(options);
 
-    this.rpc = null;
+    this.rpc = new RPCBuffer();
     this._transferables = [];
     this._worker.postMessage("transferablesMode");
     this._resolveWorkerReady = null;
@@ -17,9 +17,9 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
   }
 
   _onmessage(evt) {
-    if(this.rpc === null) {
-      this.rpc = new RPCBuffer(evt.data);
+    if(this._resolveWorkerReady) {
       this._resolveWorkerReady();
+      this._resolveWorkerReady = null;
     }
     else {
       this.rpc.buffer = evt.data;
@@ -69,13 +69,14 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
   }
 
   _onstarted() {
+    super._onstarted();
     return this._workerReady;
   }
 
   preUpdate(env, dt) {
-    if(this.rpc && this.rpc.ready) {
-      super.preUpdate(env, dt);
-      this.post(this.rpc.buffer, true);
+    super.preUpdate(env, dt);
+    if(this.rpc.length > 1) {
+      this.post(this.rpc.detach(), true);
     }
   }
 

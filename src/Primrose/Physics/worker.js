@@ -114,39 +114,36 @@ function ontick() {
     dt = 0.001 * (t - lastTime);
   lastTime = t;
   engine.update(dt);
+  if(!useTransferables) {
+    params.length = engine.bodyIDs.length * 14;
+  }
 
-  if(!useTransferables || rpc.ready) {
+  let n = 0;
 
-    if(!useTransferables) {
-      params.length = engine.bodyIDs.length * 14;
-    }
+  for(let i = 0; i < engine.bodyIDs.length; ++i) {
+    const id = engine.bodyIDs[n],
+      body = engine.bodyDB[id],
+      sleeping = body.sleepState === CANNON.Body.SLEEPING;
 
-    let n = 0;
-
-    for(let i = 0; i < engine.bodyIDs.length; ++i) {
-      const id = engine.bodyIDs[n],
-        body = engine.bodyDB[id],
-        sleeping = body.sleepState === CANNON.Body.SLEEPING;
-
-      if(!sleeping || wasSleeping[id]) {
-        if(useTransferables) {
-          transfer(id, body);
-        }
-        else {
-          serialize(n, id, body);
-        }
-        ++n;
+    if(!sleeping || wasSleeping[id]) {
+      if(useTransferables) {
+        transfer(id, body);
       }
-
-      wasSleeping[id] = sleeping;
+      else {
+        serialize(n, id, body);
+      }
+      ++n;
     }
 
-    if(useTransferables) {
-      postMessage(rpc.buffer, [rpc.buffer]);
-    }
-    else {
-      params.length = n * 14;
-      postMessage(JSON.stringify(params));
-    }
+    wasSleeping[id] = sleeping;
+  }
+
+  if(!useTransferables) {
+    params.length = n * 14;
+    postMessage(JSON.stringify(params));
+  }
+  else if(rpc.length > 1) {
+    const buffer = rpc.detach();
+    postMessage(buffer, [buffer]);
   }
 }
