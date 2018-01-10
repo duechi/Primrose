@@ -69,7 +69,7 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
   }
 
   _onstarted() {
-    return this._workerReady();
+    return this._workerReady;
   }
 
   preUpdate(env, dt) {
