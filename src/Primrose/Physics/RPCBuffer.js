@@ -15,16 +15,8 @@ export default class RPCBuffer {
   }
 
   set buffer(v) {
-    const newArray = new Float64Array(v);
-    if(this.ready && this.length > 0) {
-      const oldArray = this[DV].subarray(0, this.length);
-      console.log(oldArray);
-      newArray.set(oldArray);
-    }
-    else {
-      this[PTR] = DATA_START;
-    }
-    this[DV] = newArray;
+    this[DV] = new Float64Array(v);
+    this[PTR] = DATA_START;
   }
 
   get buffer() {
