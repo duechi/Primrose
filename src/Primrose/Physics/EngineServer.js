@@ -47,19 +47,25 @@ export default class EngineServer {
 
   addBox(id, width, height, depth) {
     const body = this.getBody(id);
-    body.addShape(
+    if(body) {
+      body.addShape(
       new CANNON.Box(
         new CANNON.Vec3(width, height, depth)));
+    }
   }
 
   addSphere(id, radius) {
     const body = this.getBody(id);
-    body.addShape(new CANNON.Sphere(radius));
+    if(body) {
+      body.addShape(new CANNON.Sphere(radius));
+    }
   }
 
   addPlane(id) {
     const body = this.getBody(id);
-    body.addShape(new CANNON.Plane());
+    if(body) {
+      body.addShape(new CANNON.Plane());
+    }
   }
 
   addSpring(id1, id2, restLength, stiffness, damping) {
@@ -100,7 +106,7 @@ export default class EngineServer {
 
     this.bodyDB = {};
     this.bodyIDs = [];
-    
+
     for(let i = 0; i < oldBodyIDs.length; ++i) {
       const curID = oldBodyIDs[i];
       if(curID < oldID) {
@@ -119,7 +125,9 @@ export default class EngineServer {
 
   setAngularDamping(id, v) {
     const body = this.getBody(id);
-    body.angularDamping = v;
+    if(body) {
+      body.angularDamping = v;
+    }
   }
 
   setGravity(g) {
@@ -128,19 +136,23 @@ export default class EngineServer {
 
   setLinearDamping(id, v) {
     const body = this.getBody(id);
-    body.linearDamping = v;
+    if(body) {
+      body.linearDamping = v;
+    }
   }
 
-  setPhysicsState(id, 
+  setPhysicsState(id,
     x, y, z,
     qx, qy, qz, qw,
-    dx, dy, dz, 
+    dx, dy, dz,
     adx, ady, adz) {
     const body = this.getBody(id);
-    body.position.set(x, y, z);
-    body.quaternion.set(qx, qy, qz, qw);
-    body.velocity.set(dx, dy, dz);
-    body.angularVelocity.set(adx, ady, adz);
+    if(body) {
+      body.position.set(x, y, z);
+      body.quaternion.set(qx, qy, qz, qw);
+      body.velocity.set(dx, dy, dz);
+      body.angularVelocity.set(adx, ady, adz);
+    }
   }
 }
 
