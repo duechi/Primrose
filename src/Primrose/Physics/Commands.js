@@ -13,6 +13,18 @@ class Command {
       this.params = null;
     }
   }
+
+  execute(context, parameters, offset) {
+    if(this.params) {
+      const handler = context[this.name];
+      if(handler) {
+        for(let i = 0; i < this.paramTypes.length; ++i) {
+          this.params[i] = parameters[i + offset];
+        }
+        return handler.apply(context, this.params);
+      }
+    }
+  }
 }
 
 const CommandsByName = {}, CommandsByID = [
@@ -27,7 +39,7 @@ const CommandsByName = {}, CommandsByID = [
   ["setAngularDamping", "Int32", "Float64"],
   ["setGravity", "Float64"],
   ["setLinearDamping", "Int32", "Float64"],
-  ["setPhysicsState", "Int32", 
+  ["setPhysicsState", "Int32",
     "Float64", "Float64", "Float64",
     "Float64", "Float64", "Float64", "Float64",
     "Float64", "Float64", "Float64",

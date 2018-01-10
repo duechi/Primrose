@@ -15,13 +15,6 @@ let lastTime = null,
   rpc = new RPCBuffer(),
   useTransferables = true;
 
-function exec(cmd, params) {
-  const handler = engine[cmd.name];
-  if(handler) {
-    handler.apply(engine, params);
-  }
-}
-
 onmessage = function handleMessage(evt) {
   let msg = evt.data;
 
@@ -42,11 +35,11 @@ onmessage = function handleMessage(evt) {
         params[j] = rpc.remove();
       }
 
-      exec(cmd, params);
+      cmd.execute(cmd, cmd.params, 0);
     }
 
     rpc.rewind();
-  } 
+  }
   else {
     if(typeof msg === "string") {
       msg = JSON.parse(msg)
@@ -57,19 +50,22 @@ onmessage = function handleMessage(evt) {
         if(timer === null) {
           lastTime = performance.now();
           timer = setInterval(ontick, T);
-        }    
+        }
       }
       else if(msg.name === "stop") {
         if(timer !== null) {
           clearInterval(timer);
           timer = null;
-        }    
+        }
       }
       else if(msg.name === "getBuffer") {
         postMessage({ messageID: msg.messageID, buffer: rpc.buffer }, [rpc.buffer]);
       }
       else {
-        exec(CommandsByName[msg.name], msg.params);
+        const cmd = CommandsByName[msg.name];
+        for(let i = 0; i < msg.params.length; i += cmd.paramTypes.length) {
+          cmd.execute(engine, msg.params, i);
+        }
       }
     }
   }
