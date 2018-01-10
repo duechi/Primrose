@@ -58,9 +58,6 @@ onmessage = function handleMessage(evt) {
           timer = null;
         }
       }
-      else if(msg.name === "getBuffer") {
-        postMessage({ messageID: msg.messageID, buffer: rpc.buffer }, [rpc.buffer]);
-      }
       else {
         const cmd = CommandsByName[msg.name];
         for(let i = 0; i < msg.params.length; i += cmd.paramTypes.length) {
