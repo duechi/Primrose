@@ -106,7 +106,7 @@ export default class GamepadManager extends BasePlugin {
         for (let i = 0; i < maybePads.length; ++i) {
           const maybePad = maybePads[i];
           if (maybePad) {
-            const padID = GamepadManager.ID(maybePad),
+            const padID = makeID(maybePad),
               padIdx = this.currentDeviceIDs.indexOf(padID);
 
             pads.push(maybePad);
