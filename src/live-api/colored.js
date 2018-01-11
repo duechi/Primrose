@@ -74,14 +74,19 @@ export default function colored(geometry, color, options) {
   if (geometry.type.indexOf("Geometry") > -1) {
     obj = new Mesh(geometry, mat);
   }
-  else if (geometry.isObject3D) {
+  else if (geometry.isMesh) {
     obj = geometry;
     obj.material = mat;
+    geometry = obj.geometry;
   }
 
   if(options.shadow){
     obj.receiveShadow = true;
     obj.castShadow = true;
+  }
+
+  if(geometry.name && !obj.name) {
+    obj.name = geometry.name + "Mesh";
   }
 
   if(options.resolve){
