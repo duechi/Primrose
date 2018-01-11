@@ -1,11 +1,12 @@
-import { FullScreen, PointerLock } from "../../util";
+import { isMobile, isFirefox } from "../../flags";
+import { FullScreen, PointerLock, standardLockBehavior, standardFullScreenBehavior } from "../../util";
 
 import BasePlugin from "../BasePlugin";
 
 
   /*
   pliny.method({
-    parent: "Primrose.Environment",
+    parent: "Primrose.Display.PresentationUI",
     name: "insertFullScreenButtons",
     description: "Add the default UI for managing full screen state.",
     returns: "Array of `HTMLButtonElement`s",
@@ -118,18 +119,18 @@ export default class PresentationUI extends BasePlugin {
 
   /*
   pliny.method({
-    parent: "Primrose.Environment",
+    parent: "Primrose.Display.PresentationUI",
     name: "goFullScreen",
     returns: "Promise",
     description: "Enter full-screen mode on one of the available displays. NOTE: due to a defect in iOS, this feature is not available on iPhones or iPads."
   });
   */
   goFullScreen(env, index, evt) {
+    const promises = [];
+
     if (evt !== "Gaze") {
-
-      env.VR.connect(index);
-
       let elem = null;
+
       if(evt === "force" || env.VR.canMirror || !env.VR.isPolyfilled) {
         elem = env.renderer.domElement;
       }
@@ -137,11 +138,23 @@ export default class PresentationUI extends BasePlugin {
         elem = env.options.fullScreenElement;
       }
 
-      return env.VR.requestPresent([{
+      env.stop();
+      env.VR.connect(index);
+
+
+      promises.push(env.start());
+
+      if(env.VR.currentDevice.capabilities.hasExternalDisplay) {
+        promises.push(standardFullScreenBehavior(elem));
+      }
+
+      promises.push(env.VR.requestPresent([{
           source: elem
         }])
         .catch((exp) => console.error("whaaat", exp))
-        .then(() => elem.focus());
+        .then(() => elem.focus()));
     }
+
+    return Promise.all(promises);
   }
 }

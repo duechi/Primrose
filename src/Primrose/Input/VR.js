@@ -22,7 +22,6 @@ import { Matrix4 } from "three";
 import {
   isCardboard,
   isChrome,
-  isFirefox,
   isMobile,
   isGearVR
 } from "../../flags";
@@ -30,8 +29,7 @@ import {
 import {
   PointerLock,
   Orientation,
-  standardFullScreenBehavior,
-  standardLockBehavior
+  standardFullScreenBehavior
 } from "../../util";
 
 import installPolyfills from "../Displays/install";
@@ -87,11 +85,7 @@ export default class VR extends PoseInputProcessor {
         layers = [layers];
       }
 
-      let promise = this.currentDevice.requestPresent(layers);
-      if(isMobile || !isFirefox) {
-        promise = promise.then(standardLockBehavior);
-      }
-      return promise;
+      return this.currentDevice.requestPresent(layers);
     }
   }
 
