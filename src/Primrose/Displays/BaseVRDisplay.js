@@ -32,9 +32,8 @@ export default class BaseVRDisplay {
       this._isAnimating = true;
 
       const animator = (time) => {
-        this._timer = null;
-        callback(time);
         this._timer = this.requestAnimationFrame(animator);
+        callback(time);
       };
 
       this._timer = this.requestAnimationFrame(animator);
