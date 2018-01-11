@@ -27,14 +27,20 @@ onmessage = function handleMessage(evt) {
     rpc.buffer = msg;
 
     while(rpc.available) {
-      const cmd = CommandsByID[rpc.shift()];
+      const cmdID = rpc.shift(),
+        cmd = CommandsByID[cmdID];
 
-      params.length = cmd.length;
-      for(let j = 0; j < cmd.length; ++j) {
-        params[j] = rpc.shift();
+      if(!cmd) {
+        console.log("Couldn't find", cmdID, CommandsByID);
       }
+      else {
+        params.length = cmd.length;
+        for(let j = 0; j < cmd.length; ++j) {
+          params[j] = rpc.shift();
+        }
 
-      cmd.execute(engine, params, 0);
+        cmd.execute(engine, params, 0);
+      }
     }
 
     rpc.rewind();
