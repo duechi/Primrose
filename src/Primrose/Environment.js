@@ -344,10 +344,10 @@ export default class Environment extends EventDispatcher {
         i, j;
       lt = t;
       update(dt);
-      render();
+      render(true);
     };
 
-    var render = () => {
+    var render = (submitFrame) => {
       this.camera.position.set(0, 0, 0);
       this.camera.quaternion.set(0, 0, 0, 1);
       this.renderer.clear(true, true, true);
@@ -374,7 +374,9 @@ export default class Environment extends EventDispatcher {
         this.camera.matrixWorld.fromArray(st.view);
         this.renderer.render(this.scene, this.camera);
       }
-      this.VR.submitFrame();
+      if(submitFrame) {
+        this.VR.submitFrame();
+      }
     };
 
     this._modifyScreen = () => {
@@ -403,7 +405,7 @@ export default class Environment extends EventDispatcher {
         this.renderer.domElement.style.width = styleWidth + "px";
         this.renderer.domElement.style.height = styleHeight + "px";
         if (!this.VR.currentDevice.isAnimating) {
-          render();
+          render(false);
         }
       }
     };
