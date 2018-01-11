@@ -48,13 +48,13 @@
   "dependencies": {
     "cannon": "^0.6.2",
     "iphone-inline-video": "^1.9.6",
-    "jstransformer-marked": "^1.0.2",
+    "jstransformer-marked": "^1.0.3",
     "lavu-details-polyfill": "^0.1.1",
     "promise-polyfill": "^5.2.1",
     "three": "^0.85.2"
   },
   "devDependencies": {
     "gulp": "^3.9.1",
-    "marigold-build": "^1.18.6"
+    "marigold": "^1.0.0"
   }
 }
