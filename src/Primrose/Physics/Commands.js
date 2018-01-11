@@ -2,7 +2,6 @@ class Command {
   constructor(name, id, paramTypes) {
     this.id = id;
     this.type = "method";
-    this.messageID = null;
     this.name = name;
     if(paramTypes) {
       this.paramTypes = paramTypes;

@@ -14,6 +14,12 @@ export default class InRenderThreadEngine extends BaseEnginePlugin {
     this._engine = new EngineServer();
   }
 
+  _install(env) {
+    const res = super._install(env);
+    this._onstarted();
+    return res;
+  }
+
   preUpdate(env, dt) {
     super.preUpdate(env, dt);
     this._engine.update(dt);
@@ -65,15 +71,15 @@ export default class InRenderThreadEngine extends BaseEnginePlugin {
     this._engine.addPlane(id);
   }
 
-  setPhysicsState(id, 
+  setPhysicsState(id,
     x, y, z,
     qx, qy, qz, qw,
-    dx, dy, dz, 
+    dx, dy, dz,
     adx, ady, adz) {
-    this._engine.setPhysicsState(id, 
+    this._engine.setPhysicsState(id,
       x, y, z,
       qx, qy, qz, qw,
-      dx, dy, dz, 
+      dx, dy, dz,
       adx, ady, adz);
   }
 

@@ -13,19 +13,15 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
 
     this.entities = null;
 
-    this._nextMessageID = 1;
-    this._resolvers = {};
     this._worker = new Worker(this.options.workerPath);
+
+    let started = false;
     this._worker.onmessage = (evt) => {
-      const messageID = evt.data.messageID;
-      if(messageID) {
-        const resolver = this._resolvers[messageID];
-        if(resolver) {
-          delete this._resolvers[messageID];
-          resolver(evt.data);
-        }
+      if(evt.data === "started" && !started) {
+        started = true;
+        this._onstarted();
       }
-      else {
+      else if(started) {
         this._onmessage(evt);
       }
     };
@@ -33,27 +29,14 @@ export default class InWorkerThreadEngine extends BaseEnginePlugin {
 
   _install(env) {
     this.entities = env.entities;
+
+    env.addEventListener("started", () => this.post(WorkerCommands.start));
+    env.addEventListener("stopped", () => this.post(WorkerCommands.stop));
+
     return super._install(env);
   }
 
   post(data, transfer) {
-    return new Promise((resolve, reject) => {
-      data.messageID = this._nextMessageID++;
-      this._resolvers[data.messageID] = resolve;
-      this._worker.postMessage(JSON.stringify(data));
-    });
-  }
-
-  start() {
-    return this.post(WorkerCommands.start)
-      .then(() => this._onstarted())
-      .then(() => super.start());
-  }
-
-  _onstarted() {
-  }
-
-  stop() {
-    return this.post(WorkerCommands.stop);
+    this._worker.postMessage(JSON.stringify(data));
   }
 };

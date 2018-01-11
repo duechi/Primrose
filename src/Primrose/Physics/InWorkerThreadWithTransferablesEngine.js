@@ -10,21 +10,10 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
     this.rpc = new RPCBuffer();
     this._transferables = [];
     this._worker.postMessage("transferablesMode");
-    this._resolveWorkerReady = null;
-    this._workerReady = new Promise((resolve, reject) => {
-      this._resolveWorkerReady = resolve;
-    });
   }
 
   _onmessage(evt) {
-    if(this._resolveWorkerReady) {
-      this._resolveWorkerReady();
-      this._resolveWorkerReady = null;
-    }
-    else {
-      this.rpc.buffer = evt.data;
-    }
-
+    this.rpc.buffer = evt.data;
     while(this.rpc.available) {
       const id = this.rpc.shift(),
         ent = this.entities.get(id);
@@ -64,13 +53,8 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
       this._worker.postMessage(data, this._transferables);
     }
     else {
-      return super.post(data);
+      super.post(data);
     }
-  }
-
-  _onstarted() {
-    super._onstarted();
-    return this._workerReady;
   }
 
   preUpdate(env, dt) {

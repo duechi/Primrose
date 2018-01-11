@@ -697,21 +697,12 @@ export default class Environment extends EventDispatcher {
     */
     this.start = () => {
       if(allowRestart) {
-        this.ready.then(() => {
-          this.VR.currentDevice.startAnimation(animate);
-          lt = performance.now() * MILLISECONDS_TO_SECONDS;
-          this.renderer.domElement.style.cursor = "none";
-          let promise = Promise.resolve();
-          for(let i = 0; i < this.plugins.length; ++i) {
-            const plugin = this.plugins[i];
-            promise = promise.then(() =>
-              plugin.start());
-          }
-          return promise;
-        });
+        this.VR.currentDevice.startAnimation(animate);
+        lt = performance.now() * MILLISECONDS_TO_SECONDS;
+        this.renderer.domElement.style.cursor = "none";
+        this.emit("started");
       }
     };
-
 
     /*
     pliny.method({
@@ -734,21 +725,18 @@ export default class Environment extends EventDispatcher {
     });
     */
     this.stop = (evt, restartAllowed) => {
-      if(allowRestart) {
-        allowRestart = restartAllowed;
-
-        this.plugins.forEach((plugin) =>
-          plugin.stop());
-
-        this.VR.displays.forEach((display) =>
-          display.stopAnimation());
-
+      if(!evt || allowRestart) {
+        allowRestart = !evt || restartAllowed;
+        this.VR.currentDevice.stopAnimation();
         this.renderer.domElement.style.cursor = "";
-        console.log("stopped");
+        this.emit("stopped");
       }
     };
 
     this.pause = (evt) => this.stop(evt, true);
+
+    this.addEventListener("started", () => console.log("started"));
+    this.addEventListener("stopped", () => console.log("stopped"));
 
     window.addEventListener("resize", this._modifyScreen, false);
     if(!options.disableAutoPause) {

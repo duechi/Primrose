@@ -60,7 +60,6 @@ export default class Audio3D extends BasePlugin {
             try{
               this.sampleRate = this.context.sampleRate;
               this.mainVolume = this.context.createGain();
-              this.start();
               resolve();
             }
             catch(exp){
@@ -124,24 +123,24 @@ export default class Audio3D extends BasePlugin {
         })
         .catch(console.error.bind(console, "Audio3D loadSource"));
     }
-  }
 
-  start() {
-    if(this.mainVolume){
-      this.mainVolume.connect(this.context.destination);
-    }
-    if(this.context && this.context.resume) {
-      this.context.resume();
-    }
-  }
+    env.addEventListener("started", () => {
+      if(this.mainVolume){
+        this.mainVolume.connect(this.context.destination);
+      }
+      if(this.context && this.context.resume) {
+        this.context.resume();
+      }
+    });
 
-  stop() {
-    if(this.context && this.context.suspend) {
-      this.context.suspend();
-    }
-    if(this.mainVolume){
-      this.mainVolume.disconnect();
-    }
+    env.addEventListener("stopped", () => {
+      if(this.context && this.context.suspend) {
+        this.context.suspend();
+      }
+      if(this.mainVolume){
+        this.mainVolume.disconnect();
+      }
+    });
   }
 
   postUpdate(env, dt) {

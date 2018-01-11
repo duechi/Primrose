@@ -7,8 +7,7 @@ import RPCBuffer from "./RPCBuffer";
 const T = EngineServer.DT * 1000,
   engine = new EngineServer(),
   wasSleeping = {},
-  params = [],
-  returner = { messageID: null };
+  params = [];
 
 let lastTime = null,
   timer = null,
@@ -50,6 +49,7 @@ onmessage = function handleMessage(evt) {
         if(timer === null) {
           lastTime = performance.now();
           timer = setInterval(ontick, T);
+          postMessage("started");
         }
       }
       else if(msg.name === "stop") {
@@ -65,11 +65,6 @@ onmessage = function handleMessage(evt) {
         }
       }
     }
-  }
-
-  returner.messageID = msg.messageID;
-  if(returner.messageID) {
-    postMessage(returner);
   }
 };
 

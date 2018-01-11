@@ -130,14 +130,6 @@ export default class BasePlugin extends EventDispatcher {
     throw new Error("Primrose.Plugin.BasePlugin::_install() > not implemented");
   }
 
-  start() {
-
-  }
-
-  stop() {
-
-  }
-
   /*
   plugin.method({
     parent: "Primrose.Plugin.BasePlugin",

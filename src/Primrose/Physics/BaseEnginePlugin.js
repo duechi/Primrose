@@ -29,7 +29,7 @@ export default class BaseEnginePlugin extends BasePlugin {
     return [new GroundPhysics()];
   }
 
-  start() {
+  _onstarted() {
     this.gravity = this.options.gravity;
     this.allowSleep = this.options.allowSleep;
   }
@@ -47,7 +47,7 @@ export default class BaseEnginePlugin extends BasePlugin {
           ent.commands.length = 0;
 
           if(ent.changed) {
-            this.setPhysicsState(i, 
+            this.setPhysicsState(i,
               ent.position.x, ent.position.y, ent.position.z,
               ent.quaternion.x, ent.quaternion.y, ent.quaternion.z, ent.quaternion.w,
               ent.velocity.x, ent.velocity.y, ent.velocity.z,
@@ -65,7 +65,7 @@ export default class BaseEnginePlugin extends BasePlugin {
       for(let n = 0; n < this._toRemove.length; ++n) {
         const i = this._toRemove[n],
           ent = env.entities.get(i);
-          
+
         this.removeBody(i);
         ent.physMapped = false;
         env.entities.remove(i);
