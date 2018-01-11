@@ -1122,7 +1122,16 @@ export default class Environment extends EventDispatcher {
 
         this.VR.connect(0);
         this.options.progress.hide();
+      })
+      .then(this.start)
+      /*
+      pliny.event({
+        parent: "Primrose.Environment",
+        name: "ready",
+        description: "Fires after the initial assets have been downloaded and the scene initialized, just before animation starts."
       });
+      */
+      .then(() => this.emit("ready"));
 
     /*
     pliny.property({
@@ -1169,17 +1178,6 @@ export default class Environment extends EventDispatcher {
       window.confirm = rerouteDialog(window.confirm);
       window.prompt = rerouteDialog(window.prompt);
     }
-
-    return this.start()
-      then(() =>
-        /*
-        pliny.event({
-          parent: "Primrose.Environment",
-          name: "ready",
-          description: "Fires after the initial assets have been downloaded and the scene initialized, just before animation starts."
-        });
-        */
-        this.emit("ready"));
   }
 
 
