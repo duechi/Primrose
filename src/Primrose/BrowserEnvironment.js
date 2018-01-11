@@ -65,8 +65,6 @@ function normalizeOptions(options) {
 
   add(Fader, { rate: options.fadeRate });
 
-  add(Teleporter);
-
   add(PresentationUI, {
     buttonContainer: options.fullScreenButtonContainer,
     disableAdvertising: options.disableAdvertising
@@ -84,6 +82,10 @@ function normalizeOptions(options) {
     }
   }
 
+
+  if(!options.disableTeleporter) {
+    add(Teleporter);
+  }
 
   if(!options.disableKeyboard) {
     add(Clipboard);
