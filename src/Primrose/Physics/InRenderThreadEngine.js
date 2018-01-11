@@ -63,8 +63,8 @@ export default class InRenderThreadEngine extends BaseEnginePlugin {
     this._engine.addSphere(id, radius);
   }
 
-  addBox(id, width, height, depth) {
-    this._engine.addBox(id, width, height, depth);
+  addBox(id, width, height, depth, dx, dy, dz) {
+    this._engine.addBox(id, width, height, depth, dx, dy, dz);
   }
 
   addPlane(id) {
@@ -93,5 +93,21 @@ export default class InRenderThreadEngine extends BaseEnginePlugin {
 
   addSpring(id1, id2, restLength, stiffness, damping) {
     this._engine.addSpring(id1, id2, restLength, stiffness, damping);
+  }
+
+  startMesh(id) {
+    this._engine.startMesh(id);
+  }
+
+  addMeshVertex(id, x, y, z) {
+    this._engine.addMeshVertex(id, x, y, z);
+  }
+
+  addMeshTriangle(id, a, b, c) {
+    this._engine.addMeshTriangle(id, a, b, c);
+  }
+
+  finishMesh(id) {
+    this._engine.finishMesh(id);
   }
 }

@@ -31,17 +31,28 @@ class Command {
 }
 
 const CommandsByName = {}, CommandsByID = [
-  ["addBox", "Int32", "Float64", "Float64", "Float64"],
+
+  ["disableAllowSleep"],
+  ["enableAllowSleep"],
+
+  ["setGravity", "Float64"],
+
+  ["newBody", "Int32", "Float64", "Int32"],
+  ["removeBody", "Int32"],
+
+  ["addBox", "Int32", "Float64", "Float64", "Float64", "Float64", "Float64", "Float64"],
   ["addPlane", "Int32"],
   ["addSphere", "Int32", "Float64"],
   ["addSpring", "Int32", "Int32", "Float64", "Float64", "Float64"],
-  ["disableAllowSleep"],
-  ["enableAllowSleep"],
-  ["newBody", "Int32", "Float64", "Int32"],
-  ["removeBody", "Int32"],
+
+  ["startMesh", "Int32"],
+  ["addMeshVertex", "Int32", "Float64", "Float64", "Float64"],
+  ["addMeshTriangle", "Int32", "Int32", "Int32", "Int32"],
+  ["finishMesh", "Int32"],
+
   ["setAngularDamping", "Int32", "Float64"],
-  ["setGravity", "Float64"],
   ["setLinearDamping", "Int32", "Float64"],
+
   ["setPhysicsState", "Int32",
     "Float64", "Float64", "Float64",
     "Float64", "Float64", "Float64", "Float64",

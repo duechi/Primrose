@@ -170,29 +170,6 @@ export default class Entity extends Object3D {
     return this;
   }
 
-  newBody(options) {
-    this.physMapped = true;
-    this.commands.push(["newBody", options.mass, options.type || 1]);
-  }
-
-  addSphere(r) {
-    if(this.physMapped) {
-      this.commands.push(["addSphere", r]);
-    }
-  }
-
-  addPlane() {
-    if(this.physMapped) {
-      this.commands.push(["addPlane"]);
-    }
-  }
-
-  addBox(w, h, d) {
-    if(this.physMapped) {
-      this.commands.push(["addBox", w, h, d]);
-    }
-  }
-
   spring(b, options) {
     if(this.physMapped && b.physMapped) {
       this.commands.push([

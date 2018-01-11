@@ -58,11 +58,14 @@ export default class InWorkerThreadWithSerializablesEngine extends InWorkerThrea
     this.post(CommandsByName.addSphere);
   }
 
-  addBox(id, width, height, depth) {
+  addBox(id, width, height, depth, dx, dy, dz) {
     CommandsByName.addBox.params[0] = id;
     CommandsByName.addBox.params[1] = width;
     CommandsByName.addBox.params[2] = height;
     CommandsByName.addBox.params[3] = depth;
+    CommandsByName.addBox.params[4] = dx;
+    CommandsByName.addBox.params[5] = dy;
+    CommandsByName.addBox.params[6] = dz;
     this.post(CommandsByName.addBox);
   }
 
@@ -71,10 +74,10 @@ export default class InWorkerThreadWithSerializablesEngine extends InWorkerThrea
     this.post(CommandsByName.addPlane);
   }
 
-  setPhysicsState(id, 
+  setPhysicsState(id,
     x, y, z,
     qx, qy, qz, qw,
-    dx, dy, dz, 
+    dx, dy, dz,
     adx, ady, adz) {
     CommandsByName.setPhysicsState.params[ 0] = id;
     CommandsByName.setPhysicsState.params[ 1] = x;
@@ -112,5 +115,31 @@ export default class InWorkerThreadWithSerializablesEngine extends InWorkerThrea
     CommandsByName.addSpring.params[3] = stiffness;
     CommandsByName.addSpring.params[4] = damping;
     this.post(CommandsByName.addSpring);
+  }
+
+  startMesh(id) {
+    CommandsByName.startMesh.params[0] = id;
+    this.post(CommandsByName.startMesh);
+  }
+
+  addMeshVertex(id, x, y, z) {
+    CommandsByName.addMeshVertex.params[0] = id;
+    CommandsByName.addMeshVertex.params[1] = x;
+    CommandsByName.addMeshVertex.params[2] = y;
+    CommandsByName.addMeshVertex.params[3] = z;
+    this.post(CommandsByName.addMeshVertex);
+  }
+
+  addMeshTriangle(id, a, b, c) {
+    CommandsByName.addMeshTriangle.params[0] = id;
+    CommandsByName.addMeshTriangle.params[1] = a;
+    CommandsByName.addMeshTriangle.params[2] = b;
+    CommandsByName.addMeshTriangle.params[3] = c;
+    this.post(CommandsByName.addMeshTriangle);
+  }
+
+  finishMesh(id) {
+    CommandsByName.finishMesh.params[0] = id;
+    this.post(CommandsByName.finishMesh);
   }
 }

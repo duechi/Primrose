@@ -95,12 +95,15 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
     this.rpc.push(radius);
   }
 
-  addBox(id, width, height, depth) {
+  addBox(id, width, height, depth, dx, dy, dz) {
     this.rpc.push(CommandsByName.addBox.id);
     this.rpc.push(id);
     this.rpc.push(width);
     this.rpc.push(height);
     this.rpc.push(depth);
+    this.rpc.push(dx);
+    this.rpc.push(dy);
+    this.rpc.push(dz);
   }
 
   addPlane(id) {
@@ -149,5 +152,31 @@ export default class InWorkerThreadWithTransferablesEngine extends InWorkerThrea
     this.rpc.push(restLength);
     this.rpc.push(stiffness);
     this.rpc.push(damping);
+  }
+
+  startMesh(id) {
+    this.rpc.push(CommandsByName.startMesh.id);
+    this.rpc.push(id);
+  }
+
+  addMeshVertex(id, x, y, z) {
+    this.rpc.push(CommandsByName.addMeshVertex.id);
+    this.rpc.push(id);
+    this.rpc.push(x);
+    this.rpc.push(y);
+    this.rpc.push(z);
+  }
+
+  addMeshTriangle(id, a, b, c) {
+    this.rpc.push(CommandsByName.addMeshTriangle.id);
+    this.rpc.push(id);
+    this.rpc.push(a);
+    this.rpc.push(b);
+    this.rpc.push(c);
+  }
+
+  finishMesh(id) {
+    this.rpc.push(CommandsByName.finishMesh.id);
+    this.rpc.push(id);
   }
 }

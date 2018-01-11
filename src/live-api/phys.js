@@ -40,15 +40,17 @@ pliny.record({
 */
 export default function phys(obj, options) {
 
-  options = coalesce({}, options);
+  options = coalesce({
+    type: 1,
+    shape: "auto"
+  }, options);
 
   let ent = null;
   if(obj.isEntity) {
     ent = obj;
   }
   else {
-    ent = new Entity(obj.name, options);
-    obj.name = "";
+    ent = new Entity(obj.name + "Entity", options);
     ent.mesh = obj;
     ent.add(obj);
     ent.position.copy(obj.position);
@@ -60,34 +62,95 @@ export default function phys(obj, options) {
 
   if(!ent.physMapped) {
 
-    ent.newBody(options);
+    ent.physMapped = true;
+    ent.commands.push(["newBody", options.mass, options.type]);
 
     let head = ent;
     while(head && !head.geometry && head.children.length > 0) {
       head = head.children[0];
     }
 
-    if(head.geometry){
+    if(head.geometry) {
 
       const g = head.geometry;
-      g.computeBoundingSphere();
-      g.computeBoundingBox();
-      g.boundingBox.getSize(TEMP);
 
-      const { x, y, z } = TEMP,
-        r = g.boundingSphere.radius,
-        volSphere = Math.PI * r * r,
-        volBox = x * y * z;
+      if(options.shape === "trimesh") {
+        ent.commands.push(["startMesh"]);
 
-      if(volSphere < volBox) {
-        ent.addSphere(r);
-      }
-      else if(volBox === 0) {
-        ent.addPlane();
-        ent.quat(Q.x, Q.y, Q.z, Q.w);
+        if(g.isBufferGeometry) {
+          const position = g.attributes.position.array,
+            index = g.index;
+
+          for(let i = 0; i < position.count; i += 3) {
+            ent.commands.push(["addMeshVertex",
+              position[i + 0],
+              position[i + 1],
+              position[i + 2]]);
+          }
+          for(let i = 0; i < index.count; i += 3) {
+            ent.commands.push(["addMeshTriangle",
+              index[i + 0],
+              index[i + 1],
+              index[i + 2]]);
+          }
+        }
+        else {
+          const { vertices, faces } = g;
+
+          for(let i = 0; i < vertices.length; ++i) {
+            const vertex = vertices[i];
+            ent.commands.push(["addMeshVertex",
+              vertex.x,
+              vertex.y,
+              vertex.z]);
+          }
+
+          for(let i = 0; i < faces.length; ++i) {
+            const face = faces[i];
+            ent.commands.push(["addMeshTriangle",
+              face.a,
+              face.b,
+              face.c]);
+          }
+        }
+
+        ent.commands.push(["finishMesh"]);
       }
       else {
-        ent.addBox(0.5 * x, 0.5 * y, 0.5 * z);
+        g.computeBoundingSphere();
+        g.computeBoundingBox();
+        g.boundingBox.getSize(TEMP);
+
+        const { x: width, y: height, z: depth } = TEMP,
+          r = g.boundingSphere.radius;
+
+        if(options.shape === "auto") {
+          const volSphere = Math.PI * r * r,
+            volBox = width * height * depth;
+
+          if(volBox === 0) {
+            options.shape = "plane";
+          }
+          else if(volSphere < volBox) {
+            options.shape = "sphere";
+          }
+          else {
+            options.shape = "box";
+          }
+        }
+
+        if(options.shape === "plane") {
+          ent.commands.push(["addPlane"]);
+          ent.quat(Q.x, Q.y, Q.z, Q.w);
+        }
+        else if(options.shape === "sphere") {
+          ent.commands.push(["addSphere", r]);
+        }
+        else if(options.shape === "box") {
+          ent.commands.push(["addBox",
+            0.5 * width, 0.5 * height, 0.5 * depth,
+            0.5 * width, 0.5 * height, 0.5 * depth]);
+        }
       }
     }
   }

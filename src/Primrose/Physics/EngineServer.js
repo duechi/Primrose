@@ -2,6 +2,8 @@ import CANNON from "cannon";
 
 import { checkCommands } from "./Commands";
 
+const intermediateMeshes = {};
+
 export default class EngineServer {
   constructor() {
 
@@ -45,12 +47,12 @@ export default class EngineServer {
     return body;
   }
 
-  addBox(id, width, height, depth) {
+  addBox(id, width, height, depth, dx, dy, dz) {
     const body = this.getBody(id);
     if(body) {
-      body.addShape(
-      new CANNON.Box(
-        new CANNON.Vec3(width, height, depth)));
+      const box = new CANNON.Box(
+        new CANNON.Vec3(width, height, depth));
+      body.addShape(box, new CANNON.Vec3(dx, dy, dz));
     }
   }
 
@@ -71,11 +73,13 @@ export default class EngineServer {
   addSpring(id1, id2, restLength, stiffness, damping) {
     const body1 = this.getBody(id1),
       body2 = this.getBody(id2);
-    this.springs.push(new CANNON.Spring(body1, body2, {
-      restLength,
-      stiffness,
-      damping
-    }));
+    if(body1 && body2) {
+      this.springs.push(new CANNON.Spring(body1, body2, {
+        restLength,
+        stiffness,
+        damping
+      }));
+    }
   }
 
   disableAllowSleep() {
@@ -152,6 +156,41 @@ export default class EngineServer {
       body.quaternion.set(qx, qy, qz, qw);
       body.velocity.set(dx, dy, dz);
       body.angularVelocity.set(adx, ady, adz);
+    }
+  }
+
+  startMesh(id) {
+    const body = this.getBody(id);
+    if(body) {
+      intermediateMeshes[id] = {
+        vertices: [],
+        indices: []
+      };
+    }
+  }
+
+  addMeshVertex(id, x, y, z) {
+    const mesh = intermediateMeshes[id];
+    if(mesh) {
+      mesh.vertices.push(x, y, z);
+    }
+  }
+
+  addMeshTriangle(id, a, b, c) {
+    const mesh = intermediateMeshes[id];
+    if(mesh) {
+      mesh.vertices.push(a, b, c);
+    }
+  }
+
+  finishMesh(id) {
+    const body = this.getBody(id),
+      intermediateMesh = intermediateMeshes[id];
+
+    if(body && intermediateMesh) {
+      const mesh = new CANNON.Trimesh(intermediateMesh.vertices, intermediateMesh.indices);
+      body.addShape(mesh);
+      delete intermediateMeshes[id];
     }
   }
 }
