@@ -153,8 +153,6 @@ export default class Audio3D extends BasePlugin {
 
       if(!isNaN(mx + my + mz)) {
 
-        this.context.listener.setPosition(mx, my, mz);
-
         VECTOR.set(0, 0, -1)
           .applyMatrix4(m)
           .normalize();
@@ -162,7 +160,23 @@ export default class Audio3D extends BasePlugin {
           .applyMatrix4(m)
           .normalize();
 
-        this.context.listener.setOrientation(VECTOR.x, VECTOR.y, VECTOR.z, UP.x, UP.y, UP.z);
+        if(this.context.listener.positionX) {
+          this.context.listener.positionX.setValueAtTime(mx, 0);
+          this.context.listener.positionY.setValueAtTime(my, 0);
+          this.context.listener.positionZ.setValueAtTime(mz, 0);
+          this.context.listener.forwardX.setValueAtTime(VECTOR.x, 0);
+          this.context.listener.forwardY.setValueAtTime(VECTOR.y, 0);
+          this.context.listener.forwardZ.setValueAtTime(VECTOR.z, 0);
+          this.context.listener.upX.setValueAtTime(UP.x, 0);
+          this.context.listener.upY.setValueAtTime(UP.y, 0);
+          this.context.listener.upZ.setValueAtTime(UP.z, 0);
+        }
+        else {
+          this.context.listener.setPosition(mx, my, mz);
+          this.context.listener.setOrientation(
+            VECTOR.x, VECTOR.y, VECTOR.z,
+            UP.x, UP.y, UP.z);
+        }
       }
     }
   }
